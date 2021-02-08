@@ -27,17 +27,17 @@ doc2 = docx.Document(config.file2)  # линкуем второй файл из 
 # функция сравнения блоков текста paragraph
 def f_compare(p1, p2):
     # преобразовать каждый текст в массив предложений
-    sentences1 = nltk.sent_tokenize(p1)
-    sentences2 = nltk.sent_tokenize(p2)
+    sentences1 = nltk.sent_tokenize(p1)  # массив предложений 1
+    sentences2 = nltk.sent_tokenize(p2)  # массив предложений 2
     for sentence1 in sentences1:
         for sentence2 in sentences2:
             # print(sentence1)
             # print(sentence2)
-            if (sentence1 > sentence2):
-                print('Разница документа 1 ******* \n' + sentence2)
-                # break
-            elif (sentence2 > sentence1):
-                print('Разница документа 2 ******* \n' + sentence1)
+            if sentence1 > sentence2:
+                print('1 длинее *******\n' + sentence1)
+                break
+            elif sentence1 < sentence2:
+                print('2 длинее *******\n' + sentence2)
                 break
             else:
                 break
@@ -47,10 +47,9 @@ def f_compare(p1, p2):
 if __name__ == '__main__':
     # print_hi('PyCharm')  # тестирование работы функций
     # убрать пустые строки из файлов
-
     # выбрать какой длиннее
     # запустить цикл сравнения с наибольшей длиной
     i = 0
-    while i < len(doc1.paragraphs):
-        f_compare(doc1.paragraphs[i].text, doc2.paragraphs[i].text)
+    while i < len(doc2.paragraphs):  # почему то работаем с длиной одного документа а надо с двумя
+        f_compare(doc1.paragraphs[i].text, doc2.paragraphs[i].text)  # сравниваем по параграфам
         i = i + 1
