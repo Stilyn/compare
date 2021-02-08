@@ -19,17 +19,37 @@ doc2 = docx.Document(config.file2)  # линкуем второй файл из 
 # print(doc1.paragraphs[2].runs[0].text) # текст первого Run второго абзаца
 
 # просто так функция привет )))
-def print_hi(name):
+#def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+    # print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
 
 
-# функция сравнения блоков текста
-def f_compare(doc1, doc22):
-    print(doc1.paragraphs[0].text)
-
+# функция сравнения блоков текста paragraph
+def f_compare(p1, p2):
+    # преобразовать каждый текст в массив предложений
+    sentences1 = nltk.sent_tokenize(p1)
+    sentences2 = nltk.sent_tokenize(p2)
+    for sentence1 in sentences1:
+        for sentence2 in sentences2:
+            #print(sentence1)
+            #print(sentence2)
+            if (sentence1 != sentence2):
+                print('Разница документа 1 ******* \n' + sentence2)
+                break
+            elif (sentence2 != sentence1):
+                print('Разница документа 2 ******* \n' + sentence1)
+                break
+            else:
+                break
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi('PyCharm')  # тестирование работы функций
-    f_compare(doc1, doc2)
+    # print_hi('PyCharm')  # тестирование работы функций
+    # убрать пустые строки из файлов
+    # выбрать какой длиннее
+    # запустить цикл
+    i = 0
+    while i < len(doc1.paragraphs):
+        f_compare(doc1.paragraphs[i].text, doc2.paragraphs[i].text)
+        i = i + 1
+
