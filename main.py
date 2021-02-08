@@ -47,7 +47,7 @@ if __name__ == '__main__':
     # print_hi('PyCharm')  # тестирование работы функций
     # убрать пустые строки из файлов
     # выбрать какой длиннее
-    # запустить цикл
+    # запустить цикл сравнения с наибольшей длиной
     i = 0
     while i < len(doc1.paragraphs):
         f_compare(doc1.paragraphs[i].text, doc2.paragraphs[i].text)
