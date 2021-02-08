@@ -9,10 +9,6 @@ import config
 import docx  # библиотека работа в word
 import nltk  # библиотека разбора текста
 
-doc1 = docx.Document(config.file1)  # линкуем первый файл из конфигурационника
-doc2 = docx.Document(config.file2)  # линкуем второй файл из конфигурационника
-
-
 # print(len(doc1.paragraphs))  # количество абзацев в документе
 # print(doc1.paragraphs[0].text)  # текст первого абзаца в документе
 # print(doc1.paragraphs[1].text)  # текст второго абзаца в документе
@@ -33,11 +29,8 @@ def f_compare(p1, p2):
         for sentence2 in sentences2:
             # print(sentence1)
             # print(sentence2)
-            if sentence1 > sentence2:
-                print('1 длинее *******\n' + sentence1)
-                break
-            elif sentence1 < sentence2:
-                print('2 длинее *******\n' + sentence2)
+            if sentence1 != sentence2:
+                print(sentence1 + '\n' + sentence2 + '\n****')
                 break
             else:
                 break
@@ -46,10 +39,24 @@ def f_compare(p1, p2):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     # print_hi('PyCharm')  # тестирование работы функций
-    # убрать пустые строки из файлов
+
+    doc1 = docx.Document(config.file1)  # линкуем первый файл из конфигурационника
+    doc2 = docx.Document(config.file2)  # линкуем второй файл из конфигурационника
+
+# убрать пустые строки из файлов
+
+    # убрать точки и заменить на пробелы
+
     # выбрать какой длиннее
+    if len(doc1.paragraphs) > len(doc2.paragraphs):
+        ln = len(doc1.paragraphs)
+    else:
+        ln = len(doc2.paragraphs)
+    # print(ln)
     # запустить цикл сравнения с наибольшей длиной
     i = 0
-    while i < len(doc2.paragraphs):  # почему то работаем с длиной одного документа а надо с двумя
+    while i < ln:  #
         f_compare(doc1.paragraphs[i].text, doc2.paragraphs[i].text)  # сравниваем по параграфам
         i = i + 1
+        # doc1.add_paragraph('ass'); # добавляем новый параграф
+        # doc1.save('111.docx') # сохраняем файл
