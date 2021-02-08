@@ -19,9 +19,9 @@ doc2 = docx.Document(config.file2)  # линкуем второй файл из 
 # print(doc1.paragraphs[2].runs[0].text) # текст первого Run второго абзаца
 
 # просто так функция привет )))
-#def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    # print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+# def print_hi(name):
+# Use a breakpoint in the code line below to debug your script.
+# print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
 
 
 # функция сравнения блоков текста paragraph
@@ -31,8 +31,8 @@ def f_compare(p1, p2):
     sentences2 = nltk.sent_tokenize(p2)
     for sentence1 in sentences1:
         for sentence2 in sentences2:
-            #print(sentence1)
-            #print(sentence2)
+            # print(sentence1)
+            # print(sentence2)
             if (sentence1 > sentence2):
                 print('Разница документа 1 ******* \n' + sentence2)
                 # break
@@ -41,6 +41,7 @@ def f_compare(p1, p2):
                 break
             else:
                 break
+
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
@@ -53,4 +54,3 @@ if __name__ == '__main__':
     while i < len(doc1.paragraphs):
         f_compare(doc1.paragraphs[i].text, doc2.paragraphs[i].text)
         i = i + 1
-
