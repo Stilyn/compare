@@ -33,10 +33,10 @@ def f_compare(p1, p2):
         for sentence2 in sentences2:
             #print(sentence1)
             #print(sentence2)
-            if (sentence1 != sentence2):
+            if (sentence1 > sentence2):
                 print('Разница документа 1 ******* \n' + sentence2)
-                break
-            elif (sentence2 != sentence1):
+                # break
+            elif (sentence2 > sentence1):
                 print('Разница документа 2 ******* \n' + sentence1)
                 break
             else:
