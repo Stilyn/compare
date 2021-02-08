@@ -12,6 +12,7 @@ import nltk  # библиотека разбора текста
 doc1 = docx.Document(config.file1)  # линкуем первый файл из конфигурационника
 doc2 = docx.Document(config.file2)  # линкуем второй файл из конфигурационника
 
+
 # print(len(doc1.paragraphs))  # количество абзацев в документе
 # print(doc1.paragraphs[0].text)  # текст первого абзаца в документе
 # print(doc1.paragraphs[1].text)  # текст второго абзаца в документе
@@ -22,6 +23,13 @@ def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
     print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
 
+
+# функция сравнения блоков текста
+def f_compare(doc1, doc22):
+    print(doc1.paragraphs[0].text)
+
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     print_hi('PyCharm')  # тестирование работы функций
+    f_compare(doc1, doc2)
