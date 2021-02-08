@@ -30,7 +30,7 @@ def f_compare(p1, p2):
             # print(sentence1)
             # print(sentence2)
             if sentence1 != sentence2:
-                print(sentence1 + '\n' + sentence2 + '\n****')
+                print(sentence1 + '\n' + sentence2 + '\n\n')  # печатаем неравные предложения
                 break
             else:
                 break
@@ -43,7 +43,7 @@ if __name__ == '__main__':
     doc1 = docx.Document(config.file1)  # линкуем первый файл из конфигурационника
     doc2 = docx.Document(config.file2)  # линкуем второй файл из конфигурационника
 
-# убрать пустые строки из файлов
+    # убрать пустые строки из файлов
 
     # убрать точки и заменить на пробелы
 
@@ -53,6 +53,7 @@ if __name__ == '__main__':
     else:
         ln = len(doc2.paragraphs)
     # print(ln)
+
     # запустить цикл сравнения с наибольшей длиной
     i = 0
     while i < ln:  #
