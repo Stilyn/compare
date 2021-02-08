@@ -29,6 +29,8 @@ def f_compare(p1, p2):
         for sentence2 in sentences2:
             # print(sentence1)
             # print(sentence2)
+            # дальше сравниваем каждый с каждым
+            # НИЖЕ НАПИСАНА ПОЛНАЯ ХУЙНЯ
             if sentence1 != sentence2:
                 print(sentence1 + '\n' + sentence2 + '\n\n')  # печатаем неравные предложения
                 break
@@ -58,6 +60,7 @@ if __name__ == '__main__':
     i = 0
     while i < ln:  #
         f_compare(doc1.paragraphs[i].text, doc2.paragraphs[i].text)  # сравниваем по параграфам
+        # а если добавили лишний раздел????????
         i = i + 1
         # doc1.add_paragraph('ass'); # добавляем новый параграф
         # doc1.save('111.docx') # сохраняем файл
