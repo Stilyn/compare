@@ -25,6 +25,7 @@ def f_compare(p1, p2):
     # преобразовать каждый текст в массив предложений
     sentences1 = nltk.sent_tokenize(p1)  # массив предложений 1
     sentences2 = nltk.sent_tokenize(p2)  # массив предложений 2
+    print(list(set(sentences2)-set(sentences1)))
 
 
 
