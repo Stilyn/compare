@@ -25,17 +25,7 @@ def f_compare(p1, p2):
     # преобразовать каждый текст в массив предложений
     sentences1 = nltk.sent_tokenize(p1)  # массив предложений 1
     sentences2 = nltk.sent_tokenize(p2)  # массив предложений 2
-    for sentence1 in sentences1:
-        for sentence2 in sentences2:
-            # print(sentence1)
-            # print(sentence2)
-            # дальше сравниваем каждый с каждым
-            # НИЖЕ НАПИСАНА ПОЛНАЯ ХУЙНЯ
-            if sentence1 != sentence2:
-                print(sentence1 + '\n' + sentence2 + '\n\n')  # печатаем неравные предложения
-                break
-            else:
-                break
+
 
 
 # Press the green button in the gutter to run the script.
