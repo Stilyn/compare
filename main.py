@@ -25,7 +25,7 @@ def f_compare(p1, p2):
     # преобразовать каждый текст в массив предложений
     sentences1 = nltk.sent_tokenize(p1)  # массив предложений 1
     sentences2 = nltk.sent_tokenize(p2)  # массив предложений 2
-    print(list(set(sentences2)-set(sentences1)))
+    print(list(set(sentences1)-set(sentences2)))
 
 
 
@@ -40,17 +40,21 @@ if __name__ == '__main__':
 
     # убрать точки и заменить на пробелы
 
-    # выбрать какой длиннее
+    # выбрать какой длиннее чтобы потом всегда из большего вычитать меньшее
     if len(doc1.paragraphs) > len(doc2.paragraphs):
         ln = len(doc1.paragraphs)
+        d1 = doc1.paragraphs
+        d2 = doc2.paragraphs
     else:
         ln = len(doc2.paragraphs)
+        d1 = doc2.paragraphs
+        d2 = doc1.paragraphs
     # print(ln)
 
     # запустить цикл сравнения с наибольшей длиной
     i = 0
     while i < ln:  #
-        f_compare(doc1.paragraphs[i].text, doc2.paragraphs[i].text)  # сравниваем по параграфам
+        f_compare(d1[i].text, d2[i].text)  # сравниваем по параграфам
         # а если добавили лишний раздел????????
         i = i + 1
         # doc1.add_paragraph('ass'); # добавляем новый параграф
