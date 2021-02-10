@@ -23,11 +23,17 @@ import nltk  # библиотека разбора текста
 # функция сравнения блоков текста paragraph
 def f_compare(p1, p2):
     # преобразовать каждый текст в массив предложений
-    sentences1 = nltk.sent_tokenize(p1)  # массив предложений 1
-    sentences2 = nltk.sent_tokenize(p2)  # массив предложений 2
-    print(list(set(sentences1)-set(sentences2)))
-
-
+    # print(len(p1), len(p2))
+    if len(p1) >= len(p2):  # это чтобы из большего текста всегда вычитать меньший
+        sentences1 = nltk.sent_tokenize(p1)  # массив предложений 1
+        sentences2 = nltk.sent_tokenize(p2)  # массив предложений 2
+    else:
+        sentences1 = nltk.sent_tokenize(p2)  # массив предложений 2
+        sentences2 = nltk.sent_tokenize(p1)  # массив предложений 1
+    res = list(set(sentences1)-set(sentences2))
+    if len(res) > 0:
+        # лучше не просто печатать а накапливать в массив
+        print(res)
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
@@ -41,7 +47,7 @@ if __name__ == '__main__':
     # убрать точки и заменить на пробелы
 
     # выбрать какой длиннее чтобы потом всегда из большего вычитать меньшее
-    if len(doc1.paragraphs) > len(doc2.paragraphs):
+    if len(doc1.paragraphs) >= len(doc2.paragraphs):
         ln = len(doc1.paragraphs)
         d1 = doc1.paragraphs
         d2 = doc2.paragraphs
@@ -49,13 +55,11 @@ if __name__ == '__main__':
         ln = len(doc2.paragraphs)
         d1 = doc2.paragraphs
         d2 = doc1.paragraphs
-    # print(ln)
 
     # запустить цикл сравнения с наибольшей длиной
-    i = 0
-    while i < ln:  #
+    print(ln)
+    for i in range(ln):  #
         f_compare(d1[i].text, d2[i].text)  # сравниваем по параграфам
-        # а если добавили лишний раздел????????
-        i = i + 1
+        # а если добавили лишний раздел в какой то из документов, то все равно из большего вычитаем меньшее
         # doc1.add_paragraph('ass'); # добавляем новый параграф
         # doc1.save('111.docx') # сохраняем файл
