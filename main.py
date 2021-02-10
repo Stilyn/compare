@@ -9,6 +9,7 @@ import config
 import docx  # библиотека работа в word
 import nltk  # библиотека разбора текста
 
+
 # print(len(doc1.paragraphs))  # количество абзацев в документе
 # print(doc1.paragraphs[0].text)  # текст первого абзаца в документе
 # print(doc1.paragraphs[1].text)  # текст второго абзаца в документе
@@ -18,6 +19,12 @@ import nltk  # библиотека разбора текста
 # def print_hi(name):
 # Use a breakpoint in the code line below to debug your script.
 # print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+
+# функция удаление пустых строк из документа
+def delete_paragraph(paragraph):
+    p = paragraph._element
+    p.getparent().remove(p)
+    p._p = p._element = None
 
 
 # функция сравнения блоков текста paragraph
@@ -30,23 +37,26 @@ def f_compare(p1, p2):
     else:
         sentences1 = nltk.sent_tokenize(p2)  # массив предложений 2
         sentences2 = nltk.sent_tokenize(p1)  # массив предложений 1
-    res = list(set(sentences1)-set(sentences2))
+    res = list(set(sentences1) - set(sentences2))
     if len(res) > 0:
         # лучше не просто печатать а накапливать в массив
         print(res)
+
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     # print_hi('PyCharm')  # тестирование работы функций
 
-    doc1 = docx.Document(config.file1)  # линкуем первый файл из конфигурационника
-    doc2 = docx.Document(config.file2)  # линкуем второй файл из конфигурационника
 
     # убрать пустые строки из файлов
 
-    # убрать точки и заменить на пробелы
+    doc1 = docx.Document(config.file1)  # линкуем первый файл как docx из конфигурационника
+    doc2 = docx.Document(config.file2)  # линкуем второй файл как docx из конфигурационника
 
-    # выбрать какой длиннее чтобы потом всегда из большего вычитать меньшее
+    '''
+    выбрать какой длиннее чтобы потом всегда из большего вычитать меньшее
+    если больше или равно, то первый иначе второй
+    '''
     if len(doc1.paragraphs) >= len(doc2.paragraphs):
         ln = len(doc1.paragraphs)
         d1 = doc1.paragraphs
@@ -57,9 +67,9 @@ if __name__ == '__main__':
         d2 = doc1.paragraphs
 
     # запустить цикл сравнения с наибольшей длиной
-    print(ln)
+    print(ln)  # количество абзацев в самом длинном документе
     for i in range(ln):
         f_compare(d1[i].text, d2[i].text)  # сравниваем по параграфам
-        # а если добавили лишний раздел в какой то из документов, то все равно из большего вычитаем меньшее
-        # doc1.add_paragraph('ass'); # добавляем новый параграф
-        # doc1.save('111.docx') # сохраняем файл
+            # а если добавили лишний раздел в какой то из документов, то все равно из большего вычитаем меньшее
+            # doc1.add_paragraph('ass'); # добавляем новый параграф
+            # doc1.save('111.docx') # сохраняем файл
