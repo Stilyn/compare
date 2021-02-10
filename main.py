@@ -20,12 +20,18 @@ import nltk  # библиотека разбора текста
 # Use a breakpoint in the code line below to debug your script.
 # print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
 
-# функция удаление пустых строк из документа
+# функция удаление параграфа из документа
 def delete_paragraph(paragraph):
     p = paragraph._element
     p.getparent().remove(p)
     p._p = p._element = None
 
+# функция удаление пустых строк из документа
+def strip_file(file, file_new):
+    for paragraphs in file.paragraphs:
+        if len(paragraphs.text) == 0:
+            delete_paragraph(paragraphs)
+    file.save(file_new)
 
 # функция сравнения блоков текста paragraph
 def f_compare(p1, p2):
@@ -47,11 +53,12 @@ def f_compare(p1, p2):
 if __name__ == '__main__':
     # print_hi('PyCharm')  # тестирование работы функций
 
-
-    # убрать пустые строки из файлов
-
     doc1 = docx.Document(config.file1)  # линкуем первый файл как docx из конфигурационника
     doc2 = docx.Document(config.file2)  # линкуем второй файл как docx из конфигурационника
+
+    # убрать пустые строки из файлов
+    strip_file(doc1,'111.docx')
+    strip_file(doc2, '222.docx')
 
     '''
     выбрать какой длиннее чтобы потом всегда из большего вычитать меньшее
@@ -70,6 +77,6 @@ if __name__ == '__main__':
     print(ln)  # количество абзацев в самом длинном документе
     for i in range(ln):
         f_compare(d1[i].text, d2[i].text)  # сравниваем по параграфам
-            # а если добавили лишний раздел в какой то из документов, то все равно из большего вычитаем меньшее
-            # doc1.add_paragraph('ass'); # добавляем новый параграф
-            # doc1.save('111.docx') # сохраняем файл
+        # а если добавили лишний раздел в какой то из документов, то все равно из большего вычитаем меньшее
+        # doc1.add_paragraph('ass'); # добавляем новый параграф
+        # doc1.save('111.docx') # сохраняем файл
