@@ -57,6 +57,7 @@ def f_compare(p1, p2):
     if len(res) > 0:
         # лучше не просто печатать а накапливать в массив
         print(res)
+        print('Всего отличий  ' + str(len(res)))
 
 
 # Press the green button in the gutter to run the script.
