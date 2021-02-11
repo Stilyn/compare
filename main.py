@@ -36,10 +36,10 @@ def strip_file(file, file_new):
 
 
 # функция добавления пустых абзацев в документ
-def add_par(document, par_count):
-    for f in range(par_count - 1):
+def add_par(document, par_count, new_name):
+    for f in range(par_count):
         document.add_paragraph('   ')
-        document.save('555.docx')  # подумать как назвать файл
+        document.save(new_name)  # подумать как назвать файл
 
 
 # функция сравнения блоков текста paragraph
@@ -78,19 +78,21 @@ if __name__ == '__main__':
     если больше или равно, то первый иначе второй
     '''
     if len(doc1.paragraphs) >= len(doc2.paragraphs):
+        # уравнять количество параграфов путем добавления пустых параграфов в нужный жокумент
+        add_par(doc2, (len(doc1.paragraphs) - len(doc2.paragraphs)),'222.docx')
         ln = len(doc1.paragraphs)
         d1 = doc1.paragraphs
         d2 = doc2.paragraphs
-        # уравнять количество параграфов путем добавления пустых параграфов в нужный жокумент
-        add_par(doc2, (len(doc1.paragraphs) - len(doc2.paragraphs)))
     else:
+        # уравнять количество параграфов путем добавления пустых параграфов в нужный жокумент
+        add_par(doc1, (len(doc2.paragraphs) - len(doc1.paragraphs)), '111.docx')
         ln = len(doc2.paragraphs)
         d1 = doc2.paragraphs
         d2 = doc1.paragraphs
-        # уравнять количество параграфов путем добавления пустых параграфов в нужный жокумент
-        add_par(doc1, (len(doc2.paragraphs) - len(doc1.paragraphs)))
-    # запустить цикл сравнения с наибольшей длиной
+
+    # print(len(doc1.paragraphs))
+    # print(len(doc2.paragraphs))
     # print(ln)  # количество абзацев в самом длинном документе
 
-    for i in range(ln):
+    for i in range(ln-2):
         f_compare(d1[i].text, d2[i].text)  # сравниваем по параграфам
