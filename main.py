@@ -8,6 +8,7 @@
 import config
 import docx  # библиотека работа в word
 import nltk  # библиотека разбора текста
+import string
 
 
 # print(len(doc1.paragraphs))  # количество абзацев в документе
@@ -104,9 +105,14 @@ if __name__ == '__main__':
         diff = f_compare(doc1.paragraphs[i].text, doc2.paragraphs[i].text)  # сравниваем по параграфам с добавлением признака документа
         # теперь найти в каком файле эта фраза и подсветить ее
         if len(diff) > 0:
-            print(len(diff),diff)
+            print(len(diff), diff)
             # ищем соответствие в параграфе в обоих документах и раскрашиваем тот где найдем
             # для этого надо новую функцию написать
+            for g in range(len(diff)):
+                if diff[g].strip() in doc1.paragraphs[i].text:
+                    print('есть в первом раскрашиваем первый')
+                if diff[g].strip() in doc2.paragraphs[i].text:
+                    print('есть во втором раскрашиваем второй')
 
 
 
