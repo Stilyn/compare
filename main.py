@@ -20,6 +20,12 @@ import nltk  # библиотека разбора текста
 # Use a breakpoint in the code line below to debug your script.
 # print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
 
+# функция переименования файлов для формирования временных
+def file_rename(file_name):
+    n = file_name.split('.')[0] + '_vs' + '.docx'
+    return str(n)
+
+
 # функция удаление параграфа из документа
 def delete_paragraph(paragraph):
     p = paragraph._element
@@ -47,17 +53,18 @@ def f_compare(p1, p2):
     # преобразовать каждый текст в массив предложений
     # print(len(p1), len(p2))
     if len(p1) >= len(p2):  # это чтобы из большего текста всегда вычитать меньший
-        sentences1 = nltk.sent_tokenize(p1)  # массив предложений 1
-        sentences2 = nltk.sent_tokenize(p2)  # массив предложений 2
+        sentences1 = nltk.sent_tokenize(p1, language='russian')  # массив предложений 1
+        sentences2 = nltk.sent_tokenize(p2, language='russian')  # массив предложений 2
     else:
-        sentences1 = nltk.sent_tokenize(p2)  # массив предложений 2
-        sentences2 = nltk.sent_tokenize(p1)  # массив предложений 1
+        sentences1 = nltk.sent_tokenize(p2, language='russian')  # массив предложений 2
+        sentences2 = nltk.sent_tokenize(p1, language='russian')  # массив предложений 1
     # print(sentences1,sentences2)
+    # сюда вставить дополнение признака в каком документе
+
     res = list(set(sentences1) - set(sentences2))
     if len(res) > 0:
         # лучше не просто печатать а накапливать в массив
         print(res)
-        print('Всего отличий  ' + str(len(res)))
 
 
 # Press the green button in the gutter to run the script.
@@ -68,11 +75,15 @@ if __name__ == '__main__':
     doc2 = docx.Document(config.file2)  # линкуем второй файл как docx из конфигурационника
 
     # убрать пустые строки из файлов - это будут выровненные файлы для сравнения
-    strip_file(doc1, '111.docx')  # убираем из файлов лишние строки и сохраняем под другими именами
-    strip_file(doc2, '222.docx')  # убираем из файлов лишние строки и сохраняем под другими именами
+    strip_file(doc1, file_rename(config.file1))  # убираем из файлов лишние строки и сохраняем под другими именами
+    strip_file(doc2, file_rename(config.file2))  # убираем из файлов лишние строки и сохраняем под другими именами
 
-    doc1 = docx.Document('111.docx')  # загружаем очищенные документы
-    doc2 = docx.Document('222.docx')
+    '''
+    загружаем очищенные документы
+    придумать как правильно именовать файлы чтобы были по имени похожи на исходные
+    '''
+    doc1 = docx.Document(file_rename(config.file1))
+    doc2 = docx.Document(file_rename(config.file2))
 
     '''
     выбрать какой из подрезанных длиннее чтобы потом всегда из большего вычитать меньшее
@@ -80,13 +91,13 @@ if __name__ == '__main__':
     '''
     if len(doc1.paragraphs) >= len(doc2.paragraphs):
         # уравнять количество параграфов путем добавления пустых параграфов в нужный жокумент
-        add_par(doc2, (len(doc1.paragraphs) - len(doc2.paragraphs)),'222.docx')
+        add_par(doc2, (len(doc1.paragraphs) - len(doc2.paragraphs)), file_rename(config.file2))
         ln = len(doc1.paragraphs)
         d1 = doc1.paragraphs
         d2 = doc2.paragraphs
     else:
         # уравнять количество параграфов путем добавления пустых параграфов в нужный жокумент
-        add_par(doc1, (len(doc2.paragraphs) - len(doc1.paragraphs)), '111.docx')
+        add_par(doc1, (len(doc2.paragraphs) - len(doc1.paragraphs)), file_rename(config.file1))
         ln = len(doc2.paragraphs)
         d1 = doc2.paragraphs
         d2 = doc1.paragraphs
@@ -95,5 +106,5 @@ if __name__ == '__main__':
     # print(len(doc2.paragraphs))
     # print(ln)  # количество абзацев в самом длинном документе
 
-    for i in range(ln-2):
+    for i in range(ln):
         f_compare(d1[i].text, d2[i].text)  # сравниваем по параграфам
