@@ -52,6 +52,7 @@ def add_par(document, par_count, new_name):
 def f_compare(p1, p2):
     # преобразовать каждый текст в массив предложений
     # print(len(p1), len(p2))
+    '''
     if len(p1) >= len(p2):  # это чтобы из большего текста всегда вычитать меньший
         sentences1 = nltk.sent_tokenize(p1, language='russian')  # массив предложений 1
         sentences2 = nltk.sent_tokenize(p2, language='russian')  # массив предложений 2
@@ -59,12 +60,14 @@ def f_compare(p1, p2):
         sentences1 = nltk.sent_tokenize(p2, language='russian')  # массив предложений 2
         sentences2 = nltk.sent_tokenize(p1, language='russian')  # массив предложений 1
     # print(sentences1,sentences2)
+    '''
     # сюда вставить дополнение признака в каком документе
-
-    res = list(set(sentences1) - set(sentences2))
+    sentences1 = nltk.sent_tokenize(p1, language='russian')  # массив предложений 1
+    sentences2 = nltk.sent_tokenize(p2, language='russian')  # массив предложений 2
+    res = list(set(sentences1) - set(sentences2))  # результат сравнения - список предложений
     if len(res) > 0:
         # лучше не просто печатать а накапливать в массив
-        print(res)
+        print(res)  # set убивает повторяющиеся значения если вдруг они встречаются
 
 
 # Press the green button in the gutter to run the script.
@@ -81,6 +84,9 @@ if __name__ == '__main__':
     '''
     загружаем очищенные документы
     придумать как правильно именовать файлы чтобы были по имени похожи на исходные
+    
+    file_rename(config.file1) это имя переименованного файла 1
+    file_rename(config.file2) это имя переименованного файла 2
     '''
     doc1 = docx.Document(file_rename(config.file1))
     doc2 = docx.Document(file_rename(config.file2))
@@ -93,18 +99,18 @@ if __name__ == '__main__':
         # уравнять количество параграфов путем добавления пустых параграфов в нужный жокумент
         add_par(doc2, (len(doc1.paragraphs) - len(doc2.paragraphs)), file_rename(config.file2))
         ln = len(doc1.paragraphs)
-        d1 = doc1.paragraphs
-        d2 = doc2.paragraphs
     else:
         # уравнять количество параграфов путем добавления пустых параграфов в нужный жокумент
         add_par(doc1, (len(doc2.paragraphs) - len(doc1.paragraphs)), file_rename(config.file1))
         ln = len(doc2.paragraphs)
-        d1 = doc2.paragraphs
-        d2 = doc1.paragraphs
-
-    # print(len(doc1.paragraphs))
-    # print(len(doc2.paragraphs))
     # print(ln)  # количество абзацев в самом длинном документе
 
     for i in range(ln):
-        f_compare(d1[i].text, d2[i].text)  # сравниваем по параграфам
+        '''
+        сравниваем тудасюда если вдруг будет вычитание из меньшего массива больший
+        и результат будет пустой тогдв надо в обратку чтоб от большего меньший
+        '''
+        f_compare(doc1.paragraphs[i].text, doc2.paragraphs[i].text)  # сравниваем по параграфам c
+        f_compare(doc2.paragraphs[i].text, doc1.paragraphs[i].text)  # сравниваем по параграфам
+        # теперь надо раскрасить оба файла там где они отличаются друг от друга
+
