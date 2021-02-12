@@ -69,6 +69,7 @@ def f_compare(p1, p2):
     if len(res) > 0:
         # лучше не просто печатать а накапливать в массив
         print(res)  # сделать не просто вывод а массивом
+    # вставить return чтобы работать с результатами как с переменной
 
 
 # Press the green button in the gutter to run the script.
