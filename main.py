@@ -92,10 +92,11 @@ if __name__ == '__main__':
     if len(doc1.paragraphs) >= len(doc2.paragraphs):
         # уравнять количество параграфов путем добавления пустых параграфов в нужный жокумент
         add_par(doc2, (len(doc1.paragraphs) - len(doc2.paragraphs)), file_rename(config.file2))
+        ln = len(doc1.paragraphs)
     else:
         # уравнять количество параграфов путем добавления пустых параграфов в нужный жокумент
         add_par(doc1, (len(doc2.paragraphs) - len(doc1.paragraphs)), file_rename(config.file1))
-    ln = len(doc1.paragraphs)
+        ln = len(doc2.paragraphs)
     # print(ln)  # количество абзацев в самом длинном документе
 
     for i in range(ln):
@@ -107,7 +108,7 @@ if __name__ == '__main__':
         diff = f_compare(doc1.paragraphs[i].text, doc2.paragraphs[i].text)  # сравниваем по параграфам с добавлением признака документа
         # теперь найти в каком файле эта фраза и подсветить ее
         if len(diff) > 0:
-            #print(len(diff), diff)
+            # print(len(diff), diff)
             print(diff)
             # ищем соответствие в параграфе в обоих документах и раскрашиваем тот где найдем
             # для этого надо новую функцию написать
