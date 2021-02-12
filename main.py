@@ -49,8 +49,9 @@ def add_par(document, par_count, new_name):
 
 
 # функция сравнения блоков текста paragraph
-def f_compare(p1, p2):
-    # преобразовать каждый текст в массив предложений
+def f_compare(p1, p2, ind):
+    # преобразовать каждый текст в список предложений
+    # ind - признак документа
     # print(len(p1), len(p2))
     '''
     if len(p1) >= len(p2):  # это чтобы из большего текста всегда вычитать меньший
@@ -67,7 +68,7 @@ def f_compare(p1, p2):
     res = list(set(sentences1) - set(sentences2))  # результат сравнения - список предложений
     if len(res) > 0:
         # лучше не просто печатать а накапливать в массив
-        print(res)  # set убивает повторяющиеся значения если вдруг они встречаются
+        print(ind, res)  # сделать не просто вывод а массивом
 
 
 # Press the green button in the gutter to run the script.
@@ -110,7 +111,7 @@ if __name__ == '__main__':
         сравниваем тудасюда если вдруг будет вычитание из меньшего массива больший
         и результат будет пустой тогдв надо в обратку чтоб от большего меньший
         '''
-        f_compare(doc1.paragraphs[i].text, doc2.paragraphs[i].text)  # сравниваем по параграфам c
-        f_compare(doc2.paragraphs[i].text, doc1.paragraphs[i].text)  # сравниваем по параграфам
+        f_compare(doc1.paragraphs[i].text, doc2.paragraphs[i].text, file_rename(config.file1))  # сравниваем по параграфам с добавлением признака документа
+        # f_compare(doc2.paragraphs[i].text, doc1.paragraphs[i].text, file_rename(config.file2))  # сравниваем по параграфам с добавлением признака документа
         # теперь надо раскрасить оба файла там где они отличаются друг от друга
 
