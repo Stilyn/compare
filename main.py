@@ -8,6 +8,7 @@
 import config
 import docx  # библиотека работа в word
 import nltk  # библиотека разбора текста
+from termcolor import colored
 
 
 # print(len(doc1.paragraphs))  # количество абзацев в документе
@@ -53,22 +54,15 @@ def f_compare(p1, p2):
     # преобразовать каждый текст в список предложений
     # ind - признак документа
     # print(len(p1), len(p2))
-    '''
-    if len(p1) >= len(p2):  # это чтобы из большего текста всегда вычитать меньший
-        sentences1 = nltk.sent_tokenize(p1, language='russian')  # массив предложений 1
-        sentences2 = nltk.sent_tokenize(p2, language='russian')  # массив предложений 2
-    else:
-        sentences1 = nltk.sent_tokenize(p2, language='russian')  # массив предложений 2
-        sentences2 = nltk.sent_tokenize(p1, language='russian')  # массив предложений 1
-    # print(sentences1,sentences2)
-    '''
+
     # сюда вставить дополнение признака в каком документе
     sentences1 = nltk.sent_tokenize(p1, language='russian')  # массив предложений 1
     sentences2 = nltk.sent_tokenize(p2, language='russian')  # массив предложений 2
     res = list(set(sentences1) ^ set(sentences2))  # результат сравнения - список предложений - ^ - симметричная разность - чего нет хотя бы в одном документе
-    if len(res) > 0:
+    #if len(res) > 0:
         # лучше не просто печатать а накапливать в массив
-        print(res)  # сделать не просто вывод а массивом
+        # print(res)  # сделать не просто вывод а массивом
+    return set(res)
     # вставить return чтобы работать с результатами как с переменной
 
 
@@ -113,6 +107,10 @@ if __name__ == '__main__':
         и результат будет пустой тогдв надо в обратку чтоб от большего меньший
         поэтому в функции используем симметничную разность ^
         '''
-        f_compare(doc1.paragraphs[i].text, doc2.paragraphs[i].text)  # сравниваем по параграфам с добавлением признака документа
+        diff = f_compare(doc1.paragraphs[i].text, doc2.paragraphs[i].text)  # сравниваем по параграфам с добавлением признака документа
         # теперь найти в каком файле эта фраза и подсветить ее
-        # теперь надо раскрасить оба файла там где они отличаются друг от друга
+        if len(diff) > 0:
+            print(diff)
+
+
+
