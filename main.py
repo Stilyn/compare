@@ -65,7 +65,7 @@ def f_compare(p1, p2):
     # сюда вставить дополнение признака в каком документе
     sentences1 = nltk.sent_tokenize(p1, language='russian')  # массив предложений 1
     sentences2 = nltk.sent_tokenize(p2, language='russian')  # массив предложений 2
-    res = list(set(sentences1) ^ set(sentences2))  # результат сравнения - список предложений - ^ - симметричная разность -
+    res = list(set(sentences1) ^ set(sentences2))  # результат сравнения - список предложений - ^ - симметричная разность - чего нет хотя бы в одном документе
     if len(res) > 0:
         # лучше не просто печатать а накапливать в массив
         print(res)  # сделать не просто вывод а массивом
