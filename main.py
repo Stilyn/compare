@@ -8,7 +8,6 @@
 import config
 import docx  # библиотека работа в word
 import nltk  # библиотека разбора текста
-from termcolor import colored
 
 
 # print(len(doc1.paragraphs))  # количество абзацев в документе
