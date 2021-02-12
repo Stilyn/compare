@@ -106,13 +106,18 @@ if __name__ == '__main__':
         # теперь найти в каком файле эта фраза и подсветить ее
         if len(diff) > 0:
             print(len(diff), diff)
+            # print(diff)
             # ищем соответствие в параграфе в обоих документах и раскрашиваем тот где найдем
             # для этого надо новую функцию написать
             for g in range(len(diff)):
-                if diff[g].strip() in doc1.paragraphs[i].text:
+                if diff[g].strip() in doc1.paragraphs[i].text.strip():  # strip для удаления пробелов в начале и коце строки
                     print('есть в первом раскрашиваем первый')
-                if diff[g].strip() in doc2.paragraphs[i].text:
+                    index1 = doc1.paragraphs[i].text.find(diff[g].strip())
+                    print(index1)
+                if diff[g].strip() in doc2.paragraphs[i].text.strip():
                     print('есть во втором раскрашиваем второй')
+                    index2 = doc2.paragraphs[i].text.find(diff[g].strip())
+                    print(index2)
 
 
 
