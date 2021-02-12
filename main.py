@@ -9,6 +9,7 @@ import config
 import docx  # библиотека работа в word
 from docx import Document
 from docx.shared import RGBColor
+from docx.enum.text import WD_COLOR
 import nltk  # библиотека разбора текста
 import string
 
@@ -62,7 +63,10 @@ def f_compare(p1, p2):
     # print(len(p1), len(p2))
     sentences1 = nltk.sent_tokenize(p1)  # массив предложений 1 убираем точнки из них
     sentences2 = nltk.sent_tokenize(p2)  # массив предложений 2 убираем точки из них
-    res = list(set(sentences1) ^ set(sentences2))  # результат сравнения - список предложений - ^ - симметричная разность - чего нет хотя бы в одном документе
+    if len(sentences1) >= len(sentences2):
+        res = list(set(sentences1) ^ set(sentences2))  # результат сравнения - список предложений - ^ - симметричная разность - чего нет хотя бы в одном документе
+    else:
+        res = list(set(sentences2) ^ set(sentences1))
     return res  # вставить return чтобы работать с результатами как с переменной
 
 
@@ -114,12 +118,14 @@ if __name__ == '__main__':
             # для этого надо новую функцию написать
             for g in range(len(diff)):
                 if diff[g].strip() in doc1.paragraphs[i].text.strip():  # strip для удаления пробелов в начале и коце строки
-                    for s in range(len(doc1.paragraphs[i].runs)):
-                        doc1.paragraphs[i].runs[s].font.color.rgb = RGBColor(0xff, 0x00, 0x00) # после нуля просто цвет html
+                    for s in range(len(doc1.paragraphs[i].runs)): # раскрашиваем весь параграф, а это неправильно
+                        # doc1.paragraphs[i].runs[s].font.color.rgb = RGBColor(0xff, 0x00, 0x00) # красный текст после нуля просто цвет html
+                        # doc1.paragraphs[i].runs[s].font.bold = True # жирный шрифт
+                        doc1.paragraphs[i].style.font.highlight_color = WD_COLOR.YELLOW  # цвет выделения желтый
                         doc1.save(file_rename(config.file1))
                 if diff[g].strip() in doc2.paragraphs[i].text.strip():  # strip для удаления пробелов в начале и коце строки
                     for s in range(len(doc2.paragraphs[i].runs)):
-                        doc2.paragraphs[i].runs[s].font.color.rgb = RGBColor(0xff, 0x00, 0x00) # после нуля просто цвет html
+                        doc2.paragraphs[i].style.font.highlight_color = WD_COLOR.YELLOW  # цвет выделения желтый
                         doc2.save(file_rename(config.file2))
 
 
