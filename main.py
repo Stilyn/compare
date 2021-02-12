@@ -58,8 +58,8 @@ def f_compare(p1, p2):
     # print(len(p1), len(p2))
 
     # сюда вставить дополнение признака в каком документе
-    sentences1 = nltk.sent_tokenize(p1, language='russian')  # массив предложений 1
-    sentences2 = nltk.sent_tokenize(p2, language='russian')  # массив предложений 2
+    sentences1 = nltk.sent_tokenize(str.replace(p1, '.', ' '))  # массив предложений 1 убираем точнки из них
+    sentences2 = nltk.sent_tokenize(str.replace(p2, '.', ' '))  # массив предложений 2 убираем точки из них
     res = list(set(sentences1) ^ set(sentences2))  # результат сравнения - список предложений - ^ - симметричная разность - чего нет хотя бы в одном документе
     return res  # вставить return чтобы работать с результатами как с переменной
 
@@ -107,20 +107,18 @@ if __name__ == '__main__':
         # теперь найти в каком файле эта фраза и подсветить ее
         if len(diff) > 0:
             #print(len(diff), diff)
-            # print(diff)
-
+            print(set(diff))
             # ищем соответствие в параграфе в обоих документах и раскрашиваем тот где найдем
             # для этого надо новую функцию написать
             for g in range(len(diff)):
-                #  if diff[g].strip() in doc1.paragraphs[i].text.strip():  # strip для удаления пробелов в начале и коце строки
-                #    print('есть в первом раскрашиваем первый')
-                index1 = doc1.paragraphs[i].text.find(diff[g].strip()) # найти индекс вхождения
-                print(index1)
-                if index1 != -1:  # если вхождение в документ есть
+                if diff[g].strip() in doc1.paragraphs[i].text.strip():  # strip для удаления пробелов в начале и коце строки
                     for s in range(len(doc1.paragraphs[i].runs)):
                         doc1.paragraphs[i].runs[s].font.color.rgb = RGBColor(0xff, 0x00, 0x00) # после нуля просто цвет html
                         doc1.save(file_rename(config.file1))
-                index2 = doc2.paragraphs[i].text.find(diff[g].strip())
+                if diff[g].strip() in doc2.paragraphs[i].text.strip():  # strip для удаления пробелов в начале и коце строки
+                    for s in range(len(doc2.paragraphs[i].runs)):
+                        doc2.paragraphs[i].runs[s].font.color.rgb = RGBColor(0xff, 0x00, 0x00) # после нуля просто цвет html
+                        doc2.save(file_rename(config.file2))
 
 
 
