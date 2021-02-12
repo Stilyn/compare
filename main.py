@@ -7,6 +7,8 @@
 
 import config
 import docx  # библиотека работа в word
+from docx import Document
+from docx.shared import RGBColor
 import nltk  # библиотека разбора текста
 import string
 
@@ -59,8 +61,7 @@ def f_compare(p1, p2):
     sentences1 = nltk.sent_tokenize(p1, language='russian')  # массив предложений 1
     sentences2 = nltk.sent_tokenize(p2, language='russian')  # массив предложений 2
     res = list(set(sentences1) ^ set(sentences2))  # результат сравнения - список предложений - ^ - симметричная разность - чего нет хотя бы в одном документе
-    return res
-    # вставить return чтобы работать с результатами как с переменной
+    return res  # вставить return чтобы работать с результатами как с переменной
 
 
 # Press the green button in the gutter to run the script.
@@ -105,19 +106,21 @@ if __name__ == '__main__':
         diff = f_compare(doc1.paragraphs[i].text, doc2.paragraphs[i].text)  # сравниваем по параграфам с добавлением признака документа
         # теперь найти в каком файле эта фраза и подсветить ее
         if len(diff) > 0:
-            print(len(diff), diff)
+            #print(len(diff), diff)
             # print(diff)
+
             # ищем соответствие в параграфе в обоих документах и раскрашиваем тот где найдем
             # для этого надо новую функцию написать
             for g in range(len(diff)):
-                if diff[g].strip() in doc1.paragraphs[i].text.strip():  # strip для удаления пробелов в начале и коце строки
-                    print('есть в первом раскрашиваем первый')
-                    index1 = doc1.paragraphs[i].text.find(diff[g].strip())
-                    print(index1)
-                if diff[g].strip() in doc2.paragraphs[i].text.strip():
-                    print('есть во втором раскрашиваем второй')
-                    index2 = doc2.paragraphs[i].text.find(diff[g].strip())
-                    print(index2)
+                #  if diff[g].strip() in doc1.paragraphs[i].text.strip():  # strip для удаления пробелов в начале и коце строки
+                #    print('есть в первом раскрашиваем первый')
+                index1 = doc1.paragraphs[i].text.find(diff[g].strip()) # найти индекс вхождения
+                print(index1)
+                if index1 != -1:  # если вхождение в документ есть
+                    for s in range(len(doc1.paragraphs[i].runs)):
+                        doc1.paragraphs[i].runs[s].font.color.rgb = RGBColor(0xff, 0x00, 0x00) # после нуля просто цвет html
+                        doc1.save(file_rename(config.file1))
+                index2 = doc2.paragraphs[i].text.find(diff[g].strip())
 
 
 
