@@ -53,13 +53,15 @@ def add_par(document, par_count, new_name):
 
 # функция сравнения блоков текста paragraph
 def f_compare(p1, p2):
-    # преобразовать каждый текст в список предложений
-    # ind - признак документа
-    # print(len(p1), len(p2))
+    # чистим абзацы от шлака
+    for k in config.symbols_clear:
+        p1 = str.replace(p1, k, ' ')
+        p2 = str.replace(p2, k, ' ')
 
-    # сюда вставить дополнение признака в каком документе
-    sentences1 = nltk.sent_tokenize(str.replace(p1, '.', ' '))  # массив предложений 1 убираем точнки из них
-    sentences2 = nltk.sent_tokenize(str.replace(p2, '.', ' '))  # массив предложений 2 убираем точки из них
+    # преобразовать каждый текст в список предложений
+    # print(len(p1), len(p2))
+    sentences1 = nltk.sent_tokenize(p1)  # массив предложений 1 убираем точнки из них
+    sentences2 = nltk.sent_tokenize(p2)  # массив предложений 2 убираем точки из них
     res = list(set(sentences1) ^ set(sentences2))  # результат сравнения - список предложений - ^ - симметричная разность - чего нет хотя бы в одном документе
     return res  # вставить return чтобы работать с результатами как с переменной
 
@@ -90,11 +92,10 @@ if __name__ == '__main__':
     if len(doc1.paragraphs) >= len(doc2.paragraphs):
         # уравнять количество параграфов путем добавления пустых параграфов в нужный жокумент
         add_par(doc2, (len(doc1.paragraphs) - len(doc2.paragraphs)), file_rename(config.file2))
-        ln = len(doc1.paragraphs)
     else:
         # уравнять количество параграфов путем добавления пустых параграфов в нужный жокумент
         add_par(doc1, (len(doc2.paragraphs) - len(doc1.paragraphs)), file_rename(config.file1))
-        ln = len(doc2.paragraphs)
+    ln = len(doc1.paragraphs)
     # print(ln)  # количество абзацев в самом длинном документе
 
     for i in range(ln):
@@ -107,7 +108,7 @@ if __name__ == '__main__':
         # теперь найти в каком файле эта фраза и подсветить ее
         if len(diff) > 0:
             #print(len(diff), diff)
-            print(set(diff))
+            print(diff)
             # ищем соответствие в параграфе в обоих документах и раскрашиваем тот где найдем
             # для этого надо новую функцию написать
             for g in range(len(diff)):
