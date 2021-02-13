@@ -57,18 +57,25 @@ def add_par(document, par_count, new_name):
 def f_compare(p1, p2):
     # чистим абзацы от шлака
     for k in config.symbols_clear:
-        p1 = str.replace(p1, k, ' ')
-        p2 = str.replace(p2, k, ' ')
+        p1 = str.replace(p1, k, '')
+        p2 = str.replace(p2, k, '')
 
     # преобразовать каждый текст в список предложений
     # print(len(p1), len(p2))
-    sentences1 = nltk.sent_tokenize(p1)  # массив предложений 1 убираем точнки из них
-    sentences2 = nltk.sent_tokenize(p2)  # массив предложений 2 убираем точки из них
-    if len(sentences1) >= len(sentences2):
-        res = list(set(sentences1) ^ set(sentences2))  # результат сравнения - список предложений - ^ - симметричная разность - чего нет хотя бы в одном документе
-    else:
-        res = list(set(sentences2) ^ set(sentences1))
+    sentences1 = nltk.sent_tokenize(p1, language='russian')  # массив предложений 1 убираем точнки из них
+    sentences2 = nltk.sent_tokenize(p2, language='russian')  # массив предложений 2 убираем точки из них
+    #if len(sentences1) >= len(sentences2):
+    #    res = list(set(sentences1) ^ set(sentences2))  # результат сравнения - список предложений - ^ - симметричная разность - чего нет хотя бы в одном документе
+    #else:
+    #    res = list(set(sentences2) ^ set(sentences1))
+    res = list(set(sentences1) ^ set(sentences2))
     return res  # вставить return чтобы работать с результатами как с переменной
+
+
+def color_paragraph(paragraph):
+    #paragraphs.runs[s].font.color.rgb = RGBColor(0xff, 0x00, 0x00) # красный текст после нуля просто цвет html
+    #paragraphs.runs[s].font.bold = True # жирный шрифт
+    paragraph.style.font.highlight_color = WD_COLOR.YELLOW  # цвет выделения желтый
 
 
 if len(sys.argv) > 1:  # если из под командной строки запускаем
@@ -79,7 +86,6 @@ else:
     print('не по системным аргументам')  # если не из под командной строки запускаем
     file1 = 'Основы.docx'
     file2 = 'Основы2.docx'
-
 
 doc1 = docx.Document(file1)  # линкуем первый файл как docx из конфигурационника
 doc2 = docx.Document(file2)  # линкуем второй файл как docx из конфигурационника
@@ -119,8 +125,8 @@ for i in range(ln):
     diff = f_compare(doc1.paragraphs[i].text, doc2.paragraphs[i].text)  # сравниваем по параграфам с добавлением признака документа
     # теперь найти в каком файле эта фраза и подсветить ее
     if len(diff) > 0:
-        # print(len(diff), diff)
-        # print(diff)
+        #print(len(diff))
+        #print(diff)
         # ищем соответствие в параграфе в обоих документах и раскрашиваем тот где найдем
         # для этого надо новую функцию написать
         for g in range(len(diff)):
