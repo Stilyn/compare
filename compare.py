@@ -12,7 +12,6 @@ from docx import Document
 from docx.shared import RGBColor
 from docx.enum.text import WD_COLOR
 import nltk  # библиотека разбора текста
-import string
 
 
 # print(len(doc1.paragraphs))  # количество абзацев в документе
