@@ -72,6 +72,7 @@ def f_compare(p1, p2):
 
 
 if len(sys.argv) > 1:  # если из под командной строки запускаем
+    print('по системным аргументам')
     file1 = sys.argv[1]
     file2 = sys.argv[2]
 else:
@@ -119,12 +120,13 @@ for i in range(ln):
     # теперь найти в каком файле эта фраза и подсветить ее
     if len(diff) > 0:
         # print(len(diff), diff)
-        print(diff)
+        # print(diff)
         # ищем соответствие в параграфе в обоих документах и раскрашиваем тот где найдем
         # для этого надо новую функцию написать
         for g in range(len(diff)):
             if diff[g].strip() in doc1.paragraphs[i].text.strip():  # strip для удаления пробелов в начале и коце строки
-                for s in range(len(doc1.paragraphs[i].runs)): # раскрашиваем весь параграф, а это неправильно
+                for s in range(len(doc1.paragraphs[i].runs)):
+                    '''# раскрашиваем весь параграф, а это неправильно'''
                     # doc1.paragraphs[i].runs[s].font.color.rgb = RGBColor(0xff, 0x00, 0x00) # красный текст после нуля просто цвет html
                     # doc1.paragraphs[i].runs[s].font.bold = True # жирный шрифт
                     doc1.paragraphs[i].style.font.highlight_color = WD_COLOR.YELLOW  # цвет выделения желтый
