@@ -63,17 +63,17 @@ def f_compare(p1, p2):
     # print(len(p1), len(p2))
     sentences1 = nltk.sent_tokenize(p1, language='russian')  # массив предложений 1 убираем точнки из них
     sentences2 = nltk.sent_tokenize(p2, language='russian')  # массив предложений 2 убираем точки из них
-    #if len(sentences1) >= len(sentences2):
+    # if len(sentences1) >= len(sentences2):
     #    res = list(set(sentences1) ^ set(sentences2))  # результат сравнения - список предложений - ^ - симметричная разность - чего нет хотя бы в одном документе
-    #else:
+    # else:
     #    res = list(set(sentences2) ^ set(sentences1))
     res = list(set(sentences1) ^ set(sentences2))
     return res  # вставить return чтобы работать с результатами как с переменной
 
 
 def color_paragraph(paragraph):
-    #paragraphs.runs[s].font.color.rgb = RGBColor(0xff, 0x00, 0x00) # красный текст после нуля просто цвет html
-    #paragraphs.runs[s].font.bold = True # жирный шрифт
+    # paragraphs.runs[s].font.color.rgb = RGBColor(0xff, 0x00, 0x00) # красный текст после нуля просто цвет html
+    # paragraphs.runs[s].font.bold = True # жирный шрифт
     paragraph.style.font.highlight_color = WD_COLOR.YELLOW  # цвет выделения желтый
 
 
@@ -106,9 +106,9 @@ doc2 = docx.Document(file_rename(file2))
     если больше или равно, то первый иначе второй
 '''
 if len(doc1.paragraphs) >= len(doc2.paragraphs):
-   # уравнять количество параграфов путем добавления пустых параграфов в нужный жокумент
-   add_par(doc2, (len(doc1.paragraphs) - len(doc2.paragraphs)), file_rename(file2))
-   ln = len(doc1.paragraphs)
+    # уравнять количество параграфов путем добавления пустых параграфов в нужный жокумент
+    add_par(doc2, (len(doc1.paragraphs) - len(doc2.paragraphs)), file_rename(file2))
+    ln = len(doc1.paragraphs)
 else:
     # уравнять количество параграфов путем добавления пустых параграфов в нужный жокумент
     add_par(doc1, (len(doc2.paragraphs) - len(doc1.paragraphs)), file_rename(file1))
@@ -124,22 +124,18 @@ for i in range(ln):
     diff = f_compare(doc1.paragraphs[i].text, doc2.paragraphs[i].text)  # сравниваем по параграфам с добавлением признака документа
     # теперь найти в каком файле эта фраза и подсветить ее
     if len(diff) > 0:
-        #print(len(diff))
-        #print(diff)
+        # print(len(diff))
+        # print(diff)
         # ищем соответствие в параграфе в обоих документах и раскрашиваем тот где найдем
         # для этого надо новую функцию написать
         for g in range(len(diff)):
-            if diff[g].strip() in doc1.paragraphs[i].text.strip():  # strip для удаления пробелов в начале и коце строки
-                for s in range(len(doc1.paragraphs[i].runs)):
-                    '''# раскрашиваем весь параграф, а это неправильно'''
-                    # doc1.paragraphs[i].runs[s].font.color.rgb = RGBColor(0xff, 0x00, 0x00) # красный текст после нуля просто цвет html
-                    # doc1.paragraphs[i].runs[s].font.bold = True # жирный шрифт
-                    doc1.paragraphs[i].style.font.highlight_color = WD_COLOR.YELLOW  # цвет выделения желтый
-                    doc1.save(file_rename(file1))
-            if diff[g].strip() in doc2.paragraphs[i].text.strip():  # strip для удаления пробелов в начале и коце строки
-                for s in range(len(doc2.paragraphs[i].runs)):
-                    doc2.paragraphs[i].style.font.highlight_color = WD_COLOR.YELLOW  # цвет выделения желтый
-                    doc2.save(file_rename(file2))
-
-
-
+            # print(diff[g])
+            if diff[g] in doc1.paragraphs[i].text:  # strip для удаления пробелов в начале и коце строки
+                # for s in range(len(doc1.paragraphs[i].runs)): # это для раскраски текста при необходимости
+                '''# раскрашиваем весь параграф, а это неправильно'''
+                color_paragraph(doc1.paragraphs[i])
+                doc1.save(file_rename(file1))
+            if diff[g] in doc2.paragraphs[i].text:  # strip для удаления пробелов в начале и коце строки
+                # for s in range(len(doc2.paragraphs[i].runs)):
+                color_paragraph(doc2.paragraphs[i])
+                doc2.save(file_rename(file2))
