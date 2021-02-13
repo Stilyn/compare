@@ -130,12 +130,12 @@ for i in range(ln):
         # для этого надо новую функцию написать
         for g in range(len(diff)):
             # print(diff[g])
-            if diff[g] in doc1.paragraphs[i].text:  # strip для удаления пробелов в начале и коце строки
+            if diff[g].strip() in doc1.paragraphs[i].text.strip():  # strip для удаления пробелов в начале и коце строки
                 # for s in range(len(doc1.paragraphs[i].runs)): # это для раскраски текста при необходимости
                 '''# раскрашиваем весь параграф, а это неправильно'''
                 color_paragraph(doc1.paragraphs[i])
                 doc1.save(file_rename(file1))
-            if diff[g] in doc2.paragraphs[i].text:  # strip для удаления пробелов в начале и коце строки
+            if diff[g].strip() in doc2.paragraphs[i].text.strip():  # strip для удаления пробелов в начале и коце строки
                 # for s in range(len(doc2.paragraphs[i].runs)):
                 color_paragraph(doc2.paragraphs[i])
                 doc2.save(file_rename(file2))
