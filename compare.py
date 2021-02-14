@@ -5,6 +5,7 @@
 python3 compare.py Основы.docx Основы2.docx
 '''
 
+# imports
 import sys
 import config
 import docx  # библиотека работа в word
@@ -12,6 +13,10 @@ from docx import Document
 from docx.shared import RGBColor
 from docx.enum.text import WD_COLOR
 import nltk  # библиотека разбора текста
+import string
+from nltk.tokenize import sent_tokenize
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
 
 
 # print(len(doc1.paragraphs))  # количество абзацев в документе
@@ -52,23 +57,58 @@ def add_par(document, par_count, new_name):
         document.save(new_name)  # подумать как назвать файл
 
 
+# функция разбивки русского текста на слова
+def tokenize_ru(file_text):
+    # firstly let's apply nltk tokenization
+    tokens = word_tokenize(file_text)
+
+    # let's delete punctuation symbols
+    tokens = [i for i in tokens if (i not in string.punctuation)]
+
+    # deleting stop_words
+    stop_words = stopwords.words('russian')
+    # stop_words = []
+    stop_words.extend(['что', 'это', 'так', 'вот', 'быть', 'как', 'в', '—', '–', 'к', 'на', '...'])
+    tokens = [i for i in tokens if (i not in stop_words)]
+
+    # cleaning words
+    tokens = [i.replace("«", "").replace("»", "") for i in tokens]
+
+    return tokens
+
+
 # функция сравнения блоков текста paragraph
 def f_compare(p1, p2):
     # чистим абзацы от шлака
     for k in config.symbols_clear:
-        p1 = str.replace(p1, k, '')
-        p2 = str.replace(p2, k, '')
+        p1 = str.replace(p1, k, ' ')
+        p2 = str.replace(p2, k, ' ')
 
     # преобразовать каждый текст в список предложений
     # print(len(p1), len(p2))
-    sentences1 = nltk.sent_tokenize(p1, language='russian')  # массив предложений 1 убираем точнки из них
-    sentences2 = nltk.sent_tokenize(p2, language='russian')  # массив предложений 2 убираем точки из них
-    # if len(sentences1) >= len(sentences2):
-    #    res = list(set(sentences1) ^ set(sentences2))  # результат сравнения - список предложений - ^ - симметричная разность - чего нет хотя бы в одном документе
-    # else:
-    #    res = list(set(sentences2) ^ set(sentences1))
+    sentences1 = nltk.sent_tokenize(p1, 'russian')  # массив предложений 1 убираем точнки из них
+    sentences2 = nltk.sent_tokenize(p2, 'russian')  # массив предложений 2 убираем точки из них
     res = list(set(sentences1) ^ set(sentences2))
-    return res  # вставить return чтобы работать с результатами как с переменной
+    res1 = []
+    if len(res) > 1:
+        for i in range(len(res)):
+            #print(res[i].split())
+            while i < len(res) - 1:
+                #print(set(res[i].split()) ^ set(res[i+1].split()))
+                #print('i+1 > i')
+                a = [x for x in res[i+1].split() if x not in res[i].split()]
+                a = ' '.join(a)
+                res1.append(a)  # добавляем найденное к результатам сравнения
+                #print('i > i+1')
+                b = [x for x in res[i].split() if x not in res[i+1].split()]
+                b = ' '.join(b)
+                res1.append(b)  # добавляем найденное к результатам сравнения
+                #print(b)
+                i=i+1
+        print(res)
+        res.extend(res1)
+        #print(res1)
+    return res
 
 
 def color_paragraph(paragraph):
@@ -124,10 +164,6 @@ for i in range(ln):
     diff = f_compare(doc1.paragraphs[i].text, doc2.paragraphs[i].text)  # сравниваем по параграфам с добавлением признака документа
     # теперь найти в каком файле эта фраза и подсветить ее
     if len(diff) > 0:
-        # print(len(diff))
-        # print(diff)
-        # ищем соответствие в параграфе в обоих документах и раскрашиваем тот где найдем
-        # для этого надо новую функцию написать
         for g in range(len(diff)):
             # print(diff[g])
             if diff[g].strip() in doc1.paragraphs[i].text.strip():  # strip для удаления пробелов в начале и коце строки
