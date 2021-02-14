@@ -95,18 +95,19 @@ def f_compare(p1, p2):
             #print(res[i].split())
             while i < len(res) - 1:
                 #print(set(res[i].split()) ^ set(res[i+1].split()))
-                #print('i+1 > i')
+                print('i+1 > i')
                 a = [x for x in res[i+1].split() if x not in res[i].split()]
                 a = ' '.join(a)
-                res1.append(a)  # добавляем найденное к результатам сравнения
-                #print('i > i+1')
+                print(a)
+                #res1.append(a)  # добавляем найденное к результатам сравнения
+                print('i > i+1')
                 b = [x for x in res[i].split() if x not in res[i+1].split()]
                 b = ' '.join(b)
-                res1.append(b)  # добавляем найденное к результатам сравнения
-                #print(b)
+                #res1.append(b)  # добавляем найденное к результатам сравнения
+                print(b)
                 i=i+1
-        print(res)
-        res.extend(res1)
+        #print(res)
+        #res.extend(res1)
         #print(res1)
     return res
 
