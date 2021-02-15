@@ -17,6 +17,7 @@ import string
 from nltk.tokenize import sent_tokenize
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
+import diff_match_patch  # для сравнения и раскраски
 
 
 # print(len(doc1.paragraphs))  # количество абзацев в документе
@@ -89,26 +90,30 @@ def f_compare(p1, p2):
     sentences1 = nltk.sent_tokenize(p1, 'russian')  # массив предложений 1 убираем точнки из них
     sentences2 = nltk.sent_tokenize(p2, 'russian')  # массив предложений 2 убираем точки из них
     res = list(set(sentences1) ^ set(sentences2))
-    res1 = []
+    '''res1 = []
     if len(res) > 1:
         for i in range(len(res)):
             #print(res[i].split())
             while i < len(res) - 1:
                 #print(set(res[i].split()) ^ set(res[i+1].split()))
-                print('i+1 > i')
+                #print('i+1 > i')
                 a = [x for x in res[i+1].split() if x not in res[i].split()]
                 a = ' '.join(a)
-                print(a)
+                #print(a)
                 #res1.append(a)  # добавляем найденное к результатам сравнения
-                print('i > i+1')
-                b = [x for x in res[i].split() if x not in res[i+1].split()]
-                b = ' '.join(b)
+                #print('i > i+1')
+                #b = [x for x in res[i].split() if x not in res[i+1].split()]
+                #b = ' '.join(b)
                 #res1.append(b)  # добавляем найденное к результатам сравнения
-                print(b)
+                #print(b)
+                if a != res[i]:
+                    res1.append(a)
+                if b != res[i]:
+                    res1.append(b)
                 i=i+1
-        #print(res)
-        #res.extend(res1)
-        #print(res1)
+        print(res)
+        print('***')#res.extend(res1)
+        print(res1)'''
     return res
 
 
