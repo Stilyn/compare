@@ -17,7 +17,7 @@ import string
 from nltk.tokenize import sent_tokenize
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-import diff_match_patch  # для сравнения и раскраски
+import diff_match_patch  # для сравнения и раскраски по совету коллег
 
 
 # print(len(doc1.paragraphs))  # количество абзацев в документе
