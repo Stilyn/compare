@@ -25,11 +25,6 @@ import diff_match_patch  # для сравнения и раскраски по 
 # print(doc1.paragraphs[1].text)  # текст второго абзаца в документе
 # print(doc1.paragraphs[2].runs[0].text) # текст первого Run второго абзаца
 
-# просто так функция привет )))
-# def print_hi(name):
-# Use a breakpoint in the code line below to debug your script.
-# print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-
 # функция переименования файлов для формирования временных
 def file_rename(file_name):
     n = file_name.split('.')[0] + '_vs' + '.docx'
@@ -90,30 +85,15 @@ def f_compare(p1, p2):
     sentences1 = nltk.sent_tokenize(p1, 'russian')  # массив предложений 1 убираем точнки из них
     sentences2 = nltk.sent_tokenize(p2, 'russian')  # массив предложений 2 убираем точки из них
     res = list(set(sentences1) ^ set(sentences2))
-    '''res1 = []
-    if len(res) > 1:
-        for i in range(len(res)):
-            #print(res[i].split())
-            while i < len(res) - 1:
-                #print(set(res[i].split()) ^ set(res[i+1].split()))
-                #print('i+1 > i')
-                a = [x for x in res[i+1].split() if x not in res[i].split()]
-                a = ' '.join(a)
-                #print(a)
-                #res1.append(a)  # добавляем найденное к результатам сравнения
-                #print('i > i+1')
-                #b = [x for x in res[i].split() if x not in res[i+1].split()]
-                #b = ' '.join(b)
-                #res1.append(b)  # добавляем найденное к результатам сравнения
-                #print(b)
-                if a != res[i]:
-                    res1.append(a)
-                if b != res[i]:
-                    res1.append(b)
-                i=i+1
-        print(res)
-        print('***')#res.extend(res1)
-        print(res1)'''
+    diff_match_patch.Diff_Timeout = 0  # чтобы не ограничивать сравнение по времени
+    dmp = diff_match_patch.diff_match_patch()
+    res1 = dmp.diff_main(p2, p1)  # разница
+    dmp.diff_cleanupSemantic(res1)
+    print(p1)
+    print(p2)
+
+    print('разница \n', res1)
+
     return res
 
 
@@ -122,6 +102,8 @@ def color_paragraph(paragraph):
     # paragraphs.runs[s].font.bold = True # жирный шрифт
     paragraph.style.font.highlight_color = WD_COLOR.YELLOW  # цвет выделения желтый
 
+
+'''для использования отладочного и боевого режимов'''
 
 if len(sys.argv) > 1:  # если из под командной строки запускаем
     print('сравниваю ' + sys.argv[1] + ' и ' + sys.argv[2])
