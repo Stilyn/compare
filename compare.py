@@ -17,7 +17,7 @@ import string
 from nltk.tokenize import sent_tokenize
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-import diff_match_patch  # для сравнения и раскраски по совету коллег
+from diff_match_patch import diff_match_patch as diff_module  # для сравнения и раскраски по совету коллег
 
 
 # print(len(doc1.paragraphs))  # количество абзацев в документе
@@ -82,19 +82,14 @@ def f_compare(p1, p2):
 
     # преобразовать каждый текст в список предложений
     # print(len(p1), len(p2))
-    sentences1 = nltk.sent_tokenize(p1, 'russian')  # массив предложений 1 убираем точнки из них
-    sentences2 = nltk.sent_tokenize(p2, 'russian')  # массив предложений 2 убираем точки из них
-    res = list(set(sentences1) ^ set(sentences2))
-    diff_match_patch.Diff_Timeout = 0  # чтобы не ограничивать сравнение по времени
-    dmp = diff_match_patch.diff_match_patch()
-    res1 = dmp.diff_main(p2, p1)  # разница
-    dmp.diff_cleanupSemantic(res1)
-    print(p1)
-    print(p2)
-
-    print('разница \n', res1)
-
-    return res
+    # sentences1 = nltk.sent_tokenize(p1, 'russian')  # массив предложений 1 убираем точнки из них
+    # sentences2 = nltk.sent_tokenize(p2, 'russian')  # массив предложений 2 убираем точки из них
+    #diff_module.Diff_Timeout = 0  # чтобы не ограничивать сравнение по времени
+    dmp = diff_module()
+    diffs = dmp.diff_main(p1, p2)  # разница
+    dmp.diff_cleanupSemantic(diffs)
+    print(diffs)
+    #return res
 
 
 def color_paragraph(paragraph):
@@ -128,7 +123,6 @@ file_rename(file2) это имя переименованного файла 2
 '''
 doc1 = docx.Document(file_rename(file1))
 doc2 = docx.Document(file_rename(file2))
-
 '''
     выбрать какой из подрезанных длиннее чтобы потом всегда из большего вычитать меньшее
     если больше или равно, то первый иначе второй
@@ -141,25 +135,15 @@ else:
     # уравнять количество параграфов путем добавления пустых параграфов в нужный жокумент
     add_par(doc1, (len(doc2.paragraphs) - len(doc1.paragraphs)), file_rename(file1))
     ln = len(doc2.paragraphs)
-    # print(ln)  # количество абзацев в самом длинном документе
+print('количество параграфов',ln)  # количество абзацев в самом длинном документе
 
 for i in range(ln):
-    '''
-        сравниваем тудасюда если вдруг будет вычитание из меньшего массива больший
-        и результат будет пустой тогдв надо в обратку чтоб от большего меньший
-        поэтому в функции используем симметничную разность ^
-    '''
-    diff = f_compare(doc1.paragraphs[i].text, doc2.paragraphs[i].text)  # сравниваем по параграфам с добавлением признака документа
+    # сначала все параграфы первого документа сравниваем с каждым параграфом второго документа
+    # потом сравниваем все параграфы второго документа с каждым параграфом первого документа
+
+    diff = f_compare(doc2.paragraphs[i].text, doc1.paragraphs[i].text)  # сравниваем по параграфам с добавлением признака документа
     # теперь найти в каком файле эта фраза и подсветить ее
-    if len(diff) > 0:
-        for g in range(len(diff)):
-            # print(diff[g])
-            if diff[g].strip() in doc1.paragraphs[i].text.strip():  # strip для удаления пробелов в начале и коце строки
-                # for s in range(len(doc1.paragraphs[i].runs)): # это для раскраски текста при необходимости
-                '''# раскрашиваем весь параграф, а это неправильно'''
-                color_paragraph(doc1.paragraphs[i])
-                doc1.save(file_rename(file1))
-            if diff[g].strip() in doc2.paragraphs[i].text.strip():  # strip для удаления пробелов в начале и коце строки
-                # for s in range(len(doc2.paragraphs[i].runs)):
-                color_paragraph(doc2.paragraphs[i])
-                doc2.save(file_rename(file2))
+    ##color_paragraph(doc1.paragraphs[i])
+    # doc1.save(file_rename(file1))
+    # color_paragraph(doc2.paragraphs[i])
+    # doc2.save(file_rename(file2))
