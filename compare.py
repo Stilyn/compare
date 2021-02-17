@@ -88,8 +88,11 @@ def f_compare(p1, p2):
     dmp = diff_module()
     diffs = dmp.diff_main(p1, p2)  # разница
     dmp.diff_cleanupSemantic(diffs)
+    a = dmp.diff_prettyHtml(diffs)
+    #b = dmp.diff_text2(diffs)
     #if diffs[0][0] != -1:
-    print(diffs)
+    print(a)
+    #print(a)
     #return res
 
 
@@ -138,13 +141,15 @@ else:
     ln = len(doc2.paragraphs)
 print('количество параграфов',ln)  # количество абзацев в самом длинном документе
 
+txt_doc1 = ''
+txt_doc2 = ''
 for i in range(ln):
-    # сначала все параграфы первого документа сравниваем с каждым параграфом второго документа
-    # потом сравниваем все параграфы второго документа с каждым параграфом первого документа
+    txt_doc1 = txt_doc1 + doc1.paragraphs[i].text + '\n'  # полный текст первого документа
+    txt_doc2 = txt_doc2 + doc2.paragraphs[i].text + '\n'    # полный текст второго документа
+f_compare(txt_doc1, txt_doc2)  #  делает внутренность html
 
-    diff = f_compare(doc2.paragraphs[i].text, doc1.paragraphs[i].text)  # сравниваем по параграфам с добавлением признака документа
     # теперь найти в каком файле эта фраза и подсветить ее
-    ##color_paragraph(doc1.paragraphs[i])
+    # color_paragraph(doc1.paragraphs[i])
     # doc1.save(file_rename(file1))
     # color_paragraph(doc2.paragraphs[i])
     # doc2.save(file_rename(file2))
