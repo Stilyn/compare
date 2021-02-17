@@ -68,14 +68,12 @@ def tokenize_ru(file_text):
     return tokens
 
 
-# функция поиска смыслового совпадения параграфов глубина Match threshold: 0,6
+# функция поиска смыслового совпадения параграфов глубина threshold
 def par_match(p1,p2, thresold):
     dmp = diff_module()
     diff_module.Match_Threshold = thresold
-    matches = dmp.match_main(p1,p2,(len(p1)//3))
-    #if matches != -1:
-        # print(p1,p2)
-    #    print(matches)
+    diff_module.Match_Distance = 0
+    matches = dmp.match_main(p1, p2, len(p1)//3)
     return matches
 
 # функция сравнения блоков текста paragraph
@@ -128,19 +126,14 @@ html_body = ''  # наш будущий html для сравнения
 for i in range(len(doc1.paragraphs)):
     # найти смысловое совпадение параграфов из 2 документа c параграфами 1 документа
     for j in range(len(doc2.paragraphs)):
-        a = par_match(doc1.paragraphs[i].text, doc2.paragraphs[j].text, 0.8)  #ищем смысловое совпадание
-        if a > 0:
-            print(a)
-            #txt_doc1 = ' '.join(nltk.sent_tokenize(doc1.paragraphs[i].text, 'russian'))
-            #txt_doc2 = ' '.join(nltk.sent_tokenize(doc2.paragraphs[i].text, 'russian'))
-            html_body = html_body +'<br><br><br><br>'+ f_compare(doc1.paragraphs[i].text, doc2.paragraphs[j].text)  # дописываем в телло результат сравнения очередного параграфа
-            # print(html_body)
-    # txt_doc1 = txt_doc1 + ' '.join(nltk.sent_tokenize(doc1.paragraphs[i].text, 'russian')) + '\n'  # полный текст первого документа
-    # txt_doc2 = txt_doc2 + ' '.join(nltk.sent_tokenize(doc2.paragraphs[i].text, 'russian')) + '\n'  # полный текст второго документа
-    # html дописываем в тело html
-    #html_body += f_compare(txt_doc1, txt_doc2) # дописываем в телло результат сравнения очередного параграфа
-# print(txt_doc2)
-# проверять что предложение входит
+        q = nltk.sent_tokenize(doc2.paragraphs[j].text, 'russian')
+        for h in range(len(q)):
+            a = par_match(doc1.paragraphs[i].text, q[h], config.thresold)  # ищем смысловое совпадание
+            if a > 0:
+                print(q[h])
+                # дописываем в тело результат сравнения очередного параграфа
+                html_body += '<br><br><br><br>' + '<p>' + doc1.paragraphs[i].text + '</p>' + f_compare(doc1.paragraphs[i].text, doc2.paragraphs[j].text)
+                # print(html_body)
 html_compare = config.html_start + html_body + config.html_end  # делает html
 file_compare_name = file1.split('.')[0] + '_vs_' + file2.split('.')[0] + '.html'
 f = open(file_compare_name, 'w')

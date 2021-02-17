@@ -6,7 +6,8 @@
 file1 = 'Основы.docx'  # сюда путь к файлу
 file2 = 'Основы2.docx'  # сюда путь к файлу
 
-symbols_clear = ''# ['.', ';', ')']
+symbols_clear = ''  # ['.', ';', ')']  # символы для очистки документов перед сравнением
+thresold = 0.5  # глубина совпадения по смыслу при сравнении абзацев документов
 
 html_start = '<html><head><meta charset="UTF-8"></head><body>'
 html_end = '</body></html>'
