@@ -80,20 +80,10 @@ def f_compare(p1, p2):
         p1 = str.replace(p1, k, ' ')
         p2 = str.replace(p2, k, ' ')
 
-    # преобразовать каждый текст в список предложений
-    # print(len(p1), len(p2))
-    # sentences1 = nltk.sent_tokenize(p1, 'russian')  # массив предложений 1 убираем точнки из них
-    # sentences2 = nltk.sent_tokenize(p2, 'russian')  # массив предложений 2 убираем точки из них
-    #diff_module.Diff_Timeout = 0  # чтобы не ограничивать сравнение по времени
     dmp = diff_module()
     diffs = dmp.diff_main(p1, p2)  # разница
     dmp.diff_cleanupSemantic(diffs)
-    a = dmp.diff_prettyHtml(diffs)
-    #b = dmp.diff_text2(diffs)
-    #if diffs[0][0] != -1:
-    print(a)
-    #print(a)
-    #return res
+    return dmp.diff_prettyHtml(diffs)
 
 
 def color_paragraph(paragraph):
@@ -139,17 +129,14 @@ else:
     # уравнять количество параграфов путем добавления пустых параграфов в нужный жокумент
     add_par(doc1, (len(doc2.paragraphs) - len(doc1.paragraphs)), file_rename(file1))
     ln = len(doc2.paragraphs)
-print('количество параграфов',ln)  # количество абзацев в самом длинном документе
+print('количество параграфов', ln)  # количество абзацев в самом длинном документе
 
 txt_doc1 = ''
 txt_doc2 = ''
 for i in range(ln):
     txt_doc1 = txt_doc1 + doc1.paragraphs[i].text + '\n'  # полный текст первого документа
-    txt_doc2 = txt_doc2 + doc2.paragraphs[i].text + '\n'    # полный текст второго документа
-f_compare(txt_doc1, txt_doc2)  #  делает внутренность html
-
-    # теперь найти в каком файле эта фраза и подсветить ее
-    # color_paragraph(doc1.paragraphs[i])
-    # doc1.save(file_rename(file1))
-    # color_paragraph(doc2.paragraphs[i])
-    # doc2.save(file_rename(file2))
+    txt_doc2 = txt_doc2 + doc2.paragraphs[i].text + '\n'  # полный текст второго документа
+html_compare = config.html_start + f_compare(txt_doc1, txt_doc2) + config.html_end  # делает html
+file_compare_name = file1.split('.')[0] + '_vs_' + file2.split('.')[0] + '.html'
+f = open(file_compare_name, 'w')
+f.write(html_compare)
