@@ -20,11 +20,6 @@ from nltk.tokenize import word_tokenize
 from diff_match_patch import diff_match_patch as diff_module  # для сравнения и раскраски по совету коллег
 
 
-# print(len(doc1.paragraphs))  # количество абзацев в документе
-# print(doc1.paragraphs[0].text)  # текст первого абзаца в документе
-# print(doc1.paragraphs[1].text)  # текст второго абзаца в документе
-# print(doc1.paragraphs[2].runs[0].text) # текст первого Run второго абзаца
-
 # функция переименования файлов для формирования временных
 def file_rename(file_name):
     n = file_name.split('.')[0] + '_vs' + '.docx'
@@ -73,6 +68,16 @@ def tokenize_ru(file_text):
     return tokens
 
 
+# функция поиска смыслового совпадения параграфов глубина Match threshold: 0,6
+def par_match(p1,p2, thresold):
+    dmp = diff_module()
+    diff_module.Match_Threshold = thresold
+    matches = dmp.match_main(p1,p2,(len(p1)//3))
+    #if matches != -1:
+        # print(p1,p2)
+    #    print(matches)
+    return matches
+
 # функция сравнения блоков текста paragraph
 def f_compare(p1, p2):
     # чистим абзацы от шлака
@@ -83,6 +88,7 @@ def f_compare(p1, p2):
     dmp = diff_module()
     diffs = dmp.diff_main(p1, p2)  # разница
     dmp.diff_cleanupSemantic(diffs)
+
     return dmp.diff_prettyHtml(diffs)
 
 
@@ -100,8 +106,8 @@ if len(sys.argv) > 1:  # если из под командной строки з
     file2 = sys.argv[2]
 else:
     print('отладочный режим')  # если не из под командной строки запускаем
-    file1 = 'Основы.docx'
-    file2 = 'Основы2.docx'
+    file1 = 'Основы2020.docx'
+    file2 = 'Основы2030.docx'
 
 doc1 = docx.Document(file1)  # линкуем первый файл как docx из конфигурационника
 doc2 = docx.Document(file2)  # линкуем второй файл как docx из конфигурационника
@@ -117,26 +123,25 @@ file_rename(file2) это имя переименованного файла 2
 '''
 doc1 = docx.Document(file_rename(file1))
 doc2 = docx.Document(file_rename(file2))
-'''
-    выбрать какой из подрезанных длиннее чтобы потом всегда из большего вычитать меньшее
-    если больше или равно, то первый иначе второй
-'''
-if len(doc1.paragraphs) >= len(doc2.paragraphs):
-    # уравнять количество параграфов путем добавления пустых параграфов в нужный жокумент
-    add_par(doc2, (len(doc1.paragraphs) - len(doc2.paragraphs)), file_rename(file2))
-    ln = len(doc1.paragraphs)
-else:
-    # уравнять количество параграфов путем добавления пустых параграфов в нужный жокумент
-    add_par(doc1, (len(doc2.paragraphs) - len(doc1.paragraphs)), file_rename(file1))
-    ln = len(doc2.paragraphs)
-print('количество параграфов', ln)  # количество абзацев в самом длинном документе
 
-txt_doc1 = ''
-txt_doc2 = ''
-for i in range(ln):
-    txt_doc1 = txt_doc1 + doc1.paragraphs[i].text + '\n'  # полный текст первого документа
-    txt_doc2 = txt_doc2 + doc2.paragraphs[i].text + '\n'  # полный текст второго документа
-html_compare = config.html_start + f_compare(txt_doc1, txt_doc2) + config.html_end  # делает html
+html_body = ''  # наш будущий html для сравнения
+for i in range(len(doc1.paragraphs)):
+    # найти смысловое совпадение параграфов из 2 документа c параграфами 1 документа
+    for j in range(len(doc2.paragraphs)):
+        a = par_match(doc1.paragraphs[i].text, doc2.paragraphs[j].text, 0.8)  #ищем смысловое совпадание
+        if a > 0:
+            print(a)
+            #txt_doc1 = ' '.join(nltk.sent_tokenize(doc1.paragraphs[i].text, 'russian'))
+            #txt_doc2 = ' '.join(nltk.sent_tokenize(doc2.paragraphs[i].text, 'russian'))
+            html_body = html_body +'<br><br><br><br>'+ f_compare(doc1.paragraphs[i].text, doc2.paragraphs[j].text)  # дописываем в телло результат сравнения очередного параграфа
+            # print(html_body)
+    # txt_doc1 = txt_doc1 + ' '.join(nltk.sent_tokenize(doc1.paragraphs[i].text, 'russian')) + '\n'  # полный текст первого документа
+    # txt_doc2 = txt_doc2 + ' '.join(nltk.sent_tokenize(doc2.paragraphs[i].text, 'russian')) + '\n'  # полный текст второго документа
+    # html дописываем в тело html
+    #html_body += f_compare(txt_doc1, txt_doc2) # дописываем в телло результат сравнения очередного параграфа
+# print(txt_doc2)
+# проверять что предложение входит
+html_compare = config.html_start + html_body + config.html_end  # делает html
 file_compare_name = file1.split('.')[0] + '_vs_' + file2.split('.')[0] + '.html'
 f = open(file_compare_name, 'w')
 f.write(html_compare)

@@ -6,8 +6,8 @@
 file1 = 'Основы.docx'  # сюда путь к файлу
 file2 = 'Основы2.docx'  # сюда путь к файлу
 
-symbols_clear = '' # ['.', ';'] #, '\n']
+symbols_clear = ''# ['.', ';', ')']
 
-html_start = '<html><head><meta charset="UTF-8"></head>'
-html_end = '</html>'
+html_start = '<html><head><meta charset="UTF-8"></head><body>'
+html_end = '</body></html>'
 # возможно добавить перечень линкуемых библиотек
