@@ -88,6 +88,7 @@ def f_compare(p1, p2):
     dmp = diff_module()
     diffs = dmp.diff_main(p1, p2)  # разница
     dmp.diff_cleanupSemantic(diffs)
+    #if diffs[0][0] != -1:
     print(diffs)
     #return res
 
