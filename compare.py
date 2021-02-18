@@ -72,8 +72,8 @@ def tokenize_ru(file_text):
 def par_match(p1,p2, thresold):
     dmp = diff_module()
     diff_module.Match_Threshold = thresold
-    diff_module.Match_Distance = 0
-    matches = dmp.match_main(p1, p2, len(p1)//3)
+    # diff_module.Match_Distance = 0
+    matches = dmp.match_main(p1, p2, 0)
     return matches
 
 # функция сравнения блоков текста paragraph
@@ -124,15 +124,15 @@ doc2 = docx.Document(file_rename(file2))
 
 html_body = ''  # наш будущий html для сравнения
 for i in range(len(doc1.paragraphs)):
+    html_body += '<br>' + doc1.paragraphs[i].text
     # найти смысловое совпадение параграфов из 2 документа c параграфами 1 документа
-    for j in range(len(doc2.paragraphs)):
-        q = nltk.sent_tokenize(doc2.paragraphs[j].text, 'russian')
-        for h in range(len(q)):
-            a = par_match(doc1.paragraphs[i].text, q[h], config.thresold)  # ищем смысловое совпадание
-            if a > 0:
-                print(q[h])
+    for h in nltk.sent_tokenize(doc2.paragraphs[i].text, 'russian'):
+        a = par_match(doc1.paragraphs[i].text, h, config.thresold)  # ищем смысловое совпадание
+        if a > -1: # если не нашли совпадений
+            print(h)
                 # дописываем в тело результат сравнения очередного параграфа
-                html_body += '<br><br><br><br>' + '<p>' + doc1.paragraphs[i].text + '</p>' + f_compare(doc1.paragraphs[i].text, doc2.paragraphs[j].text)
+                # html_body += '<br><br><br><br>' + '<p>' + doc1.paragraphs[i].text + '</p>' + f_compare(doc1.paragraphs[i].text, doc2.paragraphs[j].text)
+            html_body += '<br>' + f_compare(doc1.paragraphs[i].text, doc2.paragraphs[i].text) + '<br><br><br>'
                 # print(html_body)
 html_compare = config.html_start + html_body + config.html_end  # делает html
 file_compare_name = file1.split('.')[0] + '_vs_' + file2.split('.')[0] + '.html'
