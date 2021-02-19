@@ -129,15 +129,11 @@ for i in doc1.paragraphs:  # берем все параграфы докумен
     for j in doc2.paragraphs:
         a = fuzz.WRatio(i.text, j.text)
         # print(a)
-        if a > config.thresold:
-            print(a)
-            print(i.text)
-            print(j.text)
-            html_body.append(f_compare(i.text, j.text) + '<br>')
-            # html_body.append(doc2.paragraphs[j].text)
-        else:
-            html_body.append(j.text)
-html_compare = config.html_start + '<br>'.join(html_body)  # делает html
+        if a >= config.thresold:
+            html_body.append(f_compare(i.text, j.text) + '<br>') # добавляем в html абзац из 2 документа
+
+html_compare = config.html_start + '<br>'.join(html_body)  # делает тело html
+# создаем файл с результаттми сравнения
 file_compare_name = file1.split('.')[0] + '_vs_' + file2.split('.')[0] + '.html'
 f = open(file_compare_name, 'w')
 f.write(html_compare)
