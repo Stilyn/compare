@@ -130,7 +130,8 @@ for i in doc1.paragraphs:  # берем все параграфы докумен
         a = fuzz.WRatio(i.text, j.text)
         print(a)
         if a >= config.thresold:
-            html_body.append(f_compare(i.text, j.text) + '<br>') # добавляем в html абзац из 2 документа
+            html_body.append('<b>Исходная формулировка:</b> ' + j.text)
+            html_body.append('<b>Изменение:</b> ' + f_compare(i.text, j.text) + '<br>') # добавляем в html абзац из 2 документа
 
 html_compare = config.html_start + '<br>'.join(html_body)  # делает тело html
 # создаем файл с результаттми сравнения
