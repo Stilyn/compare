@@ -18,6 +18,8 @@ from nltk.tokenize import sent_tokenize
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from diff_match_patch import diff_match_patch as diff_module  # для сравнения и раскраски по совету коллег
+from fuzzywuzzy import fuzz
+from fuzzywuzzy import process
 
 
 # функция переименования файлов для формирования временных
@@ -85,7 +87,7 @@ def f_compare(p1, p2):
 
     dmp = diff_module()
     diffs = dmp.diff_main(p1, p2)  # разница
-    dmp.diff_cleanupSemantic(diffs)
+    #dmp.diff_cleanupSemantic(diffs)
 
     return dmp.diff_prettyHtml(diffs)
 
@@ -122,21 +124,19 @@ file_rename(file2) это имя переименованного файла 2
 doc1 = docx.Document(file_rename(file1))
 doc2 = docx.Document(file_rename(file2))
 
-html_body = ''  # наш будущий html для сравнения
-for i in range(len(doc1.paragraphs)):
-    #html_body += '<br>' + doc1.paragraphs[i].text
-    # найти смысловое совпадение параграфов из 2 документа c параграфами 1 документа
-    for h in nltk.sent_tokenize(doc2.paragraphs[i].text, 'russian'):  # разбираем параграф 2 документа по предложениям
-        html_body += '<br>' + f_compare(doc1.paragraphs[i].text, h) + '<br><br><br>'
-        '''a = par_match(doc1.paragraphs[i].text, h, config.thresold)  # ищем смысловое совпадание
-        if a > -1: # если не нашли совпадений
-            print(h)
-                # дописываем в тело результат сравнения очередного параграфа
-                # html_body += '<br><br><br><br>' + '<p>' + doc1.paragraphs[i].text + '</p>' + f_compare(doc1.paragraphs[i].text, doc2.paragraphs[j].text)
-            
-                # print(html_body)
-                '''
-html_compare = config.html_start + html_body + config.html_end  # делает html
+html_body = []  # наш будущий html для сравнения
+for i in doc1.paragraphs:  # берем все параграфы документа 1
+    for j in doc2.paragraphs:
+        a = fuzz.WRatio(i.text, j.text)
+        # print(a)
+        if a > 90:
+            print(a)
+            print(i.text)
+            print(j.text)
+            html_body.append(f_compare(i.text, j.text) + '<br>')
+            # html_body.append(doc2.paragraphs[j].text)
+        html_body.append(i.text + '<br>')
+html_compare = config.html_start + ' '.join(html_body)  # делает html
 file_compare_name = file1.split('.')[0] + '_vs_' + file2.split('.')[0] + '.html'
 f = open(file_compare_name, 'w')
 f.write(html_compare)
