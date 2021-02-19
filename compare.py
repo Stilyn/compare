@@ -106,8 +106,8 @@ if len(sys.argv) > 1:  # если из под командной строки з
     file2 = sys.argv[2]
 else:
     print('отладочный режим')  # если не из под командной строки запускаем
-    file1 = 'Основы2020.docx'
-    file2 = 'Основы2030.docx'
+    file1 = '51_2014.docx'
+    file2 = '64_2020.docx'
 
 doc1 = docx.Document(file1)  # линкуем первый файл как docx из конфигурационника
 doc2 = docx.Document(file2)  # линкуем второй файл как docx из конфигурационника
@@ -128,7 +128,7 @@ html_body = []  # наш будущий html для сравнения
 for i in doc1.paragraphs:  # берем все параграфы документа 1
     for j in doc2.paragraphs:
         a = fuzz.WRatio(i.text, j.text)
-        # print(a)
+        print(a)
         if a >= config.thresold:
             html_body.append(f_compare(i.text, j.text) + '<br>') # добавляем в html абзац из 2 документа
 
