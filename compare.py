@@ -127,7 +127,7 @@ doc2 = docx.Document(file_rename(file2))
 html_body = []  # наш будущий html для сравнения
 for i in doc1.paragraphs:  # берем все параграфы документа 1
     for j in doc2.paragraphs:
-        a = fuzz.WRatio(i.text, j.text)
+        a = fuzz.partial_ratio(i.text, j.text)
         print(a)
         if a >= config.thresold:
             html_body.append('<b>Исходная формулировка:</b> ' + j.text)
