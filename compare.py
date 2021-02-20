@@ -145,11 +145,12 @@ else:
 print(len(l1))
 print(len(l2))
 for j in range(ln):
-    #html_body.append('<b>' + file1 + '  </b>  ' + ''.join(l1[j]))  # исходный документ
-    html_body.append(' '.join(l1[j]))  # исходный документ
     a = fuzz.WRatio(' '.join(l1[j]), ' '.join(l2[j]))  # ищем совпадение по смыслу
     print(a)
-    if a >= config.thresold:
+    if a < config.thresold:
+        #html_body.append('<b>' + file1 + '  </b>  ' + ''.join(l1[j]))  # исходный документ
+        html_body.append(' '.join(l1[j]))  # исходный документ
+    else:
         #html_body.append('<b>'+ file2 +'  </b>  ' + ''.join(l2[j])) # Изменение
         #html_body.append('<b>ИЗМЕНЕНИЕ:  </b>') # Изменение
         html_body.append(f_compare(' '.join(l1[j]), ' '.join(l2[j])))  # просто сравниваем 2 списка поэлементно
