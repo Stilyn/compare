@@ -71,12 +71,13 @@ def tokenize_ru(file_text):
 
 
 # функция поиска смыслового совпадения параграфов глубина threshold
-def par_match(p1,p2, thresold):
+def par_match(p1, p2, thresold):
     dmp = diff_module()
     diff_module.Match_Threshold = thresold
     # diff_module.Match_Distance = 0
     matches = dmp.match_main(p1, p2, 0)
     return matches
+
 
 # функция сравнения блоков текста paragraph
 def f_compare(p1, p2):
@@ -87,7 +88,7 @@ def f_compare(p1, p2):
 
     dmp = diff_module()
     diffs = dmp.diff_main(p1, p2)  # разница
-    #dmp.diff_cleanupSemantic(diffs)
+    # dmp.diff_cleanupSemantic(diffs)
 
     return dmp.diff_prettyHtml(diffs)
 
@@ -106,7 +107,7 @@ if len(sys.argv) > 1:  # если из под командной строки з
     file2 = sys.argv[2]
 else:
     print('отладочный режим')  # если не из под командной строки запускаем
-    file1 = '51_2014.docx'
+    file1 = '906_2013.docx'
     file2 = '64_2020.docx'
 
 doc1 = docx.Document(file1)  # линкуем первый файл как docx из конфигурационника
@@ -125,15 +126,35 @@ doc1 = docx.Document(file_rename(file1))
 doc2 = docx.Document(file_rename(file2))
 
 html_body = []  # наш будущий html для сравнения
+l1 = []
+l2 = []
 for i in doc1.paragraphs:  # берем все параграфы документа 1
-    for j in doc2.paragraphs:
-        a = fuzz.partial_ratio(i.text, j.text)
-        print(a)
-        if a >= config.thresold:
-            html_body.append('<b>Исходная формулировка:</b> ' + j.text)
-            html_body.append('<b>Изменение:</b> ' + f_compare(i.text, j.text) + '<br>') # добавляем в html абзац из 2 документа
-
-html_compare = config.html_start + '<br>'.join(html_body)  # делает тело html
+    l1.append(nltk.sent_tokenize(i.text))
+for j in doc2.paragraphs:
+    l2.append(nltk.sent_tokenize(j.text))
+#print(l1)
+#print(l2)
+if len(l1) >= len(l2):
+    ln = len(l1)
+    for q in range(len(l1) - len(l2)):
+        l2.append(' ')  # уравниваем количество элементов в списках
+else:
+    ln = len(l2)
+    for q in range(len(l2) - len(l1)):
+        l1.append(' ')  # уравниваем количество элементов в списках
+print(len(l1))
+print(len(l2))
+for j in range(ln):
+    html_body.append('<b>'+ file1 +'  </b>  ' + ''.join(l1[j])) # исходный документ
+    a = fuzz.WRatio(' '.join(l1[j]), ' '.join(l2[j]))  # ищем совпадение по смыслу
+    print(a)
+    if a >= config.thresold:
+        html_body.append('<b>'+ file2 +'  </b>  ' + ''.join(l2[j])) # Изменение
+        html_body.append('<b>ИЗМЕНЕНИЕ:  </b>') # Изменение
+        html_body.append(f_compare(' '.join(l1[j]), ' '.join(l2[j])))  # просто сравниваем 2 списка поэлементно
+        html_body.append('<b>______________________________________________________________________________________________</b>') # линия отреза
+# print(html_body)
+html_compare = config.html_start + '<br><br>'.join(html_body)  # делает тело html
 # создаем файл с результаттми сравнения
 file_compare_name = file1.split('.')[0] + '_vs_' + file2.split('.')[0] + '.html'
 f = open(file_compare_name, 'w')
