@@ -142,11 +142,11 @@ else:
     ln = len(l2)
     for q in range(len(l2) - len(l1)):
         l1.append(' ')  # уравниваем количество элементов в списках
-print(len(l1))
-print(len(l2))
+# print(len(l1))
+# print(len(l2))
 for j in range(ln):
     a = fuzz.WRatio(' '.join(l1[j]), ' '.join(l2[j]))  # ищем совпадение по смыслу
-    print(a)
+    # print(a)
     if a < config.thresold:
         #html_body.append('<b>' + file1 + '  </b>  ' + ''.join(l1[j]))  # исходный документ
         html_body.append(' '.join(l1[j]))  # исходный документ
@@ -155,6 +155,8 @@ for j in range(ln):
         #html_body.append('<b>ИЗМЕНЕНИЕ:  </b>') # Изменение
         html_body.append(f_compare(' '.join(l1[j]), ' '.join(l2[j])))  # просто сравниваем 2 списка поэлементно
         #html_body.append('<b>______________________________________________________________________________________________</b>') # линия отреза
+    h_tags = tokenize_ru(' '.join(l2[j])) # добавляем хэштеги в абзац
+    print(set(h_tags))
 # print(html_body)
 html_compare = config.html_start + '<br><br>'.join(html_body)  # делает тело html
 # создаем файл с результаттми сравнения
