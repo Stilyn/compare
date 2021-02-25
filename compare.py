@@ -20,6 +20,8 @@ from nltk.tokenize import word_tokenize
 from diff_match_patch import diff_match_patch as diff_module  # для сравнения и раскраски по совету коллег
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
+import jinja2
+from jinja2 import Template, Environment, FileSystemLoader
 
 
 # функция переименования файлов для формирования временных
@@ -159,7 +161,16 @@ for j in range(ln):
     # print(set(h_tags))  # печатаем хэштеги
 # print(html_body)
 html_compare = config.html_start + '<br><br>'.join(html_body)  # делает тело html
+
 # создаем файл с результаттми сравнения
 file_compare_name = file1.split('.')[0] + '_vs_' + file2.split('.')[0] + '.html'
-f = open(file_compare_name, 'w')
-f.write(html_compare)
+# запись в файл
+# f = open(file_compare_name, 'w')
+# f.write(html_compare)
+# f.close()
+env = Environment(loader=FileSystemLoader('./'))
+template = env.get_template('template.html')
+with open(file_compare_name, "w", encoding='utf-8') as f:
+    f.write(template.render(l1=l1, l2=l2))
+    f.close()
+

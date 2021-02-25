@@ -7,4 +7,5 @@ thresold = 88  # от 0 до 100 глубина совпадения по смы
 
 html_start = '<html><head><meta charset="UTF-8"></head><body>'
 html_end = '</body></html>'
+
 # возможно добавить перечень линкуемых библиотек
