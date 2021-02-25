@@ -2,12 +2,11 @@
     <head><meta charset="UTF-8"></head>
     <body>
     <table border="1">
+        <tr><td>Документ1</td><td>%совпадение</td><td>Документ2</td></tr>
+            {% for i in range(len)%}
+        <tr><td>{{q1[i]}}</td><td>{{q3[i]}}</td><td>{{q2[i]}}</td></tr>
+            {% endfor %}
 
-            {% for i in l1%}
-            {% for j in l2%}
-        <tr><td>{{i}}</td><td>{{j}}</td></tr>
-            {% endfor %}
-            {% endfor %}
     </table>
     </body>
 </html>
