@@ -186,5 +186,5 @@ env = Environment(loader=FileSystemLoader(curr_dir))  # подгружаем ш�
 template = env.get_template('template.html')
 print(len(q1), len(q2), len(q3))
 with open(file_compare_name, "w", encoding='utf-8') as f:
-    f.write(template.render(q1=q1, q2=q2, q3=q3, len=len(q3)))
+    f.write(template.render(file_name1=file_rename(file1), file_name2=file_rename(file2), q1=q1, q2=q2, q3=q3, len=len(q3)))
 f.close()
