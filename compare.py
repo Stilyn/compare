@@ -132,13 +132,13 @@ q1 = []  # очищенные списки для вывода html 1 докум
 q2 = []  # очищенные списки для вывода html 2 документа
 q3 = []  # процент совпадения
 
-print(len(doc1.paragraphs), len(doc2.paragraphs))
+# print(len(doc1.paragraphs), len(doc2.paragraphs))
 
 # уравниваем количество параграфов в документах
-if len(doc1.paragraphs) > len(doc2.paragraphs):
-    add_par(doc2, (len(doc1.paragraphs) - len(doc2.paragraphs)), file_rename(file2))
-if len(doc2.paragraphs) > len(doc1.paragraphs):
-    add_par(doc1, (len(doc2.paragraphs) - len(doc1.paragraphs)), file_rename(file1))
+#if len(doc1.paragraphs) > len(doc2.paragraphs):
+#    add_par(doc2, (len(doc1.paragraphs) - len(doc2.paragraphs)), file_rename(file2))
+#if len(doc2.paragraphs) > len(doc1.paragraphs):
+#    add_par(doc1, (len(doc2.paragraphs) - len(doc1.paragraphs)), file_rename(file1))
 
 print(len(doc1.paragraphs), len(doc2.paragraphs))
 
@@ -155,9 +155,11 @@ with open(file_compare_name_d, 'w') as f2:
     hdr_cells[2].text = file_rename(file2)
 
     for i in doc1.paragraphs:  # берем все параграфы документа 1
+        # print(doc1.paragraphs[i].text)
         for j in doc2.paragraphs:
+            # print(j.text)
             a = fuzz.WRatio(i.text, j.text)  # ищем совпадение по смыслу в %
-            # print(a)
+            print(a)
             if a >= config.thresold:
                 # готовим данные для html
                 q1.append(f_compare(i.text, j.text))  # изменения в документе 1
@@ -169,15 +171,16 @@ with open(file_compare_name_d, 'w') as f2:
                 row_cells[1].text = str(a)
                 row_cells[2].text = j.text
                 # потом неплохо было бы их раскрасить
+                break
             else:
                 continue
-            #    q1.append(i.text)  # исходный документ 1
-            #    q2.append(j.text)  # исходный документ 2
-            #    q3.append(a)
+                #q1.append(i.text)  # исходный документ 1
+                #q2.append('жопа')  # исходный документ 2
+                #q3.append(a)
     # сохраняем файл docx
     doc3.save(file_compare_name_d)
     f2.close()
-
+print(len(q1), len(q2), len(q3))
 # создаем файл html с результаттми сравнения
 file_compare_name = file1.split('.')[0] + '_vs_' + file2.split('.')[0] + '.html'
 # запись в файл
