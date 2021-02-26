@@ -11,6 +11,7 @@ import os
 import config
 import docx  # библиотека работа в word
 from docx import Document
+from docx.shared import Inches
 from docx.shared import RGBColor
 from docx.enum.text import WD_COLOR
 import nltk  # библиотека разбора текста
@@ -51,6 +52,7 @@ def add_par(document, par_count, new_name):
     for f in range(par_count):
         document.add_paragraph(' ')
         document.save(new_name)  # подумать как назвать файл
+
 
 # функция разбивки русского текста на слова
 def tokenize_ru(file_text):
@@ -140,26 +142,49 @@ if len(doc2.paragraphs) > len(doc1.paragraphs):
 
 print(len(doc1.paragraphs), len(doc2.paragraphs))
 
-for i in doc1.paragraphs:  # берем все параграфы документа 1
-    for j in doc2.paragraphs:
-        a = fuzz.WRatio(i.text, j.text)  # ищем совпадение по смыслу в %
-        # print(a)
-        if a >= config.thresold:
-            q1.append(f_compare(i.text, j.text))  # изменения в документе 1
-            q2.append(j.text)  # исходный документ 2
-            q3.append(a)
-        else:
-            continue
-        #    q1.append(i.text)  # исходный документ 1
-        #    q2.append(j.text)  # исходный документ 2
-        #    q3.append(a)
-# создаем файл с результаттми сравнения
+# создаем файл docx с результатами сравнения
+file_compare_name_d = file1.split('.')[0] + '_vs_' + file2.split('.')[0] + '.docx'
+# print(file_compare_name_d)
+
+doc3 = Document()  # создаем новый docx куда поместим результаты сравнения
+with open(file_compare_name_d, 'w') as f2:
+    table = doc3.add_table(rows=1, cols=3)
+    hdr_cells = table.rows[0].cells
+    hdr_cells[0].text = file_rename(file1)
+    hdr_cells[1].text = '%'
+    hdr_cells[2].text = file_rename(file2)
+
+    for i in doc1.paragraphs:  # берем все параграфы документа 1
+        for j in doc2.paragraphs:
+            a = fuzz.WRatio(i.text, j.text)  # ищем совпадение по смыслу в %
+            # print(a)
+            if a >= config.thresold:
+                # готовим данные для html
+                q1.append(f_compare(i.text, j.text))  # изменения в документе 1
+                q2.append(j.text)  # исходный документ 2
+                q3.append(a)
+                # добавляем данные в docx
+                row_cells = table.add_row().cells
+                row_cells[0].text = i.text
+                row_cells[1].text = str(a)
+                row_cells[2].text = j.text
+                # потом неплохо было бы их раскрасить
+            else:
+                continue
+            #    q1.append(i.text)  # исходный документ 1
+            #    q2.append(j.text)  # исходный документ 2
+            #    q3.append(a)
+    # сохраняем файл docx
+    doc3.save(file_compare_name_d)
+    f2.close()
+
+# создаем файл html с результаттми сравнения
 file_compare_name = file1.split('.')[0] + '_vs_' + file2.split('.')[0] + '.html'
 # запись в файл
 curr_dir = os.path.dirname(os.path.abspath(__file__))  # указываем что шаблон находится в корне
 env = Environment(loader=FileSystemLoader(curr_dir))  # подгружаем шаблон из текущей папки
 template = env.get_template('template.html')
-print(len(q1), len(q2),len(q3))
+print(len(q1), len(q2), len(q3))
 with open(file_compare_name, "w", encoding='utf-8') as f:
     f.write(template.render(q1=q1, q2=q2, q3=q3, len=len(q3)))
 f.close()
