@@ -164,7 +164,6 @@ with open(file_compare_name_d, 'w') as f2:
             # вот здесь нужно значительно улучшить алгоритм сравнения
 
             print(a)
-
             if a >= config.thresold:
                 # готовим данные для html
                 q2.append(f_compare(i.text, j.text))  # разница между 2 и 1 доком
