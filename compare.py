@@ -168,7 +168,8 @@ with open(file_compare_name_d, 'w') as f2:
                 q3.append(a) # сразу добавляем для html
                 row_cells[1].text = str(a)  # и для docx
                 row_cells[2].text = j.text   # потом неплохо было бы их раскрасить
-            #else:
+            else:
+                continue
             #    q2.append(config.no_paragraph)  # добавляем пустышку
             #    q3.append(a)  # сразу добавляем для html
             #    row_cells[1].text = str(a)  # и для docx
