@@ -160,17 +160,19 @@ with open(file_compare_name_d, 'w') as f2:
         row_cells[0].text = i.text  # сразу добавляем абзац документа 1 в docx
         for j in doc2.paragraphs:
             a = fuzz.WRatio(i.text, j.text)  # ищем совпадение по смыслу в %
-
             # вот здесь нужно значительно улучшить алгоритм сравнения
-
             print(a)
             if a >= config.thresold:
                 # готовим данные для html
                 q2.append(f_compare(i.text, j.text))  # разница между 2 и 1 доком
                 q3.append(a) # сразу добавляем для html
-                #q2.append(j.text)  # исходный документ 2
                 row_cells[1].text = str(a)  # и для docx
                 row_cells[2].text = j.text   # потом неплохо было бы их раскрасить
+            #else:
+            #    q2.append(config.no_paragraph)  # добавляем пустышку
+            #    q3.append(a)  # сразу добавляем для html
+            #    row_cells[1].text = str(a)  # и для docx
+            #    row_cells[2].text = config.no_paragraph   # потом неплохо было бы их раскрасить
     doc3.save(file_compare_name_d)  # сохраняем файл docx
     f2.close()
 print(len(q1), len(q2), len(q3))
