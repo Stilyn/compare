@@ -93,7 +93,7 @@ def f_compare(p1, p2):
     dmp = diff_module()
     diffs = dmp.diff_main(p1, p2)  # разница
     # dmp.diff_cleanupSemantic(diffs)
-
+    # вот здесь нужно значительно улучшить алгоритм сравнения
     return dmp.diff_prettyHtml(diffs)
 
 
@@ -153,32 +153,26 @@ with open(file_compare_name_d, 'w') as f2:
     hdr_cells[0].text = file_rename(file1)
     hdr_cells[1].text = '%'
     hdr_cells[2].text = file_rename(file2)
-
     for i in doc1.paragraphs:  # берем все параграфы документа 1
         # print(doc1.paragraphs[i].text)
+        q1.append(i.text)  # сразу добавляем абзац документа 1 в html
+        row_cells = table.add_row().cells  # добавляем данные в строку таблицы docx
+        row_cells[0].text = i.text  # сразу добавляем абзац документа 1 в docx
         for j in doc2.paragraphs:
-            # print(j.text)
             a = fuzz.WRatio(i.text, j.text)  # ищем совпадение по смыслу в %
+
+            # вот здесь нужно значительно улучшить алгоритм сравнения
+
             print(a)
-            if a >= config.thresold:
-                # готовим данные для html
-                q1.append(f_compare(i.text, j.text))  # изменения в документе 1
-                q2.append(j.text)  # исходный документ 2
-                q3.append(a)
-                # добавляем данные в docx
-                row_cells = table.add_row().cells
-                row_cells[0].text = i.text
-                row_cells[1].text = str(a)
-                row_cells[2].text = j.text
-                # потом неплохо было бы их раскрасить
-                break
-            else:
-                continue
-                #q1.append(i.text)  # исходный документ 1
-                #q2.append('жопа')  # исходный документ 2
-                #q3.append(a)
-    # сохраняем файл docx
-    doc3.save(file_compare_name_d)
+            for aq in config.thresold:  # пробуем через список точностей
+                if a >= aq:
+                    # готовим данные для html
+                    q2.append(f_compare(i.text, j.text))  # разница между 2 и 1 доком
+                    q3.append(a) # сразу добавляем для html
+                    #q2.append(j.text)  # исходный документ 2
+                    row_cells[1].text = str(a)  # и для docx
+                    row_cells[2].text = j.text   # потом неплохо было бы их раскрасить
+    doc3.save(file_compare_name_d)  # сохраняем файл docx
     f2.close()
 print(len(q1), len(q2), len(q3))
 # создаем файл html с результаттми сравнения
@@ -189,5 +183,5 @@ env = Environment(loader=FileSystemLoader(curr_dir))  # подгружаем ш�
 template = env.get_template('template.html')
 print(len(q1), len(q2), len(q3))
 with open(file_compare_name, "w", encoding='utf-8') as f:
-    f.write(template.render(file_name1=file_rename(file1), file_name2=file_rename(file2), q1=q1, q2=q2, q3=q3, len=len(q3)))
+    f.write(template.render(file_name1=file_rename(file1), file_name2=file_rename(file2), q1=q1, q2=q2, q3=q3, len=max(len(q1),len(q2),len(q3))))
 f.close()
