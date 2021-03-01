@@ -46,6 +46,7 @@ def mind_generate(text):
         print(jp.children)
     '''
 
+
     [Match(referent=GeoReferent(label='GEO', slots=[Slot(key='ALPHA2', value='RU'), Slot(key='NAME', value='РФ'), Slot(key='NAME', value='РОССИЙСКАЯ ФЕДЕРАЦИЯ'), Slot(key='NAME', value='РОССИЯ'), Slot(key='TYPE', value='государство')]), span=Span(start=50, stop=70), children=[]), Match(referent=DateRangeReferent(label='DATERANGE', slots=[Slot(key='TO', value=DateReferent(label='DATE', slots=[Slot(key='YEAR', value='2030')]))]), span=Span(start=116, stop=128), children=[Match(referent=DateReferent(label='DATE', slots=[Slot(key='YEAR', value='2030')]), span=Span(start=119, stop=128), children=[])])]
     '''
     #print(mind.matches[0])
