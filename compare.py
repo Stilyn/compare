@@ -7,9 +7,11 @@ python3 compare.py Основы.docx Основы2.docx
 
 # imports
 import sys
+import os
 import config
 import docx  # библиотека работа в word
 from docx import Document
+from docx.shared import Inches
 from docx.shared import RGBColor
 from docx.enum.text import WD_COLOR
 import nltk  # библиотека разбора текста
@@ -20,6 +22,8 @@ from nltk.tokenize import word_tokenize
 from diff_match_patch import diff_match_patch as diff_module  # для сравнения и раскраски по совету коллег
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
+import jinja2
+from jinja2 import Template, Environment, FileSystemLoader
 
 
 # функция переименования файлов для формирования временных
@@ -89,7 +93,7 @@ def f_compare(p1, p2):
     dmp = diff_module()
     diffs = dmp.diff_main(p1, p2)  # разница
     # dmp.diff_cleanupSemantic(diffs)
-
+    # вот здесь нужно значительно улучшить алгоритм сравнения
     return dmp.diff_prettyHtml(diffs)
 
 
@@ -124,42 +128,61 @@ file_rename(file2) это имя переименованного файла 2
 '''
 doc1 = docx.Document(file_rename(file1))
 doc2 = docx.Document(file_rename(file2))
+q1 = []  # очищенные списки для вывода html 1 документа
+q2 = []  # очищенные списки для вывода html 2 документа
+q3 = []  # процент совпадения
 
-html_body = []  # наш будущий html для сравнения
-l1 = []
-l2 = []
-for i in doc1.paragraphs:  # берем все параграфы документа 1
-    l1.append(nltk.sent_tokenize(i.text))
-for j in doc2.paragraphs:
-    l2.append(nltk.sent_tokenize(j.text))
-# print(l1)
-# print(l2)
-if len(l1) >= len(l2):
-    ln = len(l1)
-    for q in range(len(l1) - len(l2)):
-        l2.append(' ')  # уравниваем количество элементов в списках
-else:
-    ln = len(l2)
-    for q in range(len(l2) - len(l1)):
-        l1.append(' ')  # уравниваем количество элементов в списках
-# print(len(l1))
-# print(len(l2))
-for j in range(ln):
-    a = fuzz.WRatio(' '.join(l1[j]), ' '.join(l2[j]))  # ищем совпадение по смыслу
-    # print(a)
-    if a < config.thresold:
-        # html_body.append('<b>' + file1 + '  </b>  ' + ''.join(l1[j]))  # исходный документ
-        html_body.append(' '.join(l2[j]))  # исходный документ
-    else:
-        # html_body.append('<b>'+ file2 +'  </b>  ' + ''.join(l2[j])) # Изменение
-        # html_body.append('<b>ИЗМЕНЕНИЕ:  </b>') # Изменение
-        html_body.append(f_compare(' '.join(l1[j]), ' '.join(l2[j])))  # просто сравниваем 2 списка поэлементно
-        # html_body.append('<b>______________________________________________________________________________________________</b>') # линия отреза
-    # h_tags = tokenize_ru(' '.join(l2[j]).lower()) # добавляем хэштеги в абзац lower - переводит все слова в нижний регистр
-    # print(set(h_tags))  # печатаем хэштеги
-# print(html_body)
-html_compare = config.html_start + '<br><br>'.join(html_body)  # делает тело html
-# создаем файл с результаттми сравнения
+# print(len(doc1.paragraphs), len(doc2.paragraphs))
+
+# уравниваем количество параграфов в документах
+#if len(doc1.paragraphs) > len(doc2.paragraphs):
+#    add_par(doc2, (len(doc1.paragraphs) - len(doc2.paragraphs)), file_rename(file2))
+#if len(doc2.paragraphs) > len(doc1.paragraphs):
+#    add_par(doc1, (len(doc2.paragraphs) - len(doc1.paragraphs)), file_rename(file1))
+
+print(len(doc1.paragraphs), len(doc2.paragraphs))
+
+# создаем файл docx с результатами сравнения
+file_compare_name_d = file1.split('.')[0] + '_vs_' + file2.split('.')[0] + '.docx'
+# print(file_compare_name_d)
+
+doc3 = Document()  # создаем новый docx куда поместим результаты сравнения
+with open(file_compare_name_d, 'w') as f2:
+    table = doc3.add_table(rows=1, cols=3)
+    hdr_cells = table.rows[0].cells
+    hdr_cells[0].text = file_rename(file1)
+    hdr_cells[1].text = '%'
+    hdr_cells[2].text = file_rename(file2)
+    for i in doc1.paragraphs:  # берем все параграфы документа 1
+        # print(doc1.paragraphs[i].text)
+        q1.append(i.text)  # сразу добавляем абзац документа 1 в html
+        row_cells = table.add_row().cells  # добавляем данные в строку таблицы docx
+        row_cells[0].text = i.text  # сразу добавляем абзац документа 1 в docx
+        for j in doc2.paragraphs:
+            a = fuzz.WRatio(i.text, j.text)  # ищем совпадение по смыслу в %
+            # вот здесь нужно значительно улучшить алгоритм сравнения
+            print(a)
+            if a >= config.thresold:
+                # готовим данные для html
+                q2.append(f_compare(i.text, j.text))  # разница между 2 и 1 доком
+                q3.append(a) # сразу добавляем для html
+                row_cells[1].text = str(a)  # и для docx
+                row_cells[2].text = j.text   # потом неплохо было бы их раскрасить
+            #else:
+            #    q2.append(config.no_paragraph)  # добавляем пустышку
+            #    q3.append(a)  # сразу добавляем для html
+            #    row_cells[1].text = str(a)  # и для docx
+            #    row_cells[2].text = config.no_paragraph   # потом неплохо было бы их раскрасить
+    doc3.save(file_compare_name_d)  # сохраняем файл docx
+    f2.close()
+print(len(q1), len(q2), len(q3))
+# создаем файл html с результаттми сравнения
 file_compare_name = file1.split('.')[0] + '_vs_' + file2.split('.')[0] + '.html'
-f = open(file_compare_name, 'w')
-f.write(html_compare)
+# запись в файл
+curr_dir = os.path.dirname(os.path.abspath(__file__))  # указываем что шаблон находится в корне
+env = Environment(loader=FileSystemLoader(curr_dir))  # подгружаем шаблон из текущей папки
+template = env.get_template('template.html')
+print(len(q1), len(q2), len(q3))
+with open(file_compare_name, "w", encoding='utf-8') as f:
+    f.write(template.render(file_name1=file_rename(file1), file_name2=file_rename(file2), q1=q1, q2=q2, q3=q3, len=max(len(q1),len(q2),len(q3))))
+f.close()
