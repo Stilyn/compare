@@ -24,6 +24,37 @@ from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 import jinja2
 from jinja2 import Template, Environment, FileSystemLoader
+import jinja2
+from jinja2 import Template, Environment, FileSystemLoader
+
+# ********************************************смысловой разбор и поиск ключевых слов
+import pullenti_wrapper
+from pullenti_wrapper.langs import (set_langs, RU, EN)
+
+set_langs([RU, EN])
+
+from pullenti_wrapper.processor import (Processor, DATE, GEO, ORGANIZATION, PERSON, MONEY, ADDRESS)
+
+processor = Processor([DATE, GEO, ORGANIZATION, PERSON, MONEY, ADDRESS])
+
+def mind_generate(text):
+    mind = processor(text)
+    #print(mind.text)
+    #print(mind.matches)  # это список
+    for jp in mind.matches:
+        print(jp.referent)
+        print(jp.children)
+    '''
+    
+    
+    
+    [Match(referent=GeoReferent(label='GEO', slots=[Slot(key='ALPHA2', value='RU'), Slot(key='NAME', value='РФ'), Slot(key='NAME', value='РОССИЙСКАЯ ФЕДЕРАЦИЯ'), Slot(key='NAME', value='РОССИЯ'), Slot(key='TYPE', value='государство')]), span=Span(start=50, stop=70), children=[]), Match(referent=DateRangeReferent(label='DATERANGE', slots=[Slot(key='TO', value=DateReferent(label='DATE', slots=[Slot(key='YEAR', value='2030')]))]), span=Span(start=116, stop=128), children=[Match(referent=DateReferent(label='DATE', slots=[Slot(key='YEAR', value='2030')]), span=Span(start=119, stop=128), children=[])])]
+    '''
+    #print(mind.matches[0])
+
+
+
+# ********************************************смысловой разбор и поиск ключевых слов
 
 
 # функция переименования файлов для формирования временных
@@ -135,9 +166,9 @@ q3 = []  # процент совпадения
 # print(len(doc1.paragraphs), len(doc2.paragraphs))
 
 # уравниваем количество параграфов в документах
-#if len(doc1.paragraphs) > len(doc2.paragraphs):
+# if len(doc1.paragraphs) > len(doc2.paragraphs):
 #    add_par(doc2, (len(doc1.paragraphs) - len(doc2.paragraphs)), file_rename(file2))
-#if len(doc2.paragraphs) > len(doc1.paragraphs):
+# if len(doc2.paragraphs) > len(doc1.paragraphs):
 #    add_par(doc1, (len(doc2.paragraphs) - len(doc1.paragraphs)), file_rename(file1))
 
 print(len(doc1.paragraphs), len(doc2.paragraphs))
@@ -148,31 +179,42 @@ file_compare_name_d = file1.split('.')[0] + '_vs_' + file2.split('.')[0] + '.doc
 
 doc3 = Document()  # создаем новый docx куда поместим результаты сравнения
 with open(file_compare_name_d, 'w') as f2:
+    # создаем таблицу и шапку
     table = doc3.add_table(rows=1, cols=3)
     hdr_cells = table.rows[0].cells
     hdr_cells[0].text = file_rename(file1)
     hdr_cells[1].text = '%'
     hdr_cells[2].text = file_rename(file2)
     for i in doc1.paragraphs:  # берем все параграфы документа 1
+        mind_generate(i.text)
         # print(doc1.paragraphs[i].text)
-        q1.append(i.text)  # сразу добавляем абзац документа 1 в html
-        row_cells = table.add_row().cells  # добавляем данные в строку таблицы docx
-        row_cells[0].text = i.text  # сразу добавляем абзац документа 1 в docx
         for j in doc2.paragraphs:
-            a = fuzz.WRatio(i.text, j.text)  # ищем совпадение по смыслу в %
-            # вот здесь нужно значительно улучшить алгоритм сравнения
+            # print(' '.join(tokenize_ru(i.text)))
+            a = fuzz.WRatio(' '.join(tokenize_ru(i.text)),
+                            ' '.join(tokenize_ru(j.text)))  # ищем совпадение по смыслу в %
+            '''
+            вот здесь нужно значительно улучшить алгоритм сравнения
+            выделить ключевые слова
+            по каждому ключевому слову посмотреть вхождение
+            '''
             print(a)
             if a >= config.thresold:
                 # готовим данные для html
-                q2.append(f_compare(i.text, j.text))  # разница между 2 и 1 доком
-                q3.append(a) # сразу добавляем для html
+                q1.append(i.text)  # сразу добавляем абзац документа 1 в html
+                # q2.append(f_compare(i.text, j.text))  # разница между 2 и 1 доком
+                q2.append(j.text)  # разница между 2 и 1 доком
+                q3.append(a)  # сразу добавляем для html
+                row_cells = table.add_row().cells  # добавляем данные в строку таблицы docx
+                row_cells[0].text = i.text  # сразу добавляем абзац документа 1 в docx
                 row_cells[1].text = str(a)  # и для docx
-                row_cells[2].text = j.text   # потом неплохо было бы их раскрасить
-            #else:
-            #    q2.append(config.no_paragraph)  # добавляем пустышку
-            #    q3.append(a)  # сразу добавляем для html
-            #    row_cells[1].text = str(a)  # и для docx
-            #    row_cells[2].text = config.no_paragraph   # потом неплохо было бы их раскрасить
+                row_cells[2].text = j.text  # потом неплохо было бы их раскрасить
+            else:
+                # q1.append(i.text)  # сразу добавляем абзац документа 1 в html
+                # q2.append(config.no_paragraph)  # добавляем пустышку
+                # q3.append(a)  # сразу добавляем для html
+                # row_cells[1].text = str(a)  # и для docx
+                # row_cells[2].text = config.no_paragraph   # потом неплохо было бы их раскрасить
+                continue
     doc3.save(file_compare_name_d)  # сохраняем файл docx
     f2.close()
 print(len(q1), len(q2), len(q3))
@@ -184,5 +226,6 @@ env = Environment(loader=FileSystemLoader(curr_dir))  # подгружаем ш�
 template = env.get_template('template.html')
 print(len(q1), len(q2), len(q3))
 with open(file_compare_name, "w", encoding='utf-8') as f:
-    f.write(template.render(file_name1=file_rename(file1), file_name2=file_rename(file2), q1=q1, q2=q2, q3=q3, len=max(len(q1),len(q2),len(q3))))
+    f.write(template.render(file_name1=file_rename(file1), file_name2=file_rename(file2), q1=q1, q2=q2, q3=q3,
+                            len=max(len(q1), len(q2), len(q3))))
 f.close()
