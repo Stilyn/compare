@@ -37,22 +37,6 @@ from pullenti_wrapper.processor import (Processor, DATE, GEO, ORGANIZATION, PERS
 
 processor = Processor([DATE, GEO, ORGANIZATION, PERSON, MONEY, ADDRESS])
 
-
-def zart_flatten(a):  # a - многовложенный list с неопределенной глубиной
-    """
-    Non recursive algorithm
-    Based on pop from old and append elements to new list
-    """
-    queue, out = [a], []
-    while queue:
-        elem = queue.pop(-1)
-        if isinstance(elem, list):
-            queue.extend(elem)
-        else:
-            out.append(elem)
-    return out[::-1]
-
-
 def mind_generate(text):
     mind = processor(text)
     mslots = []  # делаем словарь ключевых слов
