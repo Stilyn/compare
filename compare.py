@@ -37,20 +37,23 @@ from pullenti_wrapper.processor import (Processor, DATE, GEO, ORGANIZATION, PERS
 
 processor = Processor([DATE, GEO, ORGANIZATION, PERSON, MONEY, ADDRESS])
 
+
 def mind_generate(text):
     mind = processor(text)
-    #print(mind.text)
-    #print(mind.matches)  # это список
-    for jp in mind.matches:
-        print(jp.referent)
-        print(jp.children)
-    '''
-
-
-    [Match(referent=GeoReferent(label='GEO', slots=[Slot(key='ALPHA2', value='RU'), Slot(key='NAME', value='РФ'), Slot(key='NAME', value='РОССИЙСКАЯ ФЕДЕРАЦИЯ'), Slot(key='NAME', value='РОССИЯ'), Slot(key='TYPE', value='государство')]), span=Span(start=50, stop=70), children=[]), Match(referent=DateRangeReferent(label='DATERANGE', slots=[Slot(key='TO', value=DateReferent(label='DATE', slots=[Slot(key='YEAR', value='2030')]))]), span=Span(start=116, stop=128), children=[Match(referent=DateReferent(label='DATE', slots=[Slot(key='YEAR', value='2030')]), span=Span(start=119, stop=128), children=[])])]
-    '''
-    #print(mind.matches[0])
-
+    mslots = {}  # делаем словарь ключевых слов
+    # print(mind.text)
+    # print(mind.matches)  # это список
+    for jp in mind.walk():
+        label = jp.referent.label
+        slots = jp.referent.slots
+        mslots.update({label: label})
+        for d in slots:
+            if isinstance(d, list):
+                for lst in d:
+                    mslots.update({lst.key: lst.value})
+            else:
+                mslots.update({d.key: d.value})
+    return mslots.values()  # возвращает список ключевых слов файла
 
 
 # ********************************************смысловой разбор и поиск ключевых слов
@@ -185,17 +188,17 @@ with open(file_compare_name_d, 'w') as f2:
     hdr_cells[1].text = '%'
     hdr_cells[2].text = file_rename(file2)
     for i in doc1.paragraphs:  # берем все параграфы документа 1
-        mind_generate(i.text)
+        i_mind = mind_generate(i.text)
         # print(doc1.paragraphs[i].text)
         for j in doc2.paragraphs:
-            # print(' '.join(tokenize_ru(i.text)))
+            j_mind = mind_generate(j.text)
+            print('********** 1 *********************')
+            print(i_mind)
+            print('********** 2 *********************')
+            print(j_mind)
+            print('********** % *********************')
             a = fuzz.WRatio(' '.join(tokenize_ru(i.text)),
                             ' '.join(tokenize_ru(j.text)))  # ищем совпадение по смыслу в %
-            '''
-            вот здесь нужно значительно улучшить алгоритм сравнения
-            выделить ключевые слова
-            по каждому ключевому слову посмотреть вхождение
-            '''
             print(a)
             if a >= config.thresold:
                 # готовим данные для html
