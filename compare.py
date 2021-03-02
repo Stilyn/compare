@@ -38,7 +38,7 @@ from pullenti_wrapper.processor import (Processor, DATE, GEO, ORGANIZATION, PERS
 processor = Processor([DATE, GEO, ORGANIZATION, PERSON, MONEY, ADDRESS])
 
 
-def zart_flatten(a: Iterable) -> List:
+def zart_flatten(a): # a - многовложенный list с неопределенной глубиной
     """
     Non recursive algorithm
     Based on pop from old and append elements to new list
@@ -59,12 +59,10 @@ def mind_generate(text):
     # print(mind.matches)  # это список
     for jp in mind.walk():
         label = jp.referent.label
-        slots = jp.referent.slots
+        #slots = jp.referent.slots
+        children = jp.referent.children
         mslots.update({label: label})
         for d in jp.referent.slots:
-            #print(d.key, d.value)
-            if d.slots:
-                print(d.slots)
             mslots.update({d.key: d.value})
     return mslots.values()  # возвращает список ключевых слов файла
 
