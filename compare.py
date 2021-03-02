@@ -38,6 +38,20 @@ from pullenti_wrapper.processor import (Processor, DATE, GEO, ORGANIZATION, PERS
 processor = Processor([DATE, GEO, ORGANIZATION, PERSON, MONEY, ADDRESS])
 
 
+def zart_flatten(a: Iterable) -> List:
+    """
+    Non recursive algorithm
+    Based on pop from old and append elements to new list
+    """
+    queue, out = [a], []
+    while queue:
+        elem = queue.pop(-1)
+        if isinstance(elem, list):
+            queue.extend(elem)
+        else:
+            out.append(elem)
+    return out[::-1]
+
 def mind_generate(text):
     mind = processor(text)
     mslots = {}  # делаем словарь ключевых слов
@@ -47,12 +61,11 @@ def mind_generate(text):
         label = jp.referent.label
         slots = jp.referent.slots
         mslots.update({label: label})
-        for d in slots:
-            if isinstance(d, list):
-                for lst in d:
-                    mslots.update({lst.key: lst.value})
-            else:
-                mslots.update({d.key: d.value})
+        for d in jp.referent.slots:
+            #print(d.key, d.value)
+            if d.slots:
+                print(d.slots)
+            mslots.update({d.key: d.value})
     return mslots.values()  # возвращает список ключевых слов файла
 
 
