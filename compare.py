@@ -38,7 +38,7 @@ from pullenti_wrapper.processor import (Processor, DATE, GEO, ORGANIZATION, PERS
 processor = Processor([DATE, GEO, ORGANIZATION, PERSON, MONEY, ADDRESS])
 
 
-def zart_flatten(a): # a - многовложенный list с неопределенной глубиной
+def zart_flatten(a):  # a - многовложенный list с неопределенной глубиной
     """
     Non recursive algorithm
     Based on pop from old and append elements to new list
@@ -52,19 +52,22 @@ def zart_flatten(a): # a - многовложенный list с неопреде
             out.append(elem)
     return out[::-1]
 
+
 def mind_generate(text):
     mind = processor(text)
-    mslots = {}  # делаем словарь ключевых слов
+    mslots = []  # делаем словарь ключевых слов
     # print(mind.text)
     # print(mind.matches)  # это список
-    for jp in mind.walk():
-        label = jp.referent.label
-        #slots = jp.referent.slots
-        children = jp.referent.children
-        mslots.update({label: label})
-        for d in jp.referent.slots:
-            mslots.update({d.key: d.value})
-    return mslots.values()  # возвращает список ключевых слов файла
+    # for jp in mind.walk():
+    #    label = jp.referent.label
+    #    mslots.update({label: label})
+    #    for d in jp.referent.slots:
+    #        mslots.update({d.key: d.value})
+    if len(mind.raw.entities) > 0:
+        for k in mind.raw.entities:
+            print(k)  # но там еще много аттрибутов
+            mslots.append(k)
+    return mslots  # возвращает список ключевых слов файла
 
 
 # ********************************************смысловой разбор и поиск ключевых слов
