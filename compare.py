@@ -33,25 +33,24 @@ from pullenti_wrapper.langs import (set_langs, RU, EN)
 
 set_langs([RU, EN])
 
-from pullenti_wrapper.processor import (Processor, DATE, GEO, ORGANIZATION, PERSON, MONEY, ADDRESS)
+from pullenti_wrapper.processor import (Processor, ORGANIZATION) #DATE) #, ORGANIZATION) #GEO, ORGANIZATION, PERSON) # ''', MONEY, ADDRESS)'''
 
-processor = Processor([DATE, GEO, ORGANIZATION, PERSON, MONEY, ADDRESS])
+processor = Processor([ORGANIZATION]) #DATE]) #, ORGANIZATION]) #GEO, ORGANIZATION, PERSON]) # ''', MONEY, ADDRESS])'''
+
 
 def mind_generate(text):
-    mind = processor(text)
-    mslots = []  # делаем словарь ключевых слов
-    # print(mind.text)
-    # print(mind.matches)  # это список
-    # for jp in mind.walk():
-    #    label = jp.referent.label
-    #    mslots.update({label: label})
-    #    for d in jp.referent.slots:
-    #        mslots.update({d.key: d.value})
-    if len(mind.raw.entities) > 0:
-        for k in mind.raw.entities:
-            print(k)  # но там еще много аттрибутов
-            mslots.append(k)
-    return mslots  # возвращает список ключевых слов файла
+    result = processor(text)
+    mslots = {}  # делаем словарь ключевых слов
+    for match in result.walk():
+        slots = match.referent.slots
+        label = match.referent.label
+        for d in slots:
+            print(d.value)
+            if isinstance(d.value, str) :
+                mslots.update({label: label})
+                mslots.update({d.key: d.value})
+    # print('*** slots **', mslots.values())
+    return mslots    # return mslots  # возвращает список ключевых слов файла
 
 
 # ********************************************смысловой разбор и поиск ключевых слов
@@ -162,6 +161,8 @@ doc2 = docx.Document(file_rename(file2))
 q1 = []  # очищенные списки для вывода html 1 документа
 q2 = []  # очищенные списки для вывода html 2 документа
 q3 = []  # процент совпадения
+q4 = []  # ключевые слова документа 1
+q5 = []  # ключевые слова документа 2
 
 # print(len(doc1.paragraphs), len(doc2.paragraphs))
 
@@ -186,24 +187,26 @@ with open(file_compare_name_d, 'w') as f2:
     hdr_cells[1].text = '%'
     hdr_cells[2].text = file_rename(file2)
     for i in doc1.paragraphs:  # берем все параграфы документа 1
-        i_mind = mind_generate(i.text)
+        i_mind = mind_generate(i.text)  # это словарь
+        #print('\n\n1 ********', ' '.join(i_mind.values()))
         # print(doc1.paragraphs[i].text)
         for j in doc2.paragraphs:
-            j_mind = mind_generate(j.text)
-            print('********** 1 *********************')
-            print(i_mind)
-            print('********** 2 *********************')
-            print(j_mind)
-            print('********** % *********************')
-            a = fuzz.WRatio(' '.join(tokenize_ru(i.text)),
-                            ' '.join(tokenize_ru(j.text)))  # ищем совпадение по смыслу в %
-            print(a)
+            j_mind = mind_generate(j.text)   # это словарь
+            #print('2 ********', ' '.join(j_mind.values()))
+            # a = fuzz.WRatio(' '.join(tokenize_ru(i.text)),
+            #                ' '.join(tokenize_ru(j.text)))  # ищем совпадение по смыслу в %
+            a = fuzz.WRatio(i.text, j.text)  # ищем совпадение по смыслу в %
+            #print('% текст ********', a)
+            #b = fuzz.ratio(' '.join(i_mind.values()), ' '.join(j_mind.values()))
+            #print('% ключи ********', b)
             if a >= config.thresold:
                 # готовим данные для html
                 q1.append(i.text)  # сразу добавляем абзац документа 1 в html
                 # q2.append(f_compare(i.text, j.text))  # разница между 2 и 1 доком
                 q2.append(j.text)  # разница между 2 и 1 доком
                 q3.append(a)  # сразу добавляем для html
+                q4.append(' '.join(i_mind.values()))
+                q5.append(' '.join(j_mind.values()))
                 row_cells = table.add_row().cells  # добавляем данные в строку таблицы docx
                 row_cells[0].text = i.text  # сразу добавляем абзац документа 1 в docx
                 row_cells[1].text = str(a)  # и для docx
@@ -226,6 +229,6 @@ env = Environment(loader=FileSystemLoader(curr_dir))  # подгружаем ш�
 template = env.get_template('template.html')
 print(len(q1), len(q2), len(q3))
 with open(file_compare_name, "w", encoding='utf-8') as f:
-    f.write(template.render(file_name1=file_rename(file1), file_name2=file_rename(file2), q1=q1, q2=q2, q3=q3,
+    f.write(template.render(file_name1=file_rename(file1), file_name2=file_rename(file2), q1=q1, q2=q2, q3=q3, q4=q4, q5=q5,
                             len=max(len(q1), len(q2), len(q3))))
 f.close()
