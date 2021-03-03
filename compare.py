@@ -33,9 +33,9 @@ from pullenti_wrapper.langs import (set_langs, RU, EN)
 
 set_langs([RU, EN])
 
-from pullenti_wrapper.processor import (Processor, ORGANIZATION) #DATE) #, ORGANIZATION) #GEO, ORGANIZATION, PERSON) # ''', MONEY, ADDRESS)'''
+from pullenti_wrapper.processor import (Processor, DATE, GEO, ORGANIZATION, PERSON, MONEY, ADDRESS)
 
-processor = Processor([ORGANIZATION]) #DATE]) #, ORGANIZATION]) #GEO, ORGANIZATION, PERSON]) # ''', MONEY, ADDRESS])'''
+processor = Processor([DATE, GEO, ORGANIZATION, PERSON, MONEY, ADDRESS])
 
 
 def mind_generate(text):
@@ -45,12 +45,13 @@ def mind_generate(text):
         slots = match.referent.slots
         label = match.referent.label
         for d in slots:
-            print(d.value)
+            # print(d.value)
             if isinstance(d.value, str) :
                 mslots.update({label: label})
                 mslots.update({d.key: d.value})
-    # print('*** slots **', mslots.values())
-    return mslots    # return mslots  # возвращает список ключевых слов файла
+            # если не str пробежаться рекурсией до руды
+    print('*** slots **', mslots.values())
+    return mslots    # возвращает словарь ключевых слов файла
 
 
 # ********************************************смысловой разбор и поиск ключевых слов
@@ -181,11 +182,11 @@ file_compare_name_d = file1.split('.')[0] + '_vs_' + file2.split('.')[0] + '.doc
 doc3 = Document()  # создаем новый docx куда поместим результаты сравнения
 with open(file_compare_name_d, 'w') as f2:
     # создаем таблицу и шапку
-    table = doc3.add_table(rows=1, cols=3)
-    hdr_cells = table.rows[0].cells
-    hdr_cells[0].text = file_rename(file1)
-    hdr_cells[1].text = '%'
-    hdr_cells[2].text = file_rename(file2)
+    #table = doc3.add_table(rows=1, cols=3)
+    #hdr_cells = table.rows[0].cells
+    #hdr_cells[0].text = file_rename(file1)
+    #hdr_cells[1].text = '%'
+    #hdr_cells[2].text = file_rename(file2)
     for i in doc1.paragraphs:  # берем все параграфы документа 1
         i_mind = mind_generate(i.text)  # это словарь
         #print('\n\n1 ********', ' '.join(i_mind.values()))
@@ -197,9 +198,9 @@ with open(file_compare_name_d, 'w') as f2:
             #                ' '.join(tokenize_ru(j.text)))  # ищем совпадение по смыслу в %
             a = fuzz.WRatio(i.text, j.text)  # ищем совпадение по смыслу в %
             #print('% текст ********', a)
-            #b = fuzz.ratio(' '.join(i_mind.values()), ' '.join(j_mind.values()))
+            b = fuzz.ratio(' '.join(i_mind.values()), ' '.join(j_mind.values()))
             #print('% ключи ********', b)
-            if a >= config.thresold:
+            if b >= config.thresold and a >= config.thresold: # внимательно посмотреть на это условие
                 # готовим данные для html
                 q1.append(i.text)  # сразу добавляем абзац документа 1 в html
                 # q2.append(f_compare(i.text, j.text))  # разница между 2 и 1 доком
@@ -207,10 +208,10 @@ with open(file_compare_name_d, 'w') as f2:
                 q3.append(a)  # сразу добавляем для html
                 q4.append(' '.join(i_mind.values()))
                 q5.append(' '.join(j_mind.values()))
-                row_cells = table.add_row().cells  # добавляем данные в строку таблицы docx
-                row_cells[0].text = i.text  # сразу добавляем абзац документа 1 в docx
-                row_cells[1].text = str(a)  # и для docx
-                row_cells[2].text = j.text  # потом неплохо было бы их раскрасить
+                #row_cells = table.add_row().cells  # добавляем данные в строку таблицы docx
+                #row_cells[0].text = i.text  # сразу добавляем абзац документа 1 в docx
+                #row_cells[1].text = str(a)  # и для docx
+                #row_cells[2].text = j.text  # потом неплохо было бы их раскрасить
             else:
                 # q1.append(i.text)  # сразу добавляем абзац документа 1 в html
                 # q2.append(config.no_paragraph)  # добавляем пустышку
@@ -220,7 +221,7 @@ with open(file_compare_name_d, 'w') as f2:
                 continue
     doc3.save(file_compare_name_d)  # сохраняем файл docx
     f2.close()
-print(len(q1), len(q2), len(q3))
+# print(len(q1), len(q2), len(q3))
 # создаем файл html с результаттми сравнения
 file_compare_name = file1.split('.')[0] + '_vs_' + file2.split('.')[0] + '.html'
 # запись в файл
