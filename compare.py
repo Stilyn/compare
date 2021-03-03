@@ -164,7 +164,8 @@ q2 = []  # очищенные списки для вывода html 2 докум
 q3 = []  # процент совпадения
 q4 = []  # ключевые слова документа 1
 q5 = []  # ключевые слова документа 2
-
+q21 = []
+q51 = []
 # print(len(doc1.paragraphs), len(doc2.paragraphs))
 
 # уравниваем количество параграфов в документах
@@ -197,7 +198,7 @@ with open(file_compare_name_d, 'w') as f2:
         q4.append(' '.join(i_mind.values()))
         #print('\n\n1 ********', ' '.join(i_mind.values()))
         # print(doc1.paragraphs[i].text)
-        for j in range(len(doc2.paragraphs)):
+        for j in range(len(q2)):
             #j_mind = mind_generate(j.text)   # это словарь
             #print('2 ********', ' '.join(j_mind.values()))
             # a = fuzz.WRatio(' '.join(tokenize_ru(i.text)),
@@ -210,6 +211,9 @@ with open(file_compare_name_d, 'w') as f2:
                 # готовим данные для html
                 # q2.append(f_compare(i.text, j.text))  # разница между 2 и 1 доком
                 q3.append(str(a)+'|'+ str(b))  # сразу добавляем для html
+                q21.append(q2[j])
+                q51.append(q5[j])
+
                 #print(q3)
                 #row_cells = table.add_row().cells  # добавляем данные в строку таблицы docx
                 #row_cells[0].text = i.text  # сразу добавляем абзац документа 1 в docx
@@ -233,6 +237,6 @@ env = Environment(loader=FileSystemLoader(curr_dir))  # подгружаем ш�
 template = env.get_template('template.html')
 print(len(q1), len(q2), len(q3))
 with open(file_compare_name, "w", encoding='utf-8') as f:
-    f.write(template.render(file_name1=file_rename(file1), file_name2=file_rename(file2), q1=q1, q2=q2, q3=q3, q4=q4, q5=q5,
+    f.write(template.render(file_name1=file_rename(file1), file_name2=file_rename(file2), q1=q1, q2=q21, q3=q3, q4=q4, q5=q51,
                             len=max(len(q1), len(q2), len(q3))))
 f.close()
