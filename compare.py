@@ -27,7 +27,7 @@ from jinja2 import Template, Environment, FileSystemLoader
 import jinja2
 from jinja2 import Template, Environment, FileSystemLoader
 
-# ********************************************смысловой разбор и поиск ключевых слов
+# ********************************************   смысловой разбор и поиск ключевых слов
 import pullenti_wrapper
 from pullenti_wrapper.langs import (set_langs, RU, EN)
 
