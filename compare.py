@@ -204,23 +204,24 @@ with open(file_compare_name_d, 'w') as f2:
             # ' '.join(tokenize_ru(j.text)))  # ищем совпадение по смыслу в %
             a = fuzz.WRatio(i.text, q2[j])  # ищем совпадение по смыслу в %
             #print('% текст ********', a)
-            b = fuzz.ratio(' '.join(i_mind.values()), q5[j])
+            b = fuzz.token_sort_ratio(' '.join(i_mind.values()), q5[j])
         #print('% ключи ********', b)
-            if b >= config.thresold and a >= config.thresold: # внимательно посмотреть на это условие
+            if a >= config.thresold and b >= config.thresold: # внимательно посмотреть на это условие
                 # готовим данные для html
                 # q2.append(f_compare(i.text, j.text))  # разница между 2 и 1 доком
                 q3.append(str(a)+'|'+ str(b))  # сразу добавляем для html
+                #print(q3)
                 #row_cells = table.add_row().cells  # добавляем данные в строку таблицы docx
                 #row_cells[0].text = i.text  # сразу добавляем абзац документа 1 в docx
                 #row_cells[1].text = str(a)  # и для docx
                 #row_cells[2].text = j.text  # потом неплохо было бы их раскрасить
-            else:
+            # else:
                 # q1.append(i.text)  # сразу добавляем абзац документа 1 в html
                 # q2.append(config.no_paragraph)  # добавляем пустышку
                 # q3.append(a)  # сразу добавляем для html
                 # row_cells[1].text = str(a)  # и для docx
                 # row_cells[2].text = config.no_paragraph   # потом неплохо было бы их раскрасить
-                continue
+                # continue
 doc3.save(file_compare_name_d)  # сохраняем файл docx
 f2.close()
 # print(len(q1), len(q2), len(q3))
