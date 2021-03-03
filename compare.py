@@ -194,8 +194,6 @@ with open(file_compare_name_d, 'w') as f2:
         q5.append(' '.join(h_mind.values()))
     for i in doc1.paragraphs:  # берем все параграфы документа 1
         i_mind = mind_generate(i.text)  # это словарь
-        q1.append(i.text)  # сразу добавляем абзац документа 1 в html
-        q4.append(' '.join(i_mind.values()))
         #print('\n\n1 ********', ' '.join(i_mind.values()))
         # print(doc1.paragraphs[i].text)
         for j in range(len(q2)):
@@ -207,10 +205,12 @@ with open(file_compare_name_d, 'w') as f2:
             #print('% текст ********', a)
             b = fuzz.token_sort_ratio(' '.join(i_mind.values()), q5[j])
         #print('% ключи ********', b)
-            if a >= config.thresold and b >= config.thresold: # внимательно посмотреть на это условие
+            if a >= config.thresold and b == 100 and len(' '.join(i_mind.values()))>0 and len(q5[j])>0: # внимательно посмотреть на это условие
                 # готовим данные для html
                 # q2.append(f_compare(i.text, j.text))  # разница между 2 и 1 доком
                 q3.append(str(a)+'|'+ str(b))  # сразу добавляем для html
+                q1.append(i.text)  # сразу добавляем абзац документа 1 в html
+                q4.append(' '.join(i_mind.values()))
                 q21.append(q2[j])
                 q51.append(q5[j])
 
@@ -219,13 +219,13 @@ with open(file_compare_name_d, 'w') as f2:
                 #row_cells[0].text = i.text  # сразу добавляем абзац документа 1 в docx
                 #row_cells[1].text = str(a)  # и для docx
                 #row_cells[2].text = j.text  # потом неплохо было бы их раскрасить
-            # else:
+            else:
                 # q1.append(i.text)  # сразу добавляем абзац документа 1 в html
                 # q2.append(config.no_paragraph)  # добавляем пустышку
                 # q3.append(a)  # сразу добавляем для html
                 # row_cells[1].text = str(a)  # и для docx
                 # row_cells[2].text = config.no_paragraph   # потом неплохо было бы их раскрасить
-                # continue
+                continue
 doc3.save(file_compare_name_d)  # сохраняем файл docx
 f2.close()
 # print(len(q1), len(q2), len(q3))
