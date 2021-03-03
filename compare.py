@@ -46,7 +46,7 @@ def mind_generate(text):
         label = match.referent.label
         for d in slots:
             # print(d.value)
-            if isinstance(d.value, str) :
+            if isinstance(d.value, str):
                 mslots.update({label: label})
                 mslots.update({d.key: d.value})
             # если не str пробежаться рекурсией до руды
@@ -186,28 +186,30 @@ with open(file_compare_name_d, 'w') as f2:
     #hdr_cells = table.rows[0].cells
     #hdr_cells[0].text = file_rename(file1)
     #hdr_cells[1].text = '%'
-    #hdr_cells[2].text = file_rename(file2)
+    #hdr_cells[2].text = file_rename
+    for h in doc2.paragraphs: # заранее готовим списки ключевых слов и  тектсов параграфов для документа 2
+        h_mind = mind_generate(h.text)
+        q2.append(h.text)  # разница между 2 и 1 доком
+        q5.append(' '.join(h_mind.values()))
     for i in doc1.paragraphs:  # берем все параграфы документа 1
         i_mind = mind_generate(i.text)  # это словарь
+        q1.append(i.text)  # сразу добавляем абзац документа 1 в html
+        q4.append(' '.join(i_mind.values()))
         #print('\n\n1 ********', ' '.join(i_mind.values()))
         # print(doc1.paragraphs[i].text)
-        for j in doc2.paragraphs:
-            j_mind = mind_generate(j.text)   # это словарь
+        for j in range(len(doc2.paragraphs)):
+            #j_mind = mind_generate(j.text)   # это словарь
             #print('2 ********', ' '.join(j_mind.values()))
             # a = fuzz.WRatio(' '.join(tokenize_ru(i.text)),
-            #                ' '.join(tokenize_ru(j.text)))  # ищем совпадение по смыслу в %
-            a = fuzz.WRatio(i.text, j.text)  # ищем совпадение по смыслу в %
+            # ' '.join(tokenize_ru(j.text)))  # ищем совпадение по смыслу в %
+            a = fuzz.WRatio(i.text, q2[j])  # ищем совпадение по смыслу в %
             #print('% текст ********', a)
-            b = fuzz.ratio(' '.join(i_mind.values()), ' '.join(j_mind.values()))
-            #print('% ключи ********', b)
+            b = fuzz.ratio(' '.join(i_mind.values()), q5[j])
+        #print('% ключи ********', b)
             if b >= config.thresold and a >= config.thresold: # внимательно посмотреть на это условие
                 # готовим данные для html
-                q1.append(i.text)  # сразу добавляем абзац документа 1 в html
                 # q2.append(f_compare(i.text, j.text))  # разница между 2 и 1 доком
-                q2.append(j.text)  # разница между 2 и 1 доком
-                q3.append(a)  # сразу добавляем для html
-                q4.append(' '.join(i_mind.values()))
-                q5.append(' '.join(j_mind.values()))
+                q3.append(str(a)+'|'+ str(b))  # сразу добавляем для html
                 #row_cells = table.add_row().cells  # добавляем данные в строку таблицы docx
                 #row_cells[0].text = i.text  # сразу добавляем абзац документа 1 в docx
                 #row_cells[1].text = str(a)  # и для docx
@@ -219,8 +221,8 @@ with open(file_compare_name_d, 'w') as f2:
                 # row_cells[1].text = str(a)  # и для docx
                 # row_cells[2].text = config.no_paragraph   # потом неплохо было бы их раскрасить
                 continue
-    doc3.save(file_compare_name_d)  # сохраняем файл docx
-    f2.close()
+doc3.save(file_compare_name_d)  # сохраняем файл docx
+f2.close()
 # print(len(q1), len(q2), len(q3))
 # создаем файл html с результаттми сравнения
 file_compare_name = file1.split('.')[0] + '_vs_' + file2.split('.')[0] + '.html'
