@@ -5,37 +5,33 @@
 python3 compare.py Основы.docx Основы2.docx
 '''
 
+import os
+import string
 # imports
 import sys
-import os
-import config
+
 import docx  # библиотека работа в word
+from diff_match_patch import diff_match_patch as diff_module  # для сравнения и раскраски по совету коллег
 from docx import Document
-from docx.shared import Inches
-from docx.shared import RGBColor
 from docx.enum.text import WD_COLOR
-import nltk  # библиотека разбора текста
-import string
-from nltk.tokenize import sent_tokenize
+from fuzzywuzzy import fuzz
+from jinja2 import Environment, FileSystemLoader
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-from diff_match_patch import diff_match_patch as diff_module  # для сравнения и раскраски по совету коллег
-from fuzzywuzzy import fuzz
-from fuzzywuzzy import process
-import jinja2
-from jinja2 import Template, Environment, FileSystemLoader
-import jinja2
-from jinja2 import Template, Environment, FileSystemLoader
+
+import config
+import pullenti.Sdk as Sdk
+from pullenti.ner import AnalysisResult,Analyzer,SourceOfAnalysis
 
 # ********************************************   смысловой разбор и поиск ключевых слов
 # import pullenti_wrapper
-from pullenti_wrapper.langs import (set_langs, RU, EN)
+# from pullenti_wrapper.langs import (set_langs, RU, EN)
+# set_langs([RU, EN])
+# from pullenti_wrapper.processor import (Processor, DATE, GEO, ORGANIZATION, PERSON, MONEY, ADDRESS)
+# processor = Processor([DATE, GEO, ORGANIZATION, PERSON, MONEY, ADDRESS])
 
-set_langs([RU, EN])
+Sdk.Sdk.initialize_all()  # инициализируем в полном обеме
 
-from pullenti_wrapper.processor import (Processor, DATE, GEO, ORGANIZATION, PERSON, MONEY, ADDRESS)
-
-processor = Processor([DATE, GEO, ORGANIZATION, PERSON, MONEY, ADDRESS])
 
 def find_keys(slots):
     mslots = []
@@ -53,8 +49,10 @@ def find_keys(slots):
     return mslots
 
 
-def mind_generate(text):
-    result = processor(text)
+def mind_generate(txt):
+    processor = Sdk.ProcessorService.create_processor()
+    sofa = SourceOfAnalysis(txt)
+    result = processor.process(sofa)
     ss = []
     # mslots = {}  # делаем словарь ключевых слов
     for match in result.walk():
@@ -64,6 +62,7 @@ def mind_generate(text):
         # если не str пробежаться рекурсией до руды
     # print('*** slots **', ss)
     return ss  # возвращает словарь ключевых слов файла
+
 
 # ********************************************смысловой разбор и поиск ключевых слов
 
