@@ -28,7 +28,7 @@ import jinja2
 from jinja2 import Template, Environment, FileSystemLoader
 
 # ********************************************   смысловой разбор и поиск ключевых слов
-import pullenti_wrapper
+# import pullenti_wrapper
 from pullenti_wrapper.langs import (set_langs, RU, EN)
 
 set_langs([RU, EN])
@@ -36,7 +36,6 @@ set_langs([RU, EN])
 from pullenti_wrapper.processor import (Processor, DATE, GEO, ORGANIZATION, PERSON, MONEY, ADDRESS)
 
 processor = Processor([DATE, GEO, ORGANIZATION, PERSON, MONEY, ADDRESS])
-
 
 def find_keys(slots):
     mslots = []
@@ -180,6 +179,7 @@ q21 = []
 q51 = []
 q11 = []
 q41 = []
+
 # print(len(doc1.paragraphs), len(doc2.paragraphs))
 
 # уравниваем количество параграфов в документах
@@ -233,7 +233,7 @@ with open(file_compare_name_d, 'w') as f2:
                 q11.append(q1[i])  # сразу добавляем абзац документа 1 в html
                 q41.append(q4[i])
                 # q21.append(q2[j])
-                q21.append(f_compare(q2[j], q1[i]))
+                q21.append(f_compare(q1[i], q2[j]))
                 q51.append(q5[j])
 
                 # print(q3)
