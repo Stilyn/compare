@@ -50,7 +50,7 @@ def find_keys(slots):
 
 
 def mind_generate(txt):
-    processor = Sdk.ProcessorService.create_processor()
+    processor = Sdk.ProcessorService.create_specific_processor(K)
     sofa = SourceOfAnalysis(txt)
     result = processor.process(sofa)
     ss = []
