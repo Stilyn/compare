@@ -38,21 +38,33 @@ from pullenti_wrapper.processor import (Processor, DATE, GEO, ORGANIZATION, PERS
 processor = Processor([DATE, GEO, ORGANIZATION, PERSON, MONEY, ADDRESS])
 
 
+def find_keys(slots):
+    mslots = []
+    for d in slots:
+        if isinstance(d.value, str):
+            # print(type(d.value))
+            mslots.append(d.value)
+        else:
+            # print(type(d.value))
+            for q in find_keys(d.value.slots):
+                mslots.append(q)
+    # print(slots)
+    # print(mslots)
+    # print('*********')
+    return mslots
+
+
 def mind_generate(text):
     result = processor(text)
-    mslots = {}  # делаем словарь ключевых слов
+    ss = []
+    # mslots = {}  # делаем словарь ключевых слов
     for match in result.walk():
-        slots = match.referent.slots
-        label = match.referent.label
-        for d in slots:
-            # print(d.value)
-            if isinstance(d.value, str):
-                mslots.update({label: label})
-                mslots.update({d.key: d.value})
-            # если не str пробежаться рекурсией до руды
-    print('*** slots **', mslots.values())
-    return mslots    # возвращает словарь ключевых слов файла
-
+        slts = match.referent.slots
+        # label = match.referent.label
+        ss = find_keys(slts)
+        # если не str пробежаться рекурсией до руды
+    # print('*** slots **', ss)
+    return ss  # возвращает словарь ключевых слов файла
 
 # ********************************************смысловой разбор и поиск ключевых слов
 
@@ -166,6 +178,8 @@ q4 = []  # ключевые слова документа 1
 q5 = []  # ключевые слова документа 2
 q21 = []
 q51 = []
+q11 = []
+q41 = []
 # print(len(doc1.paragraphs), len(doc2.paragraphs))
 
 # уравниваем количество параграфов в документах
@@ -183,42 +197,50 @@ file_compare_name_d = file1.split('.')[0] + '_vs_' + file2.split('.')[0] + '.doc
 doc3 = Document()  # создаем новый docx куда поместим результаты сравнения
 with open(file_compare_name_d, 'w') as f2:
     # создаем таблицу и шапку
-    #table = doc3.add_table(rows=1, cols=3)
-    #hdr_cells = table.rows[0].cells
-    #hdr_cells[0].text = file_rename(file1)
-    #hdr_cells[1].text = '%'
-    #hdr_cells[2].text = file_rename
-    for h in doc2.paragraphs: # заранее готовим списки ключевых слов и  тектсов параграфов для документа 2
+    # table = doc3.add_table(rows=1, cols=3)
+    # hdr_cells = table.rows[0].cells
+    # hdr_cells[0].text = file_rename(file1)
+    # hdr_cells[1].text = '%'
+    # hdr_cells[2].text = file_rename
+    print('***** Готовлю ключевые слова *******')
+    for g in doc1.paragraphs:  # заранее готовим списки ключевых слов и  тектсов параграфов для документа 1
+        g_mind = mind_generate(g.text)
+        q1.append(g.text)
+        q4.append(' '.join(g_mind))
+    for h in doc2.paragraphs:  # заранее готовим списки ключевых слов и  тектсов параграфов для документа 2
         h_mind = mind_generate(h.text)
         q2.append(h.text)  # разница между 2 и 1 доком
-        q5.append(' '.join(h_mind.values()))
-    for i in doc1.paragraphs:  # берем все параграфы документа 1
-        i_mind = mind_generate(i.text)  # это словарь
-        #print('\n\n1 ********', ' '.join(i_mind.values()))
+        q5.append(' '.join(h_mind))
+    print('***** Сравниваю по смыслу, ключевым словам и готовлю сводную таблицу *******')
+    for i in range(len(q1)):  # берем все параграфы документа 1
+        # i_mind = mind_generate(i.text)  # это словарь
+        # print('\n\n1 ********', ' '.join(i_mind.values()))
         # print(doc1.paragraphs[i].text)
         for j in range(len(q2)):
-            #j_mind = mind_generate(j.text)   # это словарь
-            #print('2 ********', ' '.join(j_mind.values()))
+            # j_mind = mind_generate(j.text)   # это словарь
+            # print('2 ********', ' '.join(j_mind.values()))
             # a = fuzz.WRatio(' '.join(tokenize_ru(i.text)),
             # ' '.join(tokenize_ru(j.text)))  # ищем совпадение по смыслу в %
-            a = fuzz.WRatio(i.text, q2[j])  # ищем совпадение по смыслу в %
-            #print('% текст ********', a)
-            b = fuzz.token_sort_ratio(' '.join(i_mind.values()), q5[j])
-        #print('% ключи ********', b)
-            if a >= config.thresold and b == 100 and len(' '.join(i_mind.values()))>0 and len(q5[j])>0: # внимательно посмотреть на это условие
+            a = fuzz.WRatio(q1[i], q2[j])  # ищем совпадение по смыслу в %
+            # print('% текст ********', a)
+            b = fuzz.token_sort_ratio(q4[i], q5[j])
+            # print('% ключи ********', b)
+            if a >= config.thresold and b >= config.thresold and len(q4[i]) > 0 and len(
+                    q5[j]) > 0:  # внимательно посмотреть на это условие
                 # готовим данные для html
                 # q2.append(f_compare(i.text, j.text))  # разница между 2 и 1 доком
-                q3.append(str(a)+'|'+ str(b))  # сразу добавляем для html
-                q1.append(i.text)  # сразу добавляем абзац документа 1 в html
-                q4.append(' '.join(i_mind.values()))
-                q21.append(q2[j])
+                q3.append(str(a) + '|' + str(b))  # сразу добавляем для html
+                q11.append(q1[i])  # сразу добавляем абзац документа 1 в html
+                q41.append(q4[i])
+                # q21.append(q2[j])
+                q21.append(f_compare(q2[j], q1[i]))
                 q51.append(q5[j])
 
-                #print(q3)
-                #row_cells = table.add_row().cells  # добавляем данные в строку таблицы docx
-                #row_cells[0].text = i.text  # сразу добавляем абзац документа 1 в docx
-                #row_cells[1].text = str(a)  # и для docx
-                #row_cells[2].text = j.text  # потом неплохо было бы их раскрасить
+                # print(q3)
+                # row_cells = table.add_row().cells  # добавляем данные в строку таблицы docx
+                # row_cells[0].text = i.text  # сразу добавляем абзац документа 1 в docx
+                # row_cells[1].text = str(a)  # и для docx
+                # row_cells[2].text = j.text  # потом неплохо было бы их раскрасить
             else:
                 # q1.append(i.text)  # сразу добавляем абзац документа 1 в html
                 # q2.append(config.no_paragraph)  # добавляем пустышку
@@ -236,7 +258,9 @@ curr_dir = os.path.dirname(os.path.abspath(__file__))  # указываем чт
 env = Environment(loader=FileSystemLoader(curr_dir))  # подгружаем шаблон из текущей папки
 template = env.get_template('template.html')
 print(len(q1), len(q2), len(q3))
+print('*****Записываю html*******')
 with open(file_compare_name, "w", encoding='utf-8') as f:
-    f.write(template.render(file_name1=file_rename(file1), file_name2=file_rename(file2), q1=q1, q2=q21, q3=q3, q4=q4, q5=q51,
-                            len=max(len(q1), len(q2), len(q3))))
+    f.write(template.render(file_name1=file_rename(file1), file_name2=file_rename(file2), q1=q11, q2=q21, q3=q3, q4=q41,
+                            q5=q51,
+                            len=len(q3)))
 f.close()
