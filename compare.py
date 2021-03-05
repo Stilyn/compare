@@ -58,12 +58,12 @@ def find_keys(slots):
     mslots = []
     for d in slots:
         if isinstance(d.value, str):
-            # print(type(d.value))
+            #print(type(d.value))
             mslots.append(d.value)
-        #else:
-            # print(type(d.value))
-        #    for q in find_keys(d.value.slots):
-        #        mslots.append(q)
+        else:
+            print(d.value)
+            for q in find_keys(d.value.slots):
+                mslots.append(q)
     # print(slots)
     # print(mslots)
     # print('*********')
@@ -74,9 +74,8 @@ def mind_generate(txt):
     ss = []
     #processor = ProcessorService.create_processor()
     processor_key = ProcessorService.create_specific_processor('KEYWORD')
-    #for anal in processor_key.analyzers:
-    #    print(anal)
-
+    # for analysers in processor_key.analyzers:
+    #    print(analyzers)
     result = processor_key.process(SourceOfAnalysis(txt))
     # print(result)
     for match in result.entities:
