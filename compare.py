@@ -20,8 +20,6 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 
 import config
-import pullenti.Sdk as Sdk
-from pullenti.ner import AnalysisResult,Analyzer,SourceOfAnalysis
 
 # ********************************************   смысловой разбор и поиск ключевых слов
 # import pullenti_wrapper
@@ -30,8 +28,31 @@ from pullenti.ner import AnalysisResult,Analyzer,SourceOfAnalysis
 # from pullenti_wrapper.processor import (Processor, DATE, GEO, ORGANIZATION, PERSON, MONEY, ADDRESS)
 # processor = Processor([DATE, GEO, ORGANIZATION, PERSON, MONEY, ADDRESS])
 
-Sdk.Sdk.initialize_all()  # инициализируем в полном обеме
+import pullenti
+from pullenti.Sdk import Sdk
 
+from pullenti.ner.AnalysisResult import AnalysisResult
+from pullenti.ner.Analyzer import Analyzer
+from pullenti.ner.ExtOntology import ExtOntology
+from pullenti.ner.ExtOntologyItem import ExtOntologyItem
+from pullenti.ner.MetaToken import MetaToken
+from pullenti.ner.MorphCollection import MorphCollection
+from pullenti.ner.NumberSpellingType import NumberSpellingType
+from pullenti.ner.NumberToken import NumberToken
+from pullenti.ner.Processor import Processor
+from pullenti.ner.ProcessorService import ProcessorService
+from pullenti.ner.ProxyReferent import ProxyReferent
+from pullenti.ner.Referent import Referent
+from pullenti.ner.Slot import Slot
+from pullenti.ner.SourceOfAnalysis import SourceOfAnalysis
+from pullenti.ner.TextAnnotation import TextAnnotation
+from pullenti.ner.TextToken import TextToken
+from pullenti.ner.Token import Token
+
+from pullenti.ner.keyword import KeywordAnalyzer
+
+# инициализируем в полном обеме
+Sdk.initialize_all()
 
 def find_keys(slots):
     mslots = []
@@ -39,10 +60,10 @@ def find_keys(slots):
         if isinstance(d.value, str):
             # print(type(d.value))
             mslots.append(d.value)
-        else:
+        #else:
             # print(type(d.value))
-            for q in find_keys(d.value.slots):
-                mslots.append(q)
+        #    for q in find_keys(d.value.slots):
+        #        mslots.append(q)
     # print(slots)
     # print(mslots)
     # print('*********')
@@ -50,17 +71,19 @@ def find_keys(slots):
 
 
 def mind_generate(txt):
-    processor = Sdk.ProcessorService.create_specific_processor(K)
-    sofa = SourceOfAnalysis(txt)
-    result = processor.process(sofa)
     ss = []
-    # mslots = {}  # делаем словарь ключевых слов
-    for match in result.walk():
-        slts = match.referent.slots
-        # label = match.referent.label
-        ss = find_keys(slts)
+    #processor = ProcessorService.create_processor()
+    processor_key = ProcessorService.create_specific_processor('KEYWORD')
+    #for anal in processor_key.analyzers:
+    #    print(anal)
+
+    result = processor_key.process(SourceOfAnalysis(txt))
+    # print(result)
+    for match in result.entities:
+        #ss.append(entity) #for match in result.walk():
+        ss = find_keys(match.slots)
         # если не str пробежаться рекурсией до руды
-    # print('*** slots **', ss)
+    print('*** slots **', ss)
     return ss  # возвращает словарь ключевых слов файла
 
 
