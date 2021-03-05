@@ -53,17 +53,22 @@ from pullenti.ner.keyword import KeywordAnalyzer
 
 # инициализируем в полном обеме
 Sdk.initialize_all()
+# sys.setrecursionlimit(config.recursion_limit)
+# sys.setrecursionlimit(100)
+print(sys.getrecursionlimit())
+
 
 def find_keys(slots):
     mslots = []
     for d in slots:
-        if isinstance(d.value, str):
-            #print(type(d.value))
-            mslots.append(d.value)
+        if hasattr(d.value, 'slots'):
+            # v = find_keys(d.value.slots)
+            # sys.setrecursionlimit(10000)
+            mslots.append(','.join(find_keys(d.value.slots)))
+            break
+        # if isinstance(d.value, str):
         else:
-            print(d.value)
-            for q in find_keys(d.value.slots):
-                mslots.append(q)
+            mslots.append(d.value)
     # print(slots)
     # print(mslots)
     # print('*********')
@@ -72,14 +77,14 @@ def find_keys(slots):
 
 def mind_generate(txt):
     ss = []
-    #processor = ProcessorService.create_processor()
+    # processor = ProcessorService.create_processor()
     processor_key = ProcessorService.create_specific_processor('KEYWORD')
     # for analysers in processor_key.analyzers:
     #    print(analyzers)
     result = processor_key.process(SourceOfAnalysis(txt))
     # print(result)
     for match in result.entities:
-        #ss.append(entity) #for match in result.walk():
+        # ss.append(entity) #for match in result.walk():
         ss = find_keys(match.slots)
         # если не str пробежаться рекурсией до руды
     print('*** slots **', ss)
@@ -254,7 +259,7 @@ with open(file_compare_name_d, 'w') as f2:
                 q11.append(q1[i])  # сразу добавляем абзац документа 1 в html
                 q41.append(q4[i])
                 # q21.append(q2[j])
-                q21.append(f_compare(q1[i], q2[j]))
+                q21.append(f_compare(q1[i], q2[j]))  # что поменялось во 2 документе относительно 1
                 q51.append(q5[j])
 
                 # print(q3)
