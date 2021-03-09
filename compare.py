@@ -196,15 +196,18 @@ file_rename(file2) это имя переименованного файла 2
 '''
 doc1 = docx.Document(file_rename(file1))
 doc2 = docx.Document(file_rename(file2))
+
 q1 = []  # очищенные списки для вывода html 1 документа
+q11 = []  # для вывода совпадающих значений 1 и 2 документа
 q2 = []  # очищенные списки для вывода html 2 документа
+q21 = []  # для вывода совпадающих значений 1 и 2 документа
 q3 = []  # процент совпадения
 q4 = []  # ключевые слова документа 1
-q5 = []  # ключевые слова документа 2
-q21 = []
-q51 = []
-q11 = []
 q41 = []
+q5 = []  # ключевые слова документа 2
+q51 = []
+
+
 
 # print(len(doc1.paragraphs), len(doc2.paragraphs))
 
@@ -223,11 +226,11 @@ file_compare_name_d = file1.split('.')[0] + '_vs_' + file2.split('.')[0] + '.doc
 doc3 = Document()  # создаем новый docx куда поместим результаты сравнения
 with open(file_compare_name_d, 'w') as f2:
     # создаем таблицу и шапку
-    # table = doc3.add_table(rows=1, cols=3)
-    # hdr_cells = table.rows[0].cells
-    # hdr_cells[0].text = file_rename(file1)
-    # hdr_cells[1].text = '%'
-    # hdr_cells[2].text = file_rename
+    table = doc3.add_table(rows=1, cols=3)
+    hdr_cells = table.rows[0].cells
+    hdr_cells[0].text = file_rename(file1)
+    hdr_cells[1].text = '% совпадения'
+    hdr_cells[2].text = file_rename(file2)
     print('***** Готовлю ключевые слова *******')
     for g in doc1.paragraphs:  # заранее готовим списки ключевых слов и  тектсов параграфов для документа 1
         g_mind = mind_generate(g.text)
@@ -263,10 +266,10 @@ with open(file_compare_name_d, 'w') as f2:
                 q51.append(q5[j])
 
                 # print(q3)
-                # row_cells = table.add_row().cells  # добавляем данные в строку таблицы docx
-                # row_cells[0].text = i.text  # сразу добавляем абзац документа 1 в docx
-                # row_cells[1].text = str(a)  # и для docx
-                # row_cells[2].text = j.text  # потом неплохо было бы их раскрасить
+                row_cells = table.add_row().cells  # добавляем данные в строку таблицы docx
+                row_cells[0].text = str(q1[i])  # сразу добавляем абзац документа 1 в docx
+                row_cells[1].text = str(a)  # и для docx
+                row_cells[2].text = str(q2[j])  # потом неплохо было бы их раскрасить
             else:
                 # q1.append(i.text)  # сразу добавляем абзац документа 1 в html
                 # q2.append(config.no_paragraph)  # добавляем пустышку
