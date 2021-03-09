@@ -77,16 +77,21 @@ def find_keys(slots):
 
 def mind_generate(txt):
     ss = []
-    # processor = ProcessorService.create_processor()
+    #processor = ProcessorService.create_processor()
     processor_key = ProcessorService.create_specific_processor('KEYWORD')
     # for analysers in processor_key.analyzers:
     #    print(analyzers)
     result = processor_key.process(SourceOfAnalysis(txt))
+    #result1 = processor.process(SourceOfAnalysis(txt))
     # print(result)
     for match in result.entities:
         # ss.append(entity) #for match in result.walk():
         ss = find_keys(match.slots)
         # если не str пробежаться рекурсией до руды
+    #for match1 in result1.entities:
+        # ss.append(entity) #for match in result.walk():
+     #   ss1 = find_keys(match1.slots)
+
     print('*** slots **', ss)
     return ss  # возвращает словарь ключевых слов файла
 
@@ -266,11 +271,15 @@ with open(file_compare_name_d, 'w') as f2:
                 q51.append(q5[j])
 
                 # print(q3)
+                # наполняем файл docx с различиями
                 row_cells = table.add_row().cells  # добавляем данные в строку таблицы docx
                 row_cells[0].text = str(q1[i])  # сразу добавляем абзац документа 1 в docx
                 row_cells[1].text = str(a)  # и для docx
                 row_cells[2].text = str(q2[j])  # потом неплохо было бы их раскрасить
             else:
+                # добавлять абзацы в отдельный список
+                # этот отдельный список крыжить на предмет совпадения
+
                 # q1.append(i.text)  # сразу добавляем абзац документа 1 в html
                 # q2.append(config.no_paragraph)  # добавляем пустышку
                 # q3.append(a)  # сразу добавляем для html
