@@ -70,25 +70,25 @@ def find_keys(slots):
         else:
             mslots.append(d.value)
     # print(slots)
-    # print(mslots) 
+    # print(mslots)
     # print('*********')
     return mslots
 
 
 def mind_generate(txt):
     ss = []
-    #processor = ProcessorService.create_processor()
+    # processor = ProcessorService.create_processor() # результаты по основным встроенным процессорам pullenti
     processor_key = ProcessorService.create_specific_processor('KEYWORD')
     # for analysers in processor_key.analyzers:
     #    print(analyzers)
     result = processor_key.process(SourceOfAnalysis(txt))
-    #result1 = processor.process(SourceOfAnalysis(txt))
+    # result1 = processor.process(SourceOfAnalysis(txt))
     # print(result)
     for match in result.entities:
         # ss.append(entity) #for match in result.walk():
         ss = find_keys(match.slots)
         # если не str пробежаться рекурсией до руды
-    #for match1 in result1.entities:
+    # for match1 in result1.entities:
         # ss.append(entity) #for match in result.walk():
      #   ss1 = find_keys(match1.slots)
 
@@ -292,9 +292,9 @@ f2.close()
 # создаем файл html с результаттми сравнения
 file_compare_name = file1.split('.')[0] + '_vs_' + file2.split('.')[0] + '.html'
 # запись в файл
-curr_dir = os.path.dirname(os.path.abspath(__file__))  # указываем что шаблон находится в корне
-env = Environment(loader=FileSystemLoader(curr_dir))  # подгружаем шаблон из текущей папки
-template = env.get_template('template.html')
+curr_dir = os.path.dirname(os.path.abspath(__file__))  # через jinja указываем что шаблон находится в корне
+env = Environment(loader=FileSystemLoader(curr_dir))  # через jinja подгружаем шаблон из текущей папки
+template = env.get_template('template.html') # через jinja
 print(len(q1), len(q2), len(q3))
 print('*****Записываю html*******')
 with open(file_compare_name, "w", encoding='utf-8') as f:
