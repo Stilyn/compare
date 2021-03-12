@@ -44,7 +44,7 @@ from pullenti.ner.SourceOfAnalysis import SourceOfAnalysis
 # from pullenti.ner.keyword import KeywordAnalyzer
 # инициализируем в полном обеме
 Sdk.initialize_all()
-
+print('test')
 # sys.setrecursionlimit(config.recursion_limit)
 # sys.setrecursionlimit(100)
 # print(sys.getrecursionlimit())
