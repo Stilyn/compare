@@ -55,7 +55,7 @@ from pullenti.ner.keyword import KeywordAnalyzer
 Sdk.initialize_all()
 # sys.setrecursionlimit(config.recursion_limit)
 # sys.setrecursionlimit(100)
-print(sys.getrecursionlimit())
+# print(sys.getrecursionlimit())
 
 
 def find_keys(slots):
