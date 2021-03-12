@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+<title>Сравнение документов</title>
+<style>
+    body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    }
+</style>
+</head>
+<body>
+<h1>Выберите документы для сравнения</h1>
+<form action="http://localhost:8080/cgi-bin/compare/compare.py" target="_blank">
+    <p>Файл1 <input type="file" name="file1"/></p>
+    <p>Файл2 <input type="file" name="file2"></p>
+    <p><input type="reset">
+        <input type="submit"></p>
+</form>
+
+</body>
+</html>
