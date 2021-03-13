@@ -16,16 +16,17 @@ from docx import Document
 from docx.enum.text import WD_COLOR
 from fuzzywuzzy import fuzz
 from jinja2 import Environment, FileSystemLoader
-#from nltk.corpus import stopwords
-#from nltk.tokenize import word_tokenize
+# from nltk.corpus import stopwords
+# from nltk.tokenize import word_tokenize
 
-import config # импорт файла настроек
+import config  # импорт файла настроек
 
 # ********************************************   смысловой разбор и поиск ключевых слов
 # import pullenti
 from pullenti.Sdk import Sdk
 from pullenti.ner.ProcessorService import ProcessorService
 from pullenti.ner.SourceOfAnalysis import SourceOfAnalysis
+
 # from pullenti.ner.AnalysisResult import AnalysisResult
 # from pullenti.ner.Analyzer import Analyzer
 # from pullenti.ner.ExtOntology import ExtOntology
@@ -44,6 +45,7 @@ from pullenti.ner.SourceOfAnalysis import SourceOfAnalysis
 # from pullenti.ner.keyword import KeywordAnalyzer
 # инициализируем в полном обеме
 Sdk.initialize_all()
+
 
 # sys.setrecursionlimit(config.recursion_limit)
 # sys.setrecursionlimit(100)
@@ -171,14 +173,14 @@ def color_paragraph(paragraph):
 
 '''для использования отладочного и боевого режимов'''
 
-#if len(sys.argv) > 1:  # если из под командной строки запускаем
+# if len(sys.argv) > 1:  # если из под командной строки запускаем
 #    print('сравниваю ' + sys.argv[1] + ' и ' + sys.argv[2])
 #    file1 = sys.argv[1]
 #    file2 = sys.argv[2]
-#elif os.environ['QUERY_STRING']:  # если передаем по гкд с папаметрами
+# elif os.environ['QUERY_STRING']:  # если передаем по гкд с папаметрами
 if os.environ['QUERY_STRING']:  # если передаем по гкд с папаметрами
     sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
-    #print('Content-Type: text/plain', 'encoding:utf-8')
+    print('Content-Type: text/plain', 'encoding:utf-8')
     print('')
     print('This is my test! \n Проверка русского языка!\n\n')
     # a = os.environ['HTTP_HOST']
@@ -186,14 +188,14 @@ if os.environ['QUERY_STRING']:  # если передаем по гкд с па�
     # print(a)
     # print(b)
     print(os.environ)
-    #print(os.environ['QUERY_STRING'])
+    # print(os.environ['QUERY_STRING'])
     file1 = os.environ['QUERY_STRING'].split('&')[0].split('=')[1]
     file2 = os.environ['QUERY_STRING'].split('&')[1].split('=')[1]
-    #print('сравниваю ' + file1 + ' и ' + file2)
+    # print('сравниваю ' + file1 + ' и ' + file2)
     print(file1)
     print(file2)
 else:
-    #print('отладочный режим')  # если не из под командной строки запускаем
+    # print('отладочный режим')  # если не из под командной строки запускаем
     print('ФАЙЛЫ ДЛЯ СРАВНЕНИЯ НЕ НАЙДЕНЫ!')
     file1 = '906_2013.docx'
     file2 = '64_2020.docx'
@@ -212,7 +214,7 @@ file_rename(file2) это имя переименованного файла 2
 '''
 doc1 = docx.Document(file_rename(file1))
 doc2 = docx.Document(file_rename(file2))
-#print(doc1,doc2)
+# print(doc1,doc2)
 
 q1 = []  # очищенные списки для вывода html 1 документа
 q11 = []  # для вывода совпадающих значений 1 и 2 документа
@@ -223,8 +225,6 @@ q4 = []  # ключевые слова документа 1
 q41 = []
 q5 = []  # ключевые слова документа 2
 q51 = []
-
-
 
 # print(len(doc1.paragraphs), len(doc2.paragraphs))
 
@@ -306,7 +306,7 @@ file_compare_name = file1.split('.')[0] + '_vs_' + file2.split('.')[0] + '.html'
 # запись в файл
 curr_dir = os.path.dirname(os.path.abspath(__file__))  # через jinja указываем что шаблон находится в корне
 env = Environment(loader=FileSystemLoader(curr_dir))  # через jinja подгружаем шаблон из текущей папки
-template = env.get_template('template.html') # через jinja
+template = env.get_template('template.html')  # через jinja
 print(len(q1), len(q2), len(q3))
 print('*****Записываю html*******')
 with open(file_compare_name, "w", encoding='utf-8') as f:
