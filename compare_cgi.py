@@ -19,7 +19,7 @@ from jinja2 import Environment, FileSystemLoader
 #from nltk.corpus import stopwords
 #from nltk.tokenize import word_tokenize
 
-import config
+import config # импорт файла настроек
 
 # ********************************************   смысловой разбор и поиск ключевых слов
 # import pullenti
