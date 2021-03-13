@@ -22,41 +22,32 @@ from jinja2 import Environment, FileSystemLoader
 import config
 
 # ********************************************   смысловой разбор и поиск ключевых слов
-# import pullenti_wrapper
-# from pullenti_wrapper.langs import (set_langs, RU, EN)
-# set_langs([RU, EN])
-# from pullenti_wrapper.processor import (Processor, DATE, GEO, ORGANIZATION, PERSON, MONEY, ADDRESS)
-# processor = Processor([DATE, GEO, ORGANIZATION, PERSON, MONEY, ADDRESS])
-
-import pullenti
+# import pullenti
 from pullenti.Sdk import Sdk
-
-from pullenti.ner.AnalysisResult import AnalysisResult
-from pullenti.ner.Analyzer import Analyzer
-from pullenti.ner.ExtOntology import ExtOntology
-from pullenti.ner.ExtOntologyItem import ExtOntologyItem
-from pullenti.ner.MetaToken import MetaToken
-from pullenti.ner.MorphCollection import MorphCollection
-from pullenti.ner.NumberSpellingType import NumberSpellingType
-from pullenti.ner.NumberToken import NumberToken
-from pullenti.ner.Processor import Processor
 from pullenti.ner.ProcessorService import ProcessorService
-from pullenti.ner.ProxyReferent import ProxyReferent
-from pullenti.ner.Referent import Referent
-from pullenti.ner.Slot import Slot
 from pullenti.ner.SourceOfAnalysis import SourceOfAnalysis
-from pullenti.ner.TextAnnotation import TextAnnotation
-from pullenti.ner.TextToken import TextToken
-from pullenti.ner.Token import Token
-
-from pullenti.ner.keyword import KeywordAnalyzer
-
+# from pullenti.ner.AnalysisResult import AnalysisResult
+# from pullenti.ner.Analyzer import Analyzer
+# from pullenti.ner.ExtOntology import ExtOntology
+# from pullenti.ner.ExtOntologyItem import ExtOntologyItem
+# from pullenti.ner.MetaToken import MetaToken
+# from pullenti.ner.MorphCollection import MorphCollection
+# from pullenti.ner.NumberSpellingType import NumberSpellingType
+# from pullenti.ner.NumberToken import NumberToken
+# from pullenti.ner.Processor import Processor
+# from pullenti.ner.ProxyReferent import ProxyReferent
+# from pullenti.ner.Referent import Referent
+# from pullenti.ner.Slot import Slot
+# from pullenti.ner.TextAnnotation import TextAnnotation
+# from pullenti.ner.TextToken import TextToken
+# from pullenti.ner.Token import Token
+# from pullenti.ner.keyword import KeywordAnalyzer
 # инициализируем в полном обеме
 Sdk.initialize_all()
+
 # sys.setrecursionlimit(config.recursion_limit)
 # sys.setrecursionlimit(100)
 # print(sys.getrecursionlimit())
-
 
 def find_keys(slots):
     mslots = []
@@ -89,10 +80,9 @@ def mind_generate(txt):
         ss = find_keys(match.slots)
         # если не str пробежаться рекурсией до руды
     # for match1 in result1.entities:
-        # ss.append(entity) #for match in result.walk():
-     #   ss1 = find_keys(match1.slots)
-
-    print('*** slots **', ss)
+    # ss.append(entity) #for match in result.walk():
+    #   ss1 = find_keys(match1.slots)
+    # print('*** slots **', ss)
     return ss  # возвращает словарь ключевых слов файла
 
 
@@ -106,17 +96,20 @@ def file_rename(file_name):
 
 
 # функция удаление параграфа из документа
-def delete_paragraph(paragraph):
-    p = paragraph._element
-    p.getparent().remove(p)
-    p._p = p._element = None
+# def delete_paragraph(paragraph):
+#     p = paragraph._element
+#     p.getparent().remove(p)
+#     p._p = p._element = None
 
 
 # функция удаление пустых параграфов из документа
 def strip_file(file, file_new):
     for paragraphs in file.paragraphs:
         if len(paragraphs.text) == 0:
-            delete_paragraph(paragraphs)
+            # delete_paragraph(paragraphs)
+            p = paragraphs._element
+            p.getparent().remove(p)
+            p._p = p._element = None
     file.save(file_new)
 
 
