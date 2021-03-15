@@ -5,7 +5,9 @@
 python3 compare.py Основы.docx Основы2.docx
 '''
 
-# imports
+
+import time
+start_time = time.time() # время выполнения
 import os
 import string
 import sys
@@ -16,17 +18,16 @@ from docx import Document
 from docx.enum.text import WD_COLOR
 from fuzzywuzzy import fuzz
 from jinja2 import Environment, FileSystemLoader
-# from nltk.corpus import stopwords
-# from nltk.tokenize import word_tokenize
+#from nltk.corpus import stopwords
+#from nltk.tokenize import word_tokenize
 
-import config  # импорт файла настроек
+import config
 
 # ********************************************   смысловой разбор и поиск ключевых слов
 # import pullenti
 from pullenti.Sdk import Sdk
 from pullenti.ner.ProcessorService import ProcessorService
 from pullenti.ner.SourceOfAnalysis import SourceOfAnalysis
-
 # from pullenti.ner.AnalysisResult import AnalysisResult
 # from pullenti.ner.Analyzer import Analyzer
 # from pullenti.ner.ExtOntology import ExtOntology
@@ -45,7 +46,6 @@ from pullenti.ner.SourceOfAnalysis import SourceOfAnalysis
 # from pullenti.ner.keyword import KeywordAnalyzer
 # инициализируем в полном обеме
 Sdk.initialize_all()
-
 
 # sys.setrecursionlimit(config.recursion_limit)
 # sys.setrecursionlimit(100)
@@ -86,7 +86,6 @@ def mind_generate(txt):
     #   ss1 = find_keys(match1.slots)
     # print('*** slots **', ss)
     return ss  # возвращает словарь ключевых слов файла
-
 
 # ********************************************смысловой разбор и поиск ключевых слов
 
@@ -173,11 +172,11 @@ def color_paragraph(paragraph):
 
 '''для использования отладочного и боевого режимов'''
 
-# if len(sys.argv) > 1:  # если из под командной строки запускаем
+#if len(sys.argv) > 1:  # если из под командной строки запускаем
 #    print('сравниваю ' + sys.argv[1] + ' и ' + sys.argv[2])
 #    file1 = sys.argv[1]
 #    file2 = sys.argv[2]
-# elif os.environ['QUERY_STRING']:  # если передаем по гкд с папаметрами
+#elif os.environ['QUERY_STRING']:  # если передаем по гкд с папаметрами
 if os.environ['QUERY_STRING']:  # если передаем по гкд с папаметрами
     sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
     print('Content-Type: text/plain', 'encoding:utf-8')
@@ -188,14 +187,14 @@ if os.environ['QUERY_STRING']:  # если передаем по гкд с па�
     # print(a)
     # print(b)
     print(os.environ)
-    # print(os.environ['QUERY_STRING'])
+    #print(os.environ['QUERY_STRING'])
     file1 = os.environ['QUERY_STRING'].split('&')[0].split('=')[1]
     file2 = os.environ['QUERY_STRING'].split('&')[1].split('=')[1]
-    # print('сравниваю ' + file1 + ' и ' + file2)
+    #print('сравниваю ' + file1 + ' и ' + file2)
     print(file1)
     print(file2)
 else:
-    # print('отладочный режим')  # если не из под командной строки запускаем
+    #print('отладочный режим')  # если не из под командной строки запускаем
     print('ФАЙЛЫ ДЛЯ СРАВНЕНИЯ НЕ НАЙДЕНЫ!')
     file1 = '906_2013.docx'
     file2 = '64_2020.docx'
@@ -214,7 +213,6 @@ file_rename(file2) это имя переименованного файла 2
 '''
 doc1 = docx.Document(file_rename(file1))
 doc2 = docx.Document(file_rename(file2))
-# print(doc1,doc2)
 
 q1 = []  # очищенные списки для вывода html 1 документа
 q11 = []  # для вывода совпадающих значений 1 и 2 документа
@@ -225,14 +223,6 @@ q4 = []  # ключевые слова документа 1
 q41 = []
 q5 = []  # ключевые слова документа 2
 q51 = []
-
-# print(len(doc1.paragraphs), len(doc2.paragraphs))
-
-# уравниваем количество параграфов в документах
-# if len(doc1.paragraphs) > len(doc2.paragraphs):
-#    add_par(doc2, (len(doc1.paragraphs) - len(doc2.paragraphs)), file_rename(file2))
-# if len(doc2.paragraphs) > len(doc1.paragraphs):
-#    add_par(doc1, (len(doc2.paragraphs) - len(doc1.paragraphs)), file_rename(file1))
 
 print(len(doc1.paragraphs), len(doc2.paragraphs))
 
@@ -288,7 +278,7 @@ with open(file_compare_name_d, 'w') as f2:
                 row_cells[0].text = str(q1[i])  # сразу добавляем абзац документа 1 в docx
                 row_cells[1].text = str(a)  # и для docx
                 row_cells[2].text = str(q2[j])  # потом неплохо было бы их раскрасить
-            else:
+            #else:
                 # добавлять абзацы в отдельный список
                 # этот отдельный список крыжить на предмет совпадения
 
@@ -297,20 +287,23 @@ with open(file_compare_name_d, 'w') as f2:
                 # q3.append(a)  # сразу добавляем для html
                 # row_cells[1].text = str(a)  # и для docx
                 # row_cells[2].text = config.no_paragraph   # потом неплохо было бы их раскрасить
-                continue
+                # continue
 doc3.save(file_compare_name_d)  # сохраняем файл docx
 f2.close()
 # print(len(q1), len(q2), len(q3))
+
 # создаем файл html с результаттми сравнения
-file_compare_name = file1.split('.')[0] + '_vs_' + file2.split('.')[0] + '.html'
+# file_compare_name = file1.split('.')[0] + '_vs_' + file2.split('.')[0] + '.html'
 # запись в файл
-curr_dir = os.path.dirname(os.path.abspath(__file__))  # через jinja указываем что шаблон находится в корне
-env = Environment(loader=FileSystemLoader(curr_dir))  # через jinja подгружаем шаблон из текущей папки
-template = env.get_template('template.html')  # через jinja
-print(len(q1), len(q2), len(q3))
-print('*****Записываю html*******')
-with open(file_compare_name, "w", encoding='utf-8') as f:
-    f.write(template.render(file_name1=file_rename(file1), file_name2=file_rename(file2), q1=q11, q2=q21, q3=q3, q4=q41,
-                            q5=q51,
-                            len=len(q3)))
-f.close()
+# curr_dir = os.path.dirname(os.path.abspath(__file__))  # через jinja указываем что шаблон находится в корне
+# env = Environment(loader=FileSystemLoader(curr_dir))  # через jinja подгружаем шаблон из текущей папки
+# template = env.get_template('template.html')  # через jinja
+#print(len(q1), len(q2), len(q3))
+print('Похожих абзацев:' + str(len(q3)))
+# print('*****Записываю html*******')
+# with open(file_compare_name, "w", encoding='utf-8') as f:
+#     f.write(template.render(file_name1=file_rename(file1), file_name2=file_rename(file2), q1=q11, q2=q21, q3=q3, q4=q41,
+#                             q5=q51,
+#                             len=len(q3)))
+# f.close()
+print("Время выполнения--- %s seconds ---" % (time.time() - start_time))
