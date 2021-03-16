@@ -44,7 +44,7 @@ from pullenti.ner.SourceOfAnalysis import SourceOfAnalysis
 # from pullenti.ner.keyword import KeywordAnalyzer
 # инициализируем в полном обеме
 Sdk.initialize_all()
-print('test')
+# print('test')
 # sys.setrecursionlimit(config.recursion_limit)
 # sys.setrecursionlimit(100)
 # print(sys.getrecursionlimit())
@@ -68,20 +68,21 @@ def find_keys(slots):
 
 def mind_generate(txt):
     ss = []
-    # processor = ProcessorService.create_processor() # результаты по основным встроенным процессорам pullenti
+    processor = ProcessorService.create_processor() # результаты по основным встроенным процессорам pullenti
     processor_key = ProcessorService.create_specific_processor('KEYWORD')
     # for analysers in processor_key.analyzers:
     #    print(analyzers)
     result = processor_key.process(SourceOfAnalysis(txt))
     # result1 = processor.process(SourceOfAnalysis(txt))
-    # print(result)
+    # print(result, result1)
     for match in result.entities:
         # ss.append(entity) #for match in result.walk():
         ss = find_keys(match.slots)
         # если не str пробежаться рекурсией до руды
     # for match1 in result1.entities:
-    # ss.append(entity) #for match in result.walk():
-    #   ss1 = find_keys(match1.slots)
+    # # ss.append(entity) #for match in result.walk():
+    #     ss1 = find_keys(match1.slots)
+    #     ss.append(str(ss1))
     # print('*** slots **', ss)
     return ss  # возвращает словарь ключевых слов файла
 
@@ -218,15 +219,18 @@ with open(file_compare_name_d, 'w') as f2:
     hdr_cells[1].text = '% совпадения'
     hdr_cells[2].text = file_rename(file2)
     print('***** Готовлю ключевые слова *******')
+    start_time_keys = time.time()  # время начала выполнения
     for g in doc1.paragraphs:  # заранее готовим списки ключевых слов и  тектсов параграфов для документа 1
         g_mind = mind_generate(g.text)
         q1.append(g.text)
         q4.append(' '.join(g_mind))
     for h in doc2.paragraphs:  # заранее готовим списки ключевых слов и  тектсов параграфов для документа 2
         h_mind = mind_generate(h.text)
-        q2.append(h.text)  # разница между 2 и 1 доком
+        q2.append(h.text)
         q5.append(' '.join(h_mind))
-    print('***** Сравниваю по смыслу, ключевым словам и готовлю сводную таблицу *******')
+    print("Время выполнения--- %s seconds ---" % (time.time() - start_time_keys))
+    print('***** Сравниваю по смыслу, ключевым словам и готовлю сводную таблицу docx *******')
+    start_time_compare = time.time()  # время начала выполнения
     for i in range(len(q1)):  # берем все параграфы документа 1
         # i_mind = mind_generate(i.text)  # это словарь
         # print('\n\n1 ********', ' '.join(i_mind.values()))
@@ -257,6 +261,7 @@ with open(file_compare_name_d, 'w') as f2:
                 row_cells[0].text = str(q1[i])  # сразу добавляем абзац документа 1 в docx
                 row_cells[1].text = str(a)  # и для docx
                 row_cells[2].text = str(q2[j])  # потом неплохо было бы их раскрасить
+
             #else:
                 # добавлять абзацы в отдельный список
                 # этот отдельный список крыжить на предмет совпадения
@@ -272,17 +277,22 @@ f2.close()
 # print(len(q1), len(q2), len(q3))
 
 # создаем файл html с результаттми сравнения
-# file_compare_name = file1.split('.')[0] + '_vs_' + file2.split('.')[0] + '.html'
+file_compare_name = file1.split('.')[0] + '_vs_' + file2.split('.')[0] + '.html'
 # запись в файл
-# curr_dir = os.path.dirname(os.path.abspath(__file__))  # через jinja указываем что шаблон находится в корне
-# env = Environment(loader=FileSystemLoader(curr_dir))  # через jinja подгружаем шаблон из текущей папки
-# template = env.get_template('template.html')  # через jinja
-#print(len(q1), len(q2), len(q3))
+curr_dir = os.path.dirname(os.path.abspath(__file__))  # через jinja указываем что шаблон находится в корне
+env = Environment(loader=FileSystemLoader(curr_dir))  # через jinja подгружаем шаблон из текущей папки
+template = env.get_template('template.html')  # через jinja
+print(len(q1), len(q2), len(q3))
 print('Похожих абзацев:' + str(len(q3)))
-# print('*****Записываю html*******')
-# with open(file_compare_name, "w", encoding='utf-8') as f:
-#     f.write(template.render(file_name1=file_rename(file1), file_name2=file_rename(file2), q1=q11, q2=q21, q3=q3, q4=q41,
-#                             q5=q51,
-#                             len=len(q3)))
-# f.close()
-print("Время выполнения--- %s seconds ---" % (time.time() - start_time))
+print("Время выполнения--- %s seconds ---" % (time.time() - start_time_compare))
+
+
+start_time_html = time.time()
+print('*****Записываю html*******')
+with open(file_compare_name, "w", encoding='utf-8') as f:
+    f.write(template.render(file_name1=file_rename(file1), file_name2=file_rename(file2), q1=q11, q2=q21, q3=q3, q4=q41,
+                            q5=q51,
+                            len=len(q3)))
+f.close()
+print("Время выполнения--- %s seconds ---" % (time.time() - start_time_html))
+print("Общее время выполнения--- %s seconds ---" % (time.time() - start_time))
