@@ -9,15 +9,35 @@
             <td>{{file_name2}}</td>
             <td>keywords doc 2</td>
         </tr>
-            {% for i in range(len)%}
+            {% for i in range(len1)%}
         <tr>
-            <td>{{q1[i]}}</td>
-            <td>{{q4[i]}}</td>
+            <td>{{q11[i]}}</td>
+            <td>{{q41[i]}}</td>
             <td>{{q3[i]}}</td>
-            <td>{{q2[i]}}</td>
-            <td>{{q5[i]}}</td>
+            <td>{{q21[i]}}</td>
+            <td>{{q51[i]}}</td>
         </tr>
             {% endfor %}
+
+        <!-- Блок необработанных абзацев -->
+        <tr><td colspan="4" style="background-color:#ff0000;">Необработанные сущности</td></tr>
+        <tr>
+            <td>{{file_name1}}</td>
+            <td>keywords doc 1</td>
+            <td>%совпадение текста | ключей</td>
+            <td>{{file_name2}}</td>
+            <td>keywords doc 2</td>
+        </tr>
+            {% for j in range(len2)%}
+        <tr>
+            <td>{{q1[j]}}</td>
+            <td>{{q4[j]}}</td>
+            <td>%{{q_3[j]}}</td>
+            <td>{{q2[j]}}</td>
+            <td>{{q5[j]}}</td>
+        </tr>
+            {% endfor %}
+        <!-- Блок необработанных абзацев -->
     </table>
     </body>
 </html>

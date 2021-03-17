@@ -5,9 +5,9 @@
 python3 compare.py Основы.docx Основы2.docx
 '''
 
-
 import time
-start_time = time.time() # время выполнения
+
+start_time = time.time()  # время выполнения
 import os
 # import string
 import sys
@@ -26,6 +26,7 @@ import config
 from pullenti.Sdk import Sdk
 from pullenti.ner.ProcessorService import ProcessorService
 from pullenti.ner.SourceOfAnalysis import SourceOfAnalysis
+
 # from pullenti.ner.AnalysisResult import AnalysisResult
 # from pullenti.ner.Analyzer import Analyzer
 # from pullenti.ner.ExtOntology import ExtOntology
@@ -44,6 +45,8 @@ from pullenti.ner.SourceOfAnalysis import SourceOfAnalysis
 # from pullenti.ner.keyword import KeywordAnalyzer
 # инициализируем в полном обеме
 Sdk.initialize_all()
+
+
 # print('test')
 # sys.setrecursionlimit(config.recursion_limit)
 # sys.setrecursionlimit(100)
@@ -68,23 +71,24 @@ def find_keys(slots):
 
 def mind_generate(txt):
     ss = []
-    processor = ProcessorService.create_processor() # результаты по основным встроенным процессорам pullenti
+    processor = ProcessorService.create_processor()  # результаты по основным встроенным процессорам pullenti
     processor_key = ProcessorService.create_specific_processor('KEYWORD')
     # for analysers in processor_key.analyzers:
     #    print(analyzers)
     result = processor_key.process(SourceOfAnalysis(txt))
-    # result1 = processor.process(SourceOfAnalysis(txt))
+    result1 = processor.process(SourceOfAnalysis(txt))
     # print(result, result1)
     for match in result.entities:
         # ss.append(entity) #for match in result.walk():
         ss = find_keys(match.slots)
         # если не str пробежаться рекурсией до руды
-    # for match1 in result1.entities:
-    # # ss.append(entity) #for match in result.walk():
-    #     ss1 = find_keys(match1.slots)
-    #     ss.append(str(ss1))
-    # print('*** slots **', ss)
+    for match1 in result1.entities:
+        # ss.append(entity) #for match in result.walk():
+        ss1 = find_keys(match1.slots)
+        ss.append(str(ss1))
+    #print('*** slots **', ss)
     return ss  # возвращает словарь ключевых слов файла
+
 
 # ********************************************смысловой разбор и поиск ключевых слов
 
@@ -194,15 +198,21 @@ file_rename(file2) это имя переименованного файла 2
 doc1 = docx.Document(file_rename(file1))
 doc2 = docx.Document(file_rename(file2))
 
-q1 = []  # очищенные списки для вывода html 1 документа
+q1 = []  # очищенные списки для вывода 1 документа
 q11 = []  # для вывода совпадающих значений 1 и 2 документа
-q2 = []  # очищенные списки для вывода html 2 документа
+q2 = []  # очищенные списки для вывода 2 документа
 q21 = []  # для вывода совпадающих значений 1 и 2 документа
 q3 = []  # процент совпадения
 q4 = []  # ключевые слова документа 1
 q41 = []
 q5 = []  # ключевые слова документа 2
 q51 = []
+
+q_1 = []  # неодинаковые абзацы 1 документа
+q_2 = []  # неодинаковые абзацы 2 документа
+q_3 = []  # список с процентом совпадения ресовпавших по конфигу
+q_4 = []  # keywords неодинаковые абзацы 1 документа
+q_5 = []  # keywords неодинаковые абзацы 2 документа
 
 print(len(doc1.paragraphs), len(doc2.paragraphs))
 
@@ -244,8 +254,7 @@ with open(file_compare_name_d, 'w') as f2:
             # print('% текст ********', a)
             b = fuzz.token_sort_ratio(q4[i], q5[j])
             # print('% ключи ********', b)
-            if a >= config.thresold and b >= config.thresold and len(q4[i]) > 0 and len(
-                    q5[j]) > 0:  # внимательно посмотреть на это условие
+            if a >= config.thresold and b >= config.thresold and len(q4[i]) > 0 and len(q5[j]) > 0:
                 # готовим данные для html
                 # q2.append(f_compare(i.text, j.text))  # разница между 2 и 1 доком
                 q3.append(str(a) + '|' + str(b))  # сразу добавляем для html
@@ -254,7 +263,9 @@ with open(file_compare_name_d, 'w') as f2:
                 # q21.append(q2[j])
                 q21.append(f_compare(q1[i], q2[j]))  # что поменялось во 2 документе относительно 1
                 q51.append(q5[j])
-
+                # q1.remove(q1[i])  # удаляем из исходных списков чтобы поторно не сравнивать
+                # q4.remove(q4[i])  # удаляем ключевые слова из исходных списков чтобы поторно не сравнивать
+                # q5.remove(j)  # удаляем ключевые слова из исходных списков чтобы поторно не сравнивать
                 # print(q3)
                 # наполняем файл docx с различиями
                 row_cells = table.add_row().cells  # добавляем данные в строку таблицы docx
@@ -262,16 +273,11 @@ with open(file_compare_name_d, 'w') as f2:
                 row_cells[1].text = str(a)  # и для docx
                 row_cells[2].text = str(q2[j])  # потом неплохо было бы их раскрасить
 
-            #else:
-                # добавлять абзацы в отдельный список
-                # этот отдельный список крыжить на предмет совпадения
-
-                # q1.append(i.text)  # сразу добавляем абзац документа 1 в html
-                # q2.append(config.no_paragraph)  # добавляем пустышку
-                # q3.append(a)  # сразу добавляем для html
-                # row_cells[1].text = str(a)  # и для docx
-                # row_cells[2].text = config.no_paragraph   # потом неплохо было бы их раскрасить
-                # continue
+    # формируем мешок неучтенки
+    q1 = [x for x in q1 if x not in set(q11)]
+    q2 = [x for x in q2 if x not in set(q21)]
+    # print('Неучтенка документа 1')
+    # print(q1)
 doc3.save(file_compare_name_d)  # сохраняем файл docx
 f2.close()
 # print(len(q1), len(q2), len(q3))
@@ -286,13 +292,10 @@ print(len(q1), len(q2), len(q3))
 print('Похожих абзацев:' + str(len(q3)))
 print("Время выполнения--- %s seconds ---" % (time.time() - start_time_compare))
 
-
 start_time_html = time.time()
 print('*****Записываю html*******')
 with open(file_compare_name, "w", encoding='utf-8') as f:
-    f.write(template.render(file_name1=file_rename(file1), file_name2=file_rename(file2), q1=q11, q2=q21, q3=q3, q4=q41,
-                            q5=q51,
-                            len=len(q3)))
+    f.write(template.render(file_name1=file_rename(file1), file_name2=file_rename(file2), q11=q11, q21=q21, q3=q3, q41=q41, q51=q51, q1=q1, q2=q2, q4=q_4, q5=q_5, q_3=q_3, len1=len(q3), len2=max(len(q1),len(q2))))
 f.close()
 print("Время выполнения--- %s seconds ---" % (time.time() - start_time_html))
 print("Общее время выполнения--- %s seconds ---" % (time.time() - start_time))
