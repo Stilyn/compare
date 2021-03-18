@@ -213,12 +213,6 @@ q_5 = []  # keywords неодинаковые абзацы 2 документа
 
 print(len(doc1.paragraphs), len(doc2.paragraphs))
 
-# создаем файл docx с результатами сравнения
-# лучше именовать файлы штампом даты времени тк если из будет 10 то имя будет оочень длинным
-file_compare_name_d = str(datetime.datetime.now()).replace(' ','_').replace(':','_').split('.')[0] +'.xlsx'
-#file_compare_name_d = file1.split('.')[0] + '_vs_' + file2.split('.')[0] + '.docx'
-# print(file_compare_name_d)
-
 print('***** Готовлю ключевые слова *******')
 start_time_keys = time.time()  # время начала выполнения
 for g in doc1.paragraphs:  # заранее готовим списки ключевых слов и  тектсов параграфов для документа 1
@@ -240,7 +234,6 @@ for i in range(len(q1)):  # берем все параграфы докумен�
         b = fuzz.token_sort_ratio(q4[i], q5[j])
         # print('% ключи ********', b)
         if a >= config.thresold and b >= config.thresold and len(q4[i]) > 0 and len(q5[j]) > 0:
-            # готовим данные для html
             # q2.append(f_compare(i.text, j.text))  # разница между 2 и 1 доком
             #q3.append(str(a) + '|' + str(b))  # сразу добавляем для html
             q11.append(q1[i])  # сразу добавляем абзац документа 1 в html
@@ -248,18 +241,22 @@ for i in range(len(q1)):  # берем все параграфы докумен�
             q21.append(q2[j])
             #q21.append(f_compare(q1[i], q2[j]))  # что поменялось во 2 документе относительно 1
             q51.append(q5[j])
-            # print(q3)
-            # наполняем файл docx с различиями
-            # row_cells = table.add_row().cells  # добавляем данные в строку таблицы docx
-            # row_cells[0].text = str(q1[i])  # сразу добавляем абзац документа 1 в docx
-            # row_cells[1].text = str(a)  # и для docx
-            # row_cells[2].text = str(q2[j])  # потом неплохо было бы их раскрасить
 
 print(len(q11),len(q21))
-# готовим словарь для записи в excel
+file_compare_name_d = str(datetime.datetime.now()).replace(' ','_').replace(':','_').split('.')[0] +'.xlsx'
+file_compare_name_ht = str(datetime.datetime.now()).replace(' ','_').replace(':','_').split('.')[0] +'.html'
+# готовим словарь для записи
 df = pd.DataFrame({file_rename(file1):q11,'keywords1':q41,file_rename(file2):q21,'keywords2':q51})
-df.to_excel(file_compare_name_d)
 
+start_time_xlsx = time.time()
+print('*****Записываю xlsx*******')
+df.to_excel(file_compare_name_d)  # xlsx
+print("Время выполнения--- %s seconds ---" % (time.time() - start_time_xlsx))
+
+start_time_html = time.time()
+print('*****Записываю html*******')
+df.to_html(file_compare_name_ht, encoding='utf-8', header=True)  # html
+print("Время выполнения--- %s seconds ---" % (time.time() - start_time_html))
 
 # формируем мешок неучтенки
 #q1 = [x for x in q1 if x not in set(q11)] # по формировать не надо его целиком просто вставляем в документ
