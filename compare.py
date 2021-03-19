@@ -201,9 +201,9 @@ def par_compare(q1, q2, q4, q5, thresold):
     # q2 = [x for x in q2 if x not in set(q21)]
     #print(len(q11), len(q21))
     result.append(q11)
-    result.append(q21)
-    result.append(q3)
     result.append(q41)
+    result.append(q3)
+    result.append(q21)
     result.append(q51)
     # должна выводить dataset для exel html
     return result
