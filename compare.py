@@ -7,6 +7,7 @@ python3 compare.py Основы.docx Основы2.docx
 
 import time
 import datetime
+
 start_time = time.time()  # время выполнения
 import os
 # import string
@@ -71,12 +72,12 @@ def find_keys(slots):
 
 def mind_generate(txt):
     ss = []
-    #processor = ProcessorService.create_processor()  # результаты по основным встроенным процессорам pullenti
+    # processor = ProcessorService.create_processor()  # результаты по основным встроенным процессорам pullenti
     processor_key = ProcessorService.create_specific_processor('KEYWORD')
     # for analysers in processor_key.analyzers:
     #    print(analyzers)
     result = processor_key.process(SourceOfAnalysis(txt))
-    #result1 = processor.process(SourceOfAnalysis(txt))
+    # result1 = processor.process(SourceOfAnalysis(txt))
     # print(result, result1)
     for match in result.entities:
         # ss.append(entity) #for match in result.walk():
@@ -89,12 +90,14 @@ def mind_generate(txt):
     # print('*** slots **', ss)
     return ss  # возвращает словарь ключевых слов файла
 
+
 # ********************************************смысловой разбор и поиск ключевых слов
 
 # функция переименования файлов для формирования временных
 def file_rename(file_name):
     n = file_name.split('.')[0] + '_vs' + '.docx'
     return str(n)
+
 
 # функция удаление параграфа из документа
 # def delete_paragraph(paragraph):
@@ -168,6 +171,43 @@ def f_compare(p1, p2):
 #     # paragraphs.runs[s].font.bold = True # жирный шрифт
 #     paragraph.style.font.highlight_color = WD_COLOR.YELLOW  # цвет выделения желтый
 
+# функция формирования датасета сравнения параграфов
+def par_compare(q1, q2, q4, q5, thresold):
+    # q1 q2  - тексты параграфов
+    # q4 q5  - ключевые слова параграфов
+
+    q11 = []  # для вывода совпадающих значений 1 и 2 документа
+    q21 = []  # для вывода совпадающих значений 1 и 2 документа
+    q3 = []  # процент совпадения
+    q41 = []
+    q51 = []
+    result = []
+    for i in range(len(q1)):  # берем все параграфы документа 1
+        for j in range(len(q2)):
+            # a = fuzz.WRatio(q1[i], q2[j])  # ищем совпадение по смыслу %
+            a = fuzz.partial_token_sort_ratio(q1[i], q2[j])  # ищем совпадение по словам %
+            # print('% текст ********', a)
+            b = fuzz.token_sort_ratio(q4[i], q5[j])
+            # print('% ключи ********', b)
+            if a >= thresold and b >= thresold and len(q4[i]) > 0 and len(q5[j]) > 0:
+                q3.append(str(a) + '|' + str(b))  # сразу добавляем для html
+                q11.append(q1[i])  # сразу добавляем абзац документа 1 в html
+                q41.append(q4[i])
+                # q21.append(f_compare(q1[i], q2[j]))  # что поменялось во 2 документе относительно 1
+                q21.append(q2[j])
+                q51.append(q5[j])
+    # формируем мешок неучтенки
+    # q1 = [x for x in q1 if x not in set(q11)] # по формировать не надо его целиком просто вставляем в документ
+    # q2 = [x for x in q2 if x not in set(q21)]
+    #print(len(q11), len(q21))
+    result.append(q11)
+    result.append(q21)
+    result.append(q3)
+    result.append(q41)
+    result.append(q51)
+    # должна выводить dataset для exel html
+    return result
+
 
 '''для использования отладочного и боевого режимов'''
 
@@ -175,10 +215,12 @@ if len(sys.argv) > 1:  # если из под командной строки з
     print('сравниваю ' + sys.argv[1] + ' и ' + sys.argv[2])
     file1 = sys.argv[1]
     file2 = sys.argv[2]
+    thresold = sys.argv[3]
 else:
     print('отладочный режим')  # если не из под командной строки запускаем
     file1 = '906_2013.docx'
     file2 = '64_2020.docx'
+    thresold = config.thresold
 
 doc1 = docx.Document(file1)  # линкуем первый файл как docx из конфигурационника
 doc2 = docx.Document(file2)  # линкуем второй файл как docx из конфигурационника
@@ -196,20 +238,10 @@ file_rename(file2) это имя переименованного файла 2
 # doc2 = docx.Document(file_rename(file2))
 
 q1 = []  # очищенные списки для вывода 1 документа
-q11 = []  # для вывода совпадающих значений 1 и 2 документа
 q2 = []  # очищенные списки для вывода 2 документа
-q21 = []  # для вывода совпадающих значений 1 и 2 документа
-q3 = []  # процент совпадения
 q4 = []  # ключевые слова документа 1
-q41 = []
 q5 = []  # ключевые слова документа 2
-q51 = []
 
-q_1 = []  # неодинаковые абзацы 1 документа
-q_2 = []  # неодинаковые абзацы 2 документа
-q_3 = []  # список с процентом совпадения ресовпавших по конфигу
-q_4 = []  # keywords неодинаковые абзацы 1 документа
-q_5 = []  # keywords неодинаковые абзацы 2 документа
 
 print(len(doc1.paragraphs), len(doc2.paragraphs))
 
@@ -227,60 +259,23 @@ print("Время выполнения--- %s seconds ---" % (time.time() - start
 
 print('***** Сравниваю по смыслу, ключевым словам и готовлю сводную таблицу xlsx *******')
 start_time_compare = time.time()  # время начала выполнения
-for i in range(len(q1)):  # берем все параграфы документа 1
-    for j in range(len(q2)):
-        a = fuzz.WRatio(q1[i], q2[j])  # ищем совпадение по смыслу в %
-        # print('% текст ********', a)
-        b = fuzz.token_sort_ratio(q4[i], q5[j])
-        # print('% ключи ********', b)
-        if a >= config.thresold and b >= config.thresold and len(q4[i]) > 0 and len(q5[j]) > 0:
-            # q2.append(f_compare(i.text, j.text))  # разница между 2 и 1 доком
-            #q3.append(str(a) + '|' + str(b))  # сразу добавляем для html
-            q11.append(q1[i])  # сразу добавляем абзац документа 1 в html
-            q41.append(q4[i])
-            q21.append(q2[j])
-            #q21.append(f_compare(q1[i], q2[j]))  # что поменялось во 2 документе относительно 1
-            q51.append(q5[j])
-
-print(len(q11),len(q21))
-file_compare_name_d = str(datetime.datetime.now()).replace(' ','_').replace(':','_').split('.')[0] +'.xlsx'
-file_compare_name_ht = str(datetime.datetime.now()).replace(' ','_').replace(':','_').split('.')[0] +'.html'
+file_compare_name_d = str(datetime.datetime.now()).replace(' ', '_').replace(':', '_').split('.')[0] + '.xlsx'
+file_compare_name_ht = str(datetime.datetime.now()).replace(' ', '_').replace(':', '_').split('.')[0] + '.html'
 # готовим словарь для записи
-df = pd.DataFrame({file_rename(file1):q11,'keywords1':q41,file_rename(file2):q21,'keywords2':q51})
+comp = par_compare(q1, q2, q4, q5, thresold)  # сравниваем абзацы документа
+df = pd.DataFrame({file_rename(file1): comp[0], 'keywords1': comp[1],
+                   '% смысл | % keys': comp[2],
+                   file_rename(file2): comp[3], 'keywords2': comp[4]})
+print("Время выполнения--- %s seconds ---" % (time.time() - start_time_compare) + '\n\n')
 
 start_time_xlsx = time.time()
 print('*****Записываю xlsx*******')
 df.to_excel(file_compare_name_d)  # xlsx
-print("Время выполнения--- %s seconds ---" % (time.time() - start_time_xlsx))
+print("Время выполнения--- %s seconds ---" % (time.time() - start_time_xlsx) + '\n\n')
 
 start_time_html = time.time()
 print('*****Записываю html*******')
 df.to_html(file_compare_name_ht, encoding='utf-8', header=True)  # html
-print("Время выполнения--- %s seconds ---" % (time.time() - start_time_html))
+print("Время выполнения--- %s seconds ---" % (time.time() - start_time_html) + '\n\n')
 
-# формируем мешок неучтенки
-#q1 = [x for x in q1 if x not in set(q11)] # по формировать не надо его целиком просто вставляем в документ
-#q2 = [x for x in q2 if x not in set(q21)]
-# print('Неучтенка документа 1')
-# print(q1)
-#doc3.save(file_compare_name_d)  # сохраняем файл docx
-#f2.close()
-# print(len(q1), len(q2), len(q3))
-
-# создаем файл html с результаттми сравнения
-# file_compare_name = str(datetime.datetime.now()).replace(' ','_').replace(':','_').split('.')[0] + '.html'
-# # запись в файл
-# curr_dir = os.path.dirname(os.path.abspath(__file__))  # через jinja указываем что шаблон находится в корне
-# env = Environment(loader=FileSystemLoader(curr_dir))  # через jinja подгружаем шаблон из текущей папки
-# template = env.get_template('template.html')  # через jinja
-# print(len(q1), len(q2), len(q3))
-# print('Похожих абзацев:' + str(len(q3)))
-# print("Время выполнения--- %s seconds ---" % (time.time() - start_time_compare))
-#
-# start_time_html = time.time()
-# print('*****Записываю html*******')
-# with open(file_compare_name, "w", encoding='utf-8') as f:
-#     f.write(template.render(file_name1=file_rename(file1), file_name2=file_rename(file2), q1=q1, q21=q21, q3=q3, q4=q4, q51=q51, q2=q2, q5=q_5, q_3=q_3, len1=len(q3), len2=max(len(q1),len(q2))))
-# f.close()
-# print("Время выполнения--- %s seconds ---" % (time.time() - start_time_html))
 print("Общее время выполнения--- %s seconds ---" % (time.time() - start_time))
