@@ -99,13 +99,6 @@ def file_rename(file_name):
     return str(n)
 
 
-# функция удаление параграфа из документа
-# def delete_paragraph(paragraph):
-#     p = paragraph._element
-#     p.getparent().remove(p)
-#     p._p = p._element = None
-
-
 # функция удаление пустых параграфов из документа
 def strip_file(file, file_new):
     for paragraphs in file.paragraphs:
@@ -175,36 +168,53 @@ def f_compare(p1, p2):
 def par_compare(q1, q2, q4, q5, thresold):
     # q1 q2  - тексты параграфов
     # q4 q5  - ключевые слова параграфов
-
-    q11 = []  # для вывода совпадающих значений 1 и 2 документа
     q21 = []  # для вывода совпадающих значений 1 и 2 документа
     q3 = []  # процент совпадения
-    q41 = []
     q51 = []
     result = []
+
+    ln1 = max(len(q1), len(q2))
+    print(ln1)
+    # выравниваем количество абзацев
+    while len(q1) < ln1:
+        q1.append(' ')
+        q4.append(' ')
+    while len(q2) < ln1:
+        q2.append(' ')
+        q5.append(' ')
+
     for i in range(len(q1)):  # берем все параграфы документа 1
         for j in range(len(q2)):
             # a = fuzz.WRatio(q1[i], q2[j])  # ищем совпадение по смыслу %
-            a = fuzz.partial_token_sort_ratio(q1[i], q2[j])  # ищем совпадение по словам %
+            a = fuzz.partial_token_sort_ratio(q1[i], q2[i])  # ищем совпадение по словам %
             # print('% текст ********', a)
-            b = fuzz.token_sort_ratio(q4[i], q5[j])
+            b = fuzz.token_sort_ratio(q4[i], q5[i])
             # print('% ключи ********', b)
-            if a >= thresold and b >= thresold and len(q4[i]) > 0 and len(q5[j]) > 0:
-                q3.append(str(a) + '|' + str(b))  # сразу добавляем для html
-                q11.append(q1[i])  # сразу добавляем абзац документа 1 в html
-                q41.append(q4[i])
-                # q21.append(f_compare(q1[i], q2[j]))  # что поменялось во 2 документе относительно 1
-                q21.append(q2[j])
-                q51.append(q5[j])
-    # формируем мешок неучтенки
-    # q1 = [x for x in q1 if x not in set(q11)] # по формировать не надо его целиком просто вставляем в документ
-    # q2 = [x for x in q2 if x not in set(q21)]
-    #print(len(q11), len(q21))
-    result.append(q11)
-    result.append(q41)
-    result.append(q3)
-    result.append(q21)
-    result.append(q51)
+            if a >= thresold and b >= thresold and len(q4[i]) > 0 and len(q5[i]) > 0:
+                #q11.append(q1[i])  # сразу добавляем абзац документа 1 в html
+                #q41.append(q4[i])
+                q3.append(str(a) + '|' + str(b))
+                q21.append(q2[i])
+                q51.append(q5[i])
+            else:
+                q3.append(' ')
+                q21.append(' ')
+                q51.append(' ')
+
+    print(len(q1), len(q4), len(q3), len(q21), len(q51))
+    # выравниваем размерность перед формированием датасета
+    ln = max(len(q1), len(q4), len(q3), len(q21), len(q51))
+    mass = [q1,q4,q3,q21,q51]
+    for m in mass:
+        while len(m) < ln:
+            m.append(' ')
+        result.append(m)
+    print(len(q1), len(q4), len(q3), len(q21), len(q51))
+    # result.append(q1)
+    # result.append(q4)
+    # result.append(q3)
+    # result.append(q21)
+    # result.append(q51)
     # должна выводить dataset для exel html
     return result
 
