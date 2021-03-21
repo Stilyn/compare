@@ -47,7 +47,6 @@ from pullenti.ner.SourceOfAnalysis import SourceOfAnalysis
 start_time = time.time()  # время выполнения
 Sdk.initialize_all()
 
-
 # print('test')
 # sys.setrecursionlimit(config.recursion_limit)
 # sys.setrecursionlimit(100)
