@@ -7,8 +7,6 @@ python3 compare.py Основы.docx Основы2.docx
 
 import time
 import datetime
-
-start_time = time.time()  # время выполнения
 import os
 # import string
 import sys
@@ -45,6 +43,8 @@ from pullenti.ner.SourceOfAnalysis import SourceOfAnalysis
 # from pullenti.ner.Token import Token
 # from pullenti.ner.keyword import KeywordAnalyzer
 # инициализируем в полном обеме
+
+start_time = time.time()  # время выполнения
 Sdk.initialize_all()
 
 
