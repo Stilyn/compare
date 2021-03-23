@@ -55,10 +55,11 @@ Sdk.initialize_all()
 def find_keys(slots):
     mslots = []
     for d in slots:
-        if hasattr(d.value, 'slots'):
+        if hasattr(d.value, 'slots') or d.value is object:
             # v = find_keys(d.value.slots)
             # sys.setrecursionlimit(10000)
-            mslots.append(','.join(find_keys(d.value.slots)))
+            # mslots.append(','.join(find_keys(d.value.slots)))
+            mslots.extend(find_keys(d.value.slots))
             break
         # if isinstance(d.value, str):
         else:
@@ -71,21 +72,23 @@ def find_keys(slots):
 
 def mind_generate(txt):
     ss = []
-    # processor = ProcessorService.create_processor()  # результаты по основным встроенным процессорам pullenti
+    processor = ProcessorService.create_processor()  # результаты по основным встроенным процессорам pullenti
     processor_key = ProcessorService.create_specific_processor('KEYWORD')
     # for analysers in processor_key.analyzers:
     #    print(analyzers)
     result = processor_key.process(SourceOfAnalysis(txt))
-    # result1 = processor.process(SourceOfAnalysis(txt))
+    result1 = processor.process(SourceOfAnalysis(txt))
     # print(result, result1)
     for match in result.entities:
         # ss.append(entity) #for match in result.walk():
         ss = find_keys(match.slots)
         # если не str пробежаться рекурсией до руды
-    # for match1 in result1.entities:
-    #     # ss.append(entity) #for match in result.walk():
-    #     ss1 = find_keys(match1.slots)
-    #     ss.append(str(ss1))
+    for match1 in result1.entities:
+        # ss.append(entity) #for match in result.walk():
+        ss1 = find_keys(match1.slots)
+        # for k in ss1:
+        ss.extend(ss1)
+    ss = list(set(ss))  # чистим от дублей
     # print('*** slots **', ss)
     return ss  # возвращает словарь ключевых слов файла
 
@@ -168,39 +171,31 @@ def par_compare(q1, q2, q4, q5, thresold):
     # q1 q2  - тексты параграфов
     # q4 q5  - ключевые слова параграфов
     q21 = []  # для вывода совпадающих значений 1 и 2 документа
+    q2_2 = [] # для вывода несовпадающих значений из 2 документа
     q3 = []  # процент совпадения
     q51 = []
     result = []
 
-    ln1 = max(len(q1), len(q2))
-    print(ln1)
-    # выравниваем количество абзацев
-    while len(q1) < ln1:
-        q1.append(' ')
-        q4.append(' ')
-    while len(q2) < ln1:
-        q2.append(' ')
-        q5.append(' ')
-
     for i in range(len(q1)):  # берем все параграфы документа 1
         for j in range(len(q2)):
-            # a = fuzz.WRatio(q1[i], q2[j])  # ищем совпадение по смыслу %
-            a = fuzz.partial_token_sort_ratio(q1[i], q2[i])  # ищем совпадение по словам %
-            # print('% текст ********', a)
-            b = fuzz.token_sort_ratio(q4[i], q5[i])
-            # print('% ключи ********', b)
-            if a >= thresold and b >= thresold and len(q4[i]) > 0 and len(q5[i]) > 0:
+            a = fuzz.WRatio(q1[i], q2[j])  # ищем совпадение по смыслу %
+            # a = fuzz.partial_token_sort_ratio(q1[i], q2[j])  # ищем совпадение по словам %
+            #print('% текст ********', a)
+            b = fuzz.token_sort_ratio(q4[i], q5[j])
+            #print('% ключи ********', b)
+            if a >= thresold and b == 100 and len(q4[i]) > 0 and len(q5[j]) > 0:
                 #q11.append(q1[i])  # сразу добавляем абзац документа 1 в html
                 #q41.append(q4[i])
                 q3.append(str(a) + '|' + str(b))
-                q21.append(q2[i])
+                q21.append(q2[j])
                 q51.append(q5[i])
             else:
-                q3.append(' ')
-                q21.append(' ')
-                q51.append(' ')
+                 q2_2.append(q2[j])
+            #     q21.append(' ')
+            #     q51.append(' ')
 
     print(len(q1), len(q4), len(q3), len(q21), len(q51))
+    print(len(q2_2))
     # выравниваем размерность перед формированием датасета
     ln = max(len(q1), len(q4), len(q3), len(q21), len(q51))
     mass = [q1,q4,q3,q21,q51]
@@ -224,7 +219,7 @@ if len(sys.argv) > 1:  # если из под командной строки з
     print('сравниваю ' + sys.argv[1] + ' и ' + sys.argv[2])
     file1 = sys.argv[1]
     file2 = sys.argv[2]
-    thresold = sys.argv[3]
+    thresold = sys.argv[3]  # сделать вычислением последнего системного аргумента
 else:
     print('отладочный режим')  # если не из под командной строки запускаем
     file1 = '906_2013.docx'
