@@ -171,31 +171,41 @@ def par_compare(q1, q2, q4, q5, thresold):
     # q1 q2  - тексты параграфов
     # q4 q5  - ключевые слова параграфов
     q21 = []  # для вывода совпадающих значений 1 и 2 документа
-    q2_2 = [] # для вывода несовпадающих значений из 2 документа
+    q2_2 = []  # для вывода несовпадающих значений из 2 документа
     q3 = []  # процент совпадения
     q51 = []
+    q5_2 = []  # для вывода несовпадающих значений ключей из 2 документа
     result = []
 
     for i in range(len(q1)):  # берем все параграфы документа 1
+        q21.append(' ')
+        q51.append(' ')
+        q3.append(' ')
         for j in range(len(q2)):
+            q2_2.append(' ')
+            q5_2.append(' ')
             a = fuzz.WRatio(q1[i], q2[j])  # ищем совпадение по смыслу %
             # a = fuzz.partial_token_sort_ratio(q1[i], q2[j])  # ищем совпадение по словам %
             #print('% текст ********', a)
             b = fuzz.token_sort_ratio(q4[i], q5[j])
             #print('% ключи ********', b)
-            if a >= thresold and b == 100 and len(q4[i]) > 0 and len(q5[j]) > 0:
-                #q11.append(q1[i])  # сразу добавляем абзац документа 1 в html
-                #q41.append(q4[i])
-                q3.append(str(a) + '|' + str(b))
-                q21.append(q2[j])
-                q51.append(q5[i])
+            if a >= thresold and b >= thresold and len(q4[i]) > 0 and len(q5[j]) > 0:
+                # сначала все до равенства положить равным пустоте?
+                # print(i,j)
+                q3[i] = str(a) + '|' + str(b)
+                q21[i] = q2[j]
+                q51[i] = q5[j]
             else:
-                 q2_2.append(q2[j])
+                q2_2[j] = q2[j]
+                q5_2[j] = q5[j]
             #     q21.append(' ')
             #     q51.append(' ')
+    # очистить мешок с говном от пустых значений
 
-    print(len(q1), len(q4), len(q3), len(q21), len(q51))
-    print(len(q2_2))
+    q21.extend(q2_2)
+    q51.extend(q5_2)
+    #print(len(q1), len(q4), len(q3), len(q21), len(q51))
+    #print(len(list(set(q2_2))))
     # выравниваем размерность перед формированием датасета
     ln = max(len(q1), len(q4), len(q3), len(q21), len(q51))
     mass = [q1,q4,q3,q21,q51]
@@ -203,7 +213,7 @@ def par_compare(q1, q2, q4, q5, thresold):
         while len(m) < ln:
             m.append(' ')
         result.append(m)
-    print(len(q1), len(q4), len(q3), len(q21), len(q51))
+    #print(len(q1), len(q4), len(q3), len(q21), len(q51))
     # result.append(q1)
     # result.append(q4)
     # result.append(q3)
