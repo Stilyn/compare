@@ -274,7 +274,9 @@ print("Время выполнения--- %s seconds ---" % (time.time() - start
 print('***** Сравниваю по смыслу, ключевым словам и готовлю сводную таблицу xlsx *******')
 start_time_compare = time.time()  # время начала выполнения
 file_compare_name_d = str(datetime.datetime.now()).replace(' ', '_').replace(':', '_').split('.')[0] + '.xlsx'
+
 file_compare_name_ht = str(datetime.datetime.now()).replace(' ', '_').replace(':', '_').split('.')[0] + '.html'
+
 # готовим словарь для записи
 comp = par_compare(q1, q2, q4, q5, thresold)  # сравниваем абзацы документа
 df = pd.DataFrame({file_rename(file1): comp[0], 'keywords1': comp[1],
@@ -289,7 +291,24 @@ print("Время выполнения--- %s seconds ---" % (time.time() - start
 
 start_time_html = time.time()
 print('*****Записываю html*******')
-df.to_html(file_compare_name_ht, encoding='utf-8', header=True)  # html
+#df.to_html(file_compare_name_ht, encoding='utf-8')  # html table
+html_string = '''
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>HTML Pandas Dataframe with CSS</title>
+</head>
+  <link rel="stylesheet" type="text/css" href="df_style.css"/>
+  <body>
+    {table}
+  </body>
+</html>
+'''
+html_string.format(table=df.to_html())
+with open(file_compare_name_ht, 'w') as fh:
+    fh.write(html_string)
+fh.close()
+
 print("Время выполнения--- %s seconds ---" % (time.time() - start_time_html) + '\n\n')
 
 print("Общее время выполнения--- %s seconds ---" % (time.time() - start_time))
