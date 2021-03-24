@@ -178,6 +178,7 @@ def par_compare(q1, q2, q4, q5, thresold):
     result = []
 
     for i in range(len(q1)):  # берем все параграфы документа 1
+    # q1 сразу выводим в таблицу
         q21.append(' ')
         q51.append(' ')
         q3.append(' ')
@@ -186,25 +187,25 @@ def par_compare(q1, q2, q4, q5, thresold):
             q5_2.append(' ')
             a = fuzz.WRatio(q1[i], q2[j])  # ищем совпадение по смыслу %
             # a = fuzz.partial_token_sort_ratio(q1[i], q2[j])  # ищем совпадение по словам %
-            #print('% текст ********', a)
+            # print('% текст ********', a)
             b = fuzz.token_sort_ratio(q4[i], q5[j])
-            #print('% ключи ********', b)
+            # print('% ключи ********', b)
             if a >= thresold and b >= thresold and len(q4[i]) > 0 and len(q5[j]) > 0:
                 # сначала все до равенства положить равным пустоте?
                 # print(i,j)
                 q3[i] = str(a) + '|' + str(b)
                 q21[i] = q2[j]
                 q51[i] = q5[j]
-            else:
+            else: # наполняем мешок с несовпадениями
                 q2_2[j] = q2[j]
                 q5_2[j] = q5[j]
-            #     q21.append(' ')
-            #     q51.append(' ')
-    # очистить мешок с говном от пустых значений
-
+            #   q21.append(' ')
+            #   q51.append(' ')
+    # очистить мешок с несовпадениями от пустых значений
+    q2_2 = list(frozenset(q2_2))
     q21.extend(q2_2)
     q51.extend(q5_2)
-    #print(len(q1), len(q4), len(q3), len(q21), len(q51))
+    print(len(q1), len(q4), len(q3), len(q21), len(q51))
     #print(len(list(set(q2_2))))
     # выравниваем размерность перед формированием датасета
     ln = max(len(q1), len(q4), len(q3), len(q21), len(q51))
@@ -265,6 +266,7 @@ for g in doc1.paragraphs:  # заранее готовим списки ключ
     g_mind = mind_generate(g.text)
     q1.append(g.text)
     q4.append(' '.join(g_mind))
+
 for h in doc2.paragraphs:  # заранее готовим списки ключевых слов и  тектсов параграфов для документа 2
     h_mind = mind_generate(h.text)
     q2.append(h.text)
@@ -304,9 +306,8 @@ html_string = '''
   </body>
 </html>
 '''
-html_string.format(table=df.to_html())
 with open(file_compare_name_ht, 'w') as fh:
-    fh.write(html_string)
+    fh.write(html_string.format(table=df.to_html()))
 fh.close()
 
 print("Время выполнения--- %s seconds ---" % (time.time() - start_time_html) + '\n\n')
