@@ -204,7 +204,11 @@ def par_compare(q1_v, q2_v, thresold):
             a = fuzz.WRatio(q1_v.get(i), q2_v.get(j))  # ищем совпадение по смыслу %
             if b >= thresold and a >= thresold:
                 q3.append(str(a) + '|' + str(b))
-                q4_v.update({j:q2_v.get(j)})
+
+
+                q4_v.update({j:q2_v.get(j)}) # получается со смещением, поправить
+
+
                 removekey(q2_v,j)  #  удаляем из исходного словаря 2 документа
             else:
                 q3.append(' ')
