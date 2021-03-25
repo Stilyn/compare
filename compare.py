@@ -21,12 +21,15 @@ from nltk.tokenize import word_tokenize
 import config
 import pandas as pd
 from threading import Thread
+# from multiprocessing import Process
+
 
 # ********************************************   смысловой разбор и поиск ключевых слов
 # import pullenti
 from pullenti.Sdk import Sdk
 from pullenti.ner.ProcessorService import ProcessorService
 from pullenti.ner.SourceOfAnalysis import SourceOfAnalysis
+
 # from pullenti.ner.AnalysisResult import AnalysisResult
 # from pullenti.ner.Analyzer import Analyzer
 # from pullenti.ner.ExtOntology import ExtOntology
@@ -54,20 +57,21 @@ Sdk.initialize_all()
 # sys.setrecursionlimit(100)
 # print(sys.getrecursionlimit())
 
-def mind_generate(paragraphs,lst):
-    for g in range(len(paragraphs)):
-        processor = ProcessorService.create_processor()  # результаты по основным встроенным процессорам pullenti
-        processor_key = ProcessorService.create_specific_processor('KEYWORD')
-        # for analysers in processor_key.analyzers:
-        #    print(analyzers)
-        result = processor_key.process(SourceOfAnalysis(paragraphs[g].text))
-        result1 = processor.process(SourceOfAnalysis(paragraphs[g].text))
-        # print(result, result1)
-        for match in result.entities: lst.append(str(match))
-        for match1 in result1.entities: lst.append(str(match1))
-    lst = list(set(lst))  # чистим от дублей
-    print('*** slots **', lst)
-    return lst  # возвращает словарь ключевых слов файла
+def mind_generate(txt):
+    ss = []
+    processor = ProcessorService.create_processor()  # результаты по основным встроенным процессорам pullenti
+    processor_key = ProcessorService.create_specific_processor('KEYWORD')
+    # for analysers in processor_key.analyzers:
+    #    print(analyzers)
+    result = processor_key.process(SourceOfAnalysis(txt))
+    result1 = processor.process(SourceOfAnalysis(txt))
+    # print(result, result1)
+    for match in result.entities: ss.append(str(match))
+    for match1 in result1.entities: ss.append(str(match1))
+    ss = list(set(ss))  # чистим от дублей
+    # print('*** slots **', ss)
+    return ss  # возвращает словарь ключевых слов файла
+
 
 # ********************************************смысловой разбор и поиск ключевых слов
 
@@ -196,6 +200,13 @@ def par_compare(q1, q2, q4, q5, thresold):
         result.append(m)
     return result
 
+# функция разбиения документа формирования ключевых слов для каждого параграфа
+def split_doc(paragraphs, list_text, list_keywords):
+    for g in paragraphs:  # заранее готовим списки ключевых слов и  тектсов параграфов для документа 1
+        g_mind = mind_generate(g.text)
+        list_text.append(g.text)
+        list_keywords.append(' '.join(g_mind))
+
 
 '''для использования отладочного и боевого режимов'''
 
@@ -235,21 +246,15 @@ print(len(doc1.paragraphs), len(doc2.paragraphs))
 print('***** Готовлю ключевые слова *******')
 start_time_keys = time.time()  # время начала выполнения
 
-# заранее готовим списки ключевых слов и  тектсов параграфов для документа 1
-th1 = Thread(target=mind_generate, args=(doc1.paragraphs,q4))  # поток 1
-th2 = Thread(target=mind_generate, args=(doc2.paragraphs,q5))  # поток 2
+# сделать через потоки
+# лучше сразу переделать на multiprocessing
+th1 = Thread(target=split_doc, args=(doc1.paragraphs,q1,q4))  # поток 1
+th2 = Thread(target=split_doc, args=(doc2.paragraphs,q2,q5))  # поток 2
 th1.start()
 th2.start()
 th1.join()
 th2.join()
-# g_mind = mind_generate(g.text,q4)
-# q1.append(g.text)
-# q4.append(' '.join(g_mind))
-#
-# for h in doc2.paragraphs:  # заранее готовим списки ключевых слов и  тектсов параграфов для документа 2
-#     h_mind = mind_generate(h.text,q5)
-#     q2.append(h.text)
-#     q5.append(' '.join(h_mind))
+
 print("Время выполнения--- %s seconds ---" % (time.time() - start_time_keys) + '\n\n')
 
 print('***** Сравниваю по смыслу, ключевым словам и готовлю сводную таблицу xlsx *******')
