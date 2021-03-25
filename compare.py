@@ -53,26 +53,9 @@ Sdk.initialize_all()
 # sys.setrecursionlimit(100)
 # print(sys.getrecursionlimit())
 
-def find_keys(slots):
-    mslots = []
-    for d in slots:
-        if hasattr(d.value, 'slots') or d.value is object:
-            # v = find_keys(d.value.slots)
-            # sys.setrecursionlimit(10000)
-            # mslots.append(','.join(find_keys(d.value.slots)))
-            mslots.extend(find_keys(d.value.slots))
-            break
-        # if isinstance(d.value, str):
-        else:
-            mslots.append(d.value)
-    # print(slots)
-    # print(mslots)
-    # print('*********')
-    return mslots
-
-
 def mind_generate(txt):
     ss = []
+    ss1 = []
     processor = ProcessorService.create_processor()  # результаты по основным встроенным процессорам pullenti
     processor_key = ProcessorService.create_specific_processor('KEYWORD')
     # for analysers in processor_key.analyzers:
@@ -80,19 +63,11 @@ def mind_generate(txt):
     result = processor_key.process(SourceOfAnalysis(txt))
     result1 = processor.process(SourceOfAnalysis(txt))
     # print(result, result1)
-    for match in result.entities:
-        # ss.append(entity) #for match in result.walk():
-        ss = find_keys(match.slots)
-        # если не str пробежаться рекурсией до руды
-    for match1 in result1.entities:
-        # ss.append(entity) #for match in result.walk():
-        ss1 = find_keys(match1.slots)
-        # for k in ss1:
-        ss.extend(ss1)
+    for match in result.entities: ss.append(str(match))
+    for match1 in result1.entities: ss.append(str(match1))
     ss = list(set(ss))  # чистим от дублей
     # print('*** slots **', ss)
     return ss  # возвращает словарь ключевых слов файла
-
 
 # ********************************************смысловой разбор и поиск ключевых слов
 
@@ -208,8 +183,6 @@ def par_compare(q1, q2, q4, q5, thresold):
     # очистить мешок с несовпадениями от пустых значений
     while len(q21) > (len(q1) + len(q2)): del q21[-1]
     while len(q51) > (len(q1) + len(q2)): del q51[-1]
-
-
 
     print(len(q1), len(q4), len(q3), len(q21), len(q51))
 
