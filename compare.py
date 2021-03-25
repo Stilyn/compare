@@ -261,16 +261,13 @@ print("Время выполнения--- %s seconds ---" % (time.time() - start
 print('***** Сравниваю по смыслу, ключевым словам и готовлю сводную таблицу xlsx *******')
 start_time_compare = time.time()  # время начала выполнения
 file_compare_name_d = str(datetime.datetime.now()).replace(' ', '_').replace(':', '_').split('.')[0] + '.xlsx'
-
 file_compare_name_ht = str(datetime.datetime.now()).replace(' ', '_').replace(':', '_').split('.')[0] + '.html'
-
 # готовим словарь для записи
 comp = par_compare(q1, q2, q4, q5, thresold)  # сравниваем абзацы документа
 # df = pd.DataFrame({file_rename(file1): comp[0], 'keywords1': comp[1],
 #                    '% смысл | % keys': comp[2],
 #                    file_rename(file2): comp[3], 'keywords2': comp[4]})
 df = pd.DataFrame({file_rename(file1): comp[0], '% смысл | % keys': comp[2], file_rename(file2): comp[3]})
-
 print("Время выполнения--- %s seconds ---" % (time.time() - start_time_compare) + '\n\n')
 
 start_time_xlsx = time.time()
