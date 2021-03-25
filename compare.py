@@ -200,6 +200,7 @@ def par_compare(q1, q2, q4, q5, thresold):
         result.append(m)
     return result
 
+
 # функция разбиения документа формирования ключевых слов для каждого параграфа
 def split_doc(paragraphs, list_text, list_keywords):
     for g in paragraphs:  # заранее готовим списки ключевых слов и  тектсов параграфов для документа 1
@@ -248,8 +249,8 @@ start_time_keys = time.time()  # время начала выполнения
 
 # сделать через потоки
 # лучше сразу переделать на multiprocessing
-th1 = Thread(target=split_doc, args=(doc1.paragraphs,q1,q4))  # поток 1
-th2 = Thread(target=split_doc, args=(doc2.paragraphs,q2,q5))  # поток 2
+th1 = Thread(target=split_doc, args=(doc1.paragraphs, q1, q4))  # поток 1
+th2 = Thread(target=split_doc, args=(doc2.paragraphs, q2, q5))  # поток 2
 th1.start()
 th2.start()
 th1.join()
