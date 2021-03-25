@@ -200,20 +200,17 @@ def par_compare(q1_v, q2_v, thresold):
     # сравниваем массивы по ключевым словам
     for i in q1_v.keys():  # берем все параграфы документа 1
         for j in q2_v.keys():
-            b = fuzz.token_sort_ratio(i, j)
             a = fuzz.WRatio(q1_v.get(i), q2_v.get(j))  # ищем совпадение по смыслу %
-            if b >= thresold and a >= thresold:
+            b = fuzz.token_sort_ratio(i, j)
+            if a >= thresold and b >= thresold:
                 q3.append(str(a) + '|' + str(b))
-
-
                 q4_v.update({j:q2_v.get(j)}) # получается со смещением, поправить
-
-
                 removekey(q2_v,j)  #  удаляем из исходного словаря 2 документа
             else:
                 q3.append(' ')
                 q4_v.update({'None' + str(j): 'None' + str(j)})
-    #q4_v.update(q2_v)
+
+    q4_v.update(q2_v)
             # q2_2.append(' ')
             # q5_2.append(' ')
             # a = fuzz.partial_token_sort_ratio(q1[i], q2[j])  # ищем совпадение по словам %
@@ -238,9 +235,9 @@ def par_compare(q1_v, q2_v, thresold):
     # # выравниваем размерность перед формированием датасета
     ln = max(len(q1_v.values()), len(q3), len(q2_v.values()), len(q4_v.values()))
     print(len(q1_v.values()), len(q3), len(q2_v.values()), len(q4_v.values()))
-    #print(type(q1_v),type(q3))
 
-    mass = [list(q1_v.values()), list(q1_v.keys()), q3, list(q4_v.keys()), list(q4_v.values())]
+    # file1 |'keywords1'|'% смысл  % keys'| file2 |'keywords2'
+    mass = [list(q1_v.values()), list(q1_v.keys()), q3, list(q4_v.values()), list(q4_v.keys())]
     for m in mass:
         while len(m) < ln:
             m.append(' ')
