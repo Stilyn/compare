@@ -20,12 +20,12 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 import config
 import pandas as pd
+
 # ********************************************   смысловой разбор и поиск ключевых слов
 # import pullenti
 from pullenti.Sdk import Sdk
 from pullenti.ner.ProcessorService import ProcessorService
 from pullenti.ner.SourceOfAnalysis import SourceOfAnalysis
-
 # from pullenti.ner.AnalysisResult import AnalysisResult
 # from pullenti.ner.Analyzer import Analyzer
 # from pullenti.ner.ExtOntology import ExtOntology
@@ -183,10 +183,10 @@ def par_compare(q1, q2, q4, q5, thresold):
     # очистить мешок с несовпадениями от пустых значений
     while len(q21) > (len(q1) + len(q2)): del q21[-1]
     while len(q51) > (len(q1) + len(q2)): del q51[-1]
-
-    print(len(q1), len(q4), len(q3), len(q21), len(q51))
-
-    # print(len(list(set(q2_2))))
+    #
+    # print(len(q1), len(q4), len(q3), len(q21), len(q51))
+    #
+    # # print(len(list(set(q2_2))))
     # выравниваем размерность перед формированием датасета
     ln = max(len(q1), len(q4), len(q3), len(q21), len(q51))
     mass = [q1, q4, q3, q21, q51]
@@ -194,13 +194,6 @@ def par_compare(q1, q2, q4, q5, thresold):
         while len(m) < ln:
             m.append(' ')
         result.append(m)
-    # print(len(q1), len(q4), len(q3), len(q21), len(q51))
-    # result.append(q1)
-    # result.append(q4)
-    # result.append(q3)
-    # result.append(q21)
-    # result.append(q51)
-    # должна выводить dataset для exel html
     return result
 
 
@@ -260,9 +253,11 @@ file_compare_name_ht = str(datetime.datetime.now()).replace(' ', '_').replace(':
 
 # готовим словарь для записи
 comp = par_compare(q1, q2, q4, q5, thresold)  # сравниваем абзацы документа
-df = pd.DataFrame({file_rename(file1): comp[0], 'keywords1': comp[1],
-                   '% смысл | % keys': comp[2],
-                   file_rename(file2): comp[3], 'keywords2': comp[4]})
+# df = pd.DataFrame({file_rename(file1): comp[0], 'keywords1': comp[1],
+#                    '% смысл | % keys': comp[2],
+#                    file_rename(file2): comp[3], 'keywords2': comp[4]})
+df = pd.DataFrame({file_rename(file1): comp[0], '% смысл | % keys': comp[2], file_rename(file2): comp[3]})
+
 print("Время выполнения--- %s seconds ---" % (time.time() - start_time_compare) + '\n\n')
 
 start_time_xlsx = time.time()
