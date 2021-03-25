@@ -162,88 +162,73 @@ def f_compare(p1, p2):
     return dmp.diff_prettyHtml(diffs)
 
 
-# функция генерации словаря из параграфов документа и keywords каждого параграфа
-def gener_voc(paragraphs):
-    voc = {}
-    for g in paragraphs:  # заранее готовим списки ключевых слов и  тектсов параграфов для документа 1
-        g_mind = mind_generate(g.text)
-        # q1.append(g.text)
-        # q4.append(' '.join(g_mind))
-        voc.update({' '.join(g_mind): g.text})
-    return voc  # возвращает словарь
-
-
 # def color_paragraph(paragraph):
 #     # paragraphs.runs[s].font.color.rgb = RGBColor(0xff, 0x00, 0x00) # красный текст после нуля просто цвет html
 #     # paragraphs.runs[s].font.bold = True # жирный шрифт
 #     paragraph.style.font.highlight_color = WD_COLOR.YELLOW  # цвет выделения желтый
 
-
-# удаление итема из словаря
-def removekey(d, key):
-    r = dict(d)
-    del r[key]
-    return r
-
 # функция формирования датасета сравнения параграфов
-def par_compare(q1_v, q2_v, thresold):
+def par_compare(q1, q2, q4, q5, thresold):
     # q1 q2  - тексты параграфов
     # q4 q5  - ключевые слова параграфов
     q21 = []  # для вывода совпадающих значений 1 и 2 документа
     q2_2 = []  # для вывода несовпадающих значений из 2 документа
     q3 = []  # процент совпадения
-    q5 = []
+    q51 = []
     q5_2 = []  # для вывода несовпадающих значений ключей из 2 документа
-    q4_v = {}
     result = []
-
-    # сравниваем массивы по ключевым словам
-    for i in q1_v.keys():  # берем все параграфы документа 1
-        for j in q2_v.keys():
-            a = fuzz.WRatio(q1_v.get(i), q2_v.get(j))  # ищем совпадение по смыслу %
-            b = fuzz.token_sort_ratio(i, j)
-            if a >= thresold and b >= thresold:
-                q3.append(str(a) + '|' + str(b))
-                q4_v.update({j:q2_v.get(j)}) # получается со смещением, поправить
-                removekey(q2_v,j)  #  удаляем из исходного словаря 2 документа
-            else:
-                q3.append(' ')
-                q4_v.update({'None' + str(j): 'None' + str(j)})
-
-    q4_v.update(q2_v)
-            # q2_2.append(' ')
-            # q5_2.append(' ')
+    for i in range(len(q1)):  # берем все параграфы документа 1
+        # q1 сразу выводим в таблицу
+        q21.append(' ')
+        q51.append(' ')
+        q3.append(' ')
+        for j in range(len(q2)):
+            q2_2.append(' ')
+            q5_2.append(' ')
+            a = fuzz.WRatio(q1[i], q2[j])  # ищем совпадение по смыслу %
             # a = fuzz.partial_token_sort_ratio(q1[i], q2[j])  # ищем совпадение по словам %
             # print('% текст ********', a)
-    #         # print('% ключи ********', b)
-    #         if a >= thresold and b >= thresold and len(q4[i]) > 0 and len(q5[j]) > 0:
-    #             # сначала все до равенства положить равным пустоте?
-    #             # print(i,j)
-    #             q3[i] = str(a) + '|' + str(b)
-    #             q21[i] = q2[j]
-    #             q51[i] = q5[j]
-    #         else: # наполняем мешок с несовпадениями
-    #             q2_2[j] = q2[j]
-    #             q5_2[j] = q5[j]
-    #         #   q21.append(' ')
-    #         #   q51.append(' ')
-    # # очистить мешок с несовпадениями от пустых значений
-    # q21.extend(q2_2)
-    # q51.extend(q5_2)
-    # print(len(q1), len(q4), len(q3), len(q21), len(q51))
-    # #print(len(list(set(q2_2))))
-    # # выравниваем размерность перед формированием датасета
-    ln = max(len(q1_v.values()), len(q3), len(q2_v.values()), len(q4_v.values()))
-    print(len(q1_v.values()), len(q3), len(q2_v.values()), len(q4_v.values()))
+            b = fuzz.token_sort_ratio(q4[i], q5[j])
+            # print('% ключи ********', b)
+            if a >= thresold and b >= thresold and len(q4[i]) > 0 and len(q5[j]) > 0:
+                # сначала все до равенства положить равным пустоте?
+                # print(i,j)
+                q3[i] = str(a) + '|' + str(b)
+                q21[i] = q2[j]
+                q51[i] = q5[j]
+            else:  # наполняем мешок с несовпадениями
+                q2_2[j] = q2[j]
+                q5_2[j] = q5[j]
+            #   q21.append(' ')
+            #   q51.append(' ')
 
-    # file1 |'keywords1'|'% смысл  % keys'| file2 |'keywords2'
-    mass = [list(q1_v.values()), list(q1_v.keys()), q3, list(q4_v.values()), list(q4_v.keys())]
+    q21.extend(q2_2)
+    q51.extend(q5_2)
+
+    # очистить мешок с несовпадениями от пустых значений
+    while len(q21) > (len(q1) + len(q2)): del q21[-1]
+    while len(q51) > (len(q1) + len(q2)): del q51[-1]
+
+
+
+    print(len(q1), len(q4), len(q3), len(q21), len(q51))
+
+    # print(len(list(set(q2_2))))
+    # выравниваем размерность перед формированием датасета
+    ln = max(len(q1), len(q4), len(q3), len(q21), len(q51))
+    mass = [q1, q4, q3, q21, q51]
     for m in mass:
         while len(m) < ln:
             m.append(' ')
-        print(len(m))
         result.append(m)
-    return result  # выводит суперсписок для датасета
+    # print(len(q1), len(q4), len(q3), len(q21), len(q51))
+    # result.append(q1)
+    # result.append(q4)
+    # result.append(q3)
+    # result.append(q21)
+    # result.append(q51)
+    # должна выводить dataset для exel html
+    return result
 
 
 '''для использования отладочного и боевого режимов'''
@@ -275,9 +260,7 @@ file_rename(file2) это имя переименованного файла 2
 # doc2 = docx.Document(file_rename(file2))
 
 q1 = []  # очищенные списки для вывода 1 документа
-q1_v = {}
 q2 = []  # очищенные списки для вывода 2 документа
-q2_v = {}
 q4 = []  # ключевые слова документа 1
 q5 = []  # ключевые слова документа 2
 
@@ -285,20 +268,28 @@ print(len(doc1.paragraphs), len(doc2.paragraphs))
 
 print('***** Готовлю ключевые слова *******')
 start_time_keys = time.time()  # время начала выполнения
-q1_v = gener_voc(doc1.paragraphs)
-q2_v = gener_voc(doc2.paragraphs)
+for g in doc1.paragraphs:  # заранее готовим списки ключевых слов и  тектсов параграфов для документа 1
+    g_mind = mind_generate(g.text)
+    q1.append(g.text)
+    q4.append(' '.join(g_mind))
+
+for h in doc2.paragraphs:  # заранее готовим списки ключевых слов и  тектсов параграфов для документа 2
+    h_mind = mind_generate(h.text)
+    q2.append(h.text)
+    q5.append(' '.join(h_mind))
 print("Время выполнения--- %s seconds ---" % (time.time() - start_time_keys) + '\n\n')
 
 print('***** Сравниваю по смыслу, ключевым словам и готовлю сводную таблицу xlsx *******')
 start_time_compare = time.time()  # время начала выполнения
 file_compare_name_d = str(datetime.datetime.now()).replace(' ', '_').replace(':', '_').split('.')[0] + '.xlsx'
+
 file_compare_name_ht = str(datetime.datetime.now()).replace(' ', '_').replace(':', '_').split('.')[0] + '.html'
 
-# готовим словарь сравнения для записи
-comp = par_compare(q1_v, q2_v, thresold)  # сравниваем абзацы документа
-
-df = pd.DataFrame({file_rename(file1): comp[0], 'keywords1': comp[1], '% смысл | % keys': comp[2], file_rename(file2): comp[3], 'keywords2': comp[4]})
-
+# готовим словарь для записи
+comp = par_compare(q1, q2, q4, q5, thresold)  # сравниваем абзацы документа
+df = pd.DataFrame({file_rename(file1): comp[0], 'keywords1': comp[1],
+                   '% смысл | % keys': comp[2],
+                   file_rename(file2): comp[3], 'keywords2': comp[4]})
 print("Время выполнения--- %s seconds ---" % (time.time() - start_time_compare) + '\n\n')
 
 start_time_xlsx = time.time()
