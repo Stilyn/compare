@@ -21,7 +21,7 @@ from nltk.tokenize import word_tokenize
 import config
 import pandas as pd
 from threading import Thread
-# from multiprocessing import Process
+from multiprocessing import Process
 
 
 # ********************************************   смысловой разбор и поиск ключевых слов
@@ -246,15 +246,14 @@ print(len(doc1.paragraphs), len(doc2.paragraphs))
 
 print('***** Готовлю ключевые слова *******')
 start_time_keys = time.time()  # время начала выполнения
-
-# сделать через потоки
-# лучше сразу переделать на multiprocessing
+# сделать через на multiprocessing сейчас на потоках
 th1 = Thread(target=split_doc, args=(doc1.paragraphs, q1, q4))  # поток 1
 th2 = Thread(target=split_doc, args=(doc2.paragraphs, q2, q5))  # поток 2
 th1.start()
 th2.start()
 th1.join()
 th2.join()
+
 
 print("Время выполнения--- %s seconds ---" % (time.time() - start_time_keys) + '\n\n')
 
