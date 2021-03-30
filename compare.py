@@ -21,7 +21,6 @@ from nltk.tokenize import word_tokenize
 import config
 import pandas as pd
 from threading import Thread
-from multiprocessing import Process
 
 
 # ********************************************   смысловой разбор и поиск ключевых слов
@@ -169,7 +168,7 @@ def par_compare(q1, q2, q4, q5, thresold):
             # print('% текст ********', a)
             b = fuzz.token_sort_ratio(q4[i], q5[j])
             # print('% ключи ********', b)
-            if a >= thresold and b >= thresold and len(q4[i]) > 0 and len(q5[j]) > 0:
+            if a >= int(thresold) and b >= int(thresold) and len(q4[i]) > 0 and len(q5[j]) > 0:
                 # сначала все до равенства положить равным пустоте?
                 # print(i,j)
                 q3[i] = str(a) + '|' + str(b)
