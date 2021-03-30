@@ -163,22 +163,25 @@ def par_compare(q1, q2, q4, q5, thresold):
         for j in range(len(q2)):
             q2_2.append(' ')
             q5_2.append(' ')
-            th1 = Thread(target=fuzz.WRatio, args=(q1[i], q2[j]))
-            #a = fuzz.WRatio(q1[i], q2[j])  # ищем совпадение по смыслу %
+
+            # необходимо разбить на потоки
+            # th1 = Thread(target=fuzz.WRatio, args=(q1[i], q2[j]))
+            # th2 = Thread(target=fuzz.token_sort_ratio, args=(q4[i], q5[j]))
+            # th1.start()
+            # th2.start()
+            # th1.join()
+            # th2.join()
+
+            a = fuzz.WRatio(q1[i], q2[j])  # ищем совпадение по смыслу %
             # a = fuzz.partial_token_sort_ratio(q1[i], q2[j])  # ищем совпадение по словам %
             # print('% текст ********', a)
-            #b = fuzz.token_sort_ratio(q4[i], q5[j])
-            th2 = Thread(target=fuzz.token_sort_ratio, args=(q4[i], q5[j]))
-            th1.start()
-            th2.start()
-            th1.join()
-            th2.join()
+            b = fuzz.token_sort_ratio(q4[i], q5[j])
             # print('% ключи ********', b)
             #if int(a) >= int(thresold) and int(b) >= int(thresold) and len(q4[i]) > 0 and len(q5[j]) > 0:
-            if th1 >= thresold and th2 >= thresold and len(q4[i]) > 0 and len(q5[j]) > 0:
+            if a >= thresold and b >= thresold and len(q4[i]) > 0 and len(q5[j]) > 0:
                 # сначала все до равенства положить равным пустоте?
                 # print(i,j)
-                q3[i] = str(th1) + '|' + str(th2)
+                q3[i] = str(a) + '|' + str(b)
                 q21[i] = q2[j]
                 q51[i] = q5[j]
             else:  # наполняем мешок с несовпадениями
