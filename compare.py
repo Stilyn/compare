@@ -20,6 +20,7 @@ from fuzzywuzzy import fuzz
 # from nltk.tokenize import word_tokenize
 import config
 import pandas as pd
+import numpy as np
 from threading import Thread
 
 # ********************************************   смысловой разбор и поиск ключевых слов
@@ -213,7 +214,7 @@ def split_doc(paragraphs, list_text, list_keywords):
 '''для использования отладочного и боевого режимов'''
 
 if len(sys.argv) > 1:  # если из под командной строки запускаем
-    files = []
+    files = []  # перечень файлов для сравнения
     for i in range(1,len(sys.argv)-1):
         # print('сравниваю ' + sys.argv[1] + ' и ' + sys.argv[2])
         files.append(sys.argv[i])
@@ -225,10 +226,10 @@ else:
     files = ['906_2013.docx', '64_2020.docx', '51_2014.docx']
     thresold = config.thresold
 
-q1 = []  # очищенные списки для вывода 1 документа
-q2 = []  # очищенные списки для вывода 2 документа
-q4 = []  # ключевые слова документа 1
-q5 = []  # ключевые слова документа 2
+# q1 = []  # очищенные списки для вывода 1 документа
+# q2 = []  # очищенные списки для вывода 2 документа
+# q4 = []  # ключевые слова документа 1
+# q5 = []  # ключевые слова документа 2
 
 texts = []  # абзацы документа
 keywords = []  # ключевые слова абзацев документа
@@ -255,19 +256,34 @@ for i in range(len(files)):
     keywords.append(keywords_)
     print("Время выполнения--- %s seconds ---" % (time.time() - start_time_keys) + '\n\n')
 
-# print(len(keywords[0][0]),len(keywords[1][0]),len(keywords[2][0]))
+# формируем суперсловарь чтобы потом удобно было работать
+# dict_dataset = dict.fromkeys([files_vs],[keywords,texts])
+# print(dict_dataset)
 
 print('***** Сравниваю по смыслу, ключевым словам и готовлю сводную таблицу xlsx *******')
 start_time_compare = time.time()  # время начала выполнения
 file_compare_name_d = str(datetime.datetime.now()).replace(' ', '_').replace(':', '_').split('.')[0] + '.xlsx'
 file_compare_name_ht = str(datetime.datetime.now()).replace(' ', '_').replace(':', '_').split('.')[0] + '.html'
 
-# готовим словарь для записи сравниваем первый файл со всеми остальными поочередно
-comp = par_compare(texts[0], texts[1], keywords[0], keywords[1], thresold)  # сравниваем абзацы документа
-# df = pd.DataFrame({file_rename(file1): comp[0], 'keywords1': comp[1],
-#                    '% смысл | % keys': comp[2],
-#                    file_rename(file2): comp[3], 'keywords2': comp[4]})
-df = pd.DataFrame({files_vs[0]: comp[0], '% смысл | % keys': comp[2], files_vs[1]: comp[3]})
+# готовим датасет для записи сравниваем первый файл со всеми остальными поочередно
+compares = []
+for j in range(len(files_vs)): # нулевой не трогаем потому что это первый документ
+    comp = par_compare(texts[0], texts[j], keywords[0], keywords[j], thresold)  # сравниваем абзацы документа
+    # это сравнение однозначно распараллелить
+    compares.append(comp)
+    # df = pd.DataFrame({file_rename(file1): comp[0], 'keywords1': comp[1],
+    #                    '% смысл | % keys': comp[2],
+    #                    file_rename(file2): comp[3], 'keywords2': comp[4]})
+    # дальше слделать датафрейм и пихнуть в таблицу
+
+
+# это неправильно лучше переписать
+df = pd.DataFrame({files_vs[0]: compares[0][0], '% смысл | % keys': compares[0][2], files_vs[1]: compares[0][3]})
+for k in range(1,len(compares)):  # добавляем столбцы всех остальных файлов
+    df.assign(filesnew=compares[k][3])
+
+
+
 print("Время выполнения--- %s seconds ---" % (time.time() - start_time_compare) + '\n\n')
 
 start_time_xlsx = time.time()
