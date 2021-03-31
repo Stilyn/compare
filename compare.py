@@ -278,6 +278,7 @@ for j in range(len(files_vs)): # нулевой не трогаем потому
 
 
 # это неправильно лучше переписать
+# сюда же дописать отдельную функцию выравнивания массивов перед добавлением новонго столбца
 df = pd.DataFrame({files_vs[0]: compares[0][0], '% смысл | % keys': compares[0][2], files_vs[1]: compares[0][3]})
 for k in range(1,len(compares)):  # добавляем столбцы всех остальных файлов
     df.assign(filesnew=compares[k][3])
