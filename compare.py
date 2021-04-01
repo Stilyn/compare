@@ -146,7 +146,7 @@ def length_align(list_of_lists):
     for k in list_of_lists:
         ln.append(len(k))
     l = max(ln)
-    print('***' + str(l))
+    # print('***' + str(l))
     for m in list_of_lists:
         while len(m) < l:
             m.append(' ')
@@ -275,10 +275,21 @@ start_time_compare = time.time()  # время начала выполнения
 file_compare_name_d = str(datetime.datetime.now()).replace(' ', '_').replace(':', '_').split('.')[0] + '.xlsx'
 file_compare_name_ht = str(datetime.datetime.now()).replace(' ', '_').replace(':', '_').split('.')[0] + '.html'
 
+# сравнение первых 2 документов
 comp = par_compare(texts[0], texts[1], keywords[0], keywords[1], thresold)  # сравниваем абзацы документа
-#print(comp)
-# готовим датасет для записи сравниваем первый файл со всеми остальными поочередно
-df = pd.DataFrame({files_vs[0]: comp[0], '% смысл | % keys': comp[2], files_vs[1]: comp[3]})
+df = pd.DataFrame({files_vs[0]: comp[0], str('keywords' + files_vs[0]): comp[1], '% смысл | % keys': comp[2], files_vs[1]: comp[3], str('keywords' + files_vs[1]): comp[4]}, )
+
+# добавление результатов сравнения остальных
+for w in range(2,len(files_vs)):
+    comp_ = par_compare(texts[0], texts[w], keywords[0], keywords[w], thresold)
+    print(len(df[files_vs[0]]), len(comp[0]), len(comp_[0]), len(comp_[1]), len(comp_[2]), len(comp_[3]),len(comp_[4]))
+    #df[files_vs[w]] = np.array(comp_[3])
+    df[files_vs[w]] = pd.Series(comp_[3])
+    df[str('keywords' + files_vs[w])] = pd.Series(comp_[4])
+
+
+# print(df)
+
 print("Время выполнения--- %s seconds ---" % (time.time() - start_time_compare) + '\n\n')
 
 start_time_xlsx = time.time()
