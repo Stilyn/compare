@@ -7,13 +7,13 @@ python3 compare.py Основы.docx Основы2.docx 88
 
 import time
 import datetime
-import os
+#import os
 # import string
 import sys
 import docx  # библиотека работа в word
 from diff_match_patch import diff_match_patch as diff_module  # для сравнения и раскраски по совету коллег
 from docx import Document
-from docx.enum.text import WD_COLOR
+#from docx.enum.text import WD_COLOR
 from fuzzywuzzy import fuzz
 # from jinja2 import Environment, FileSystemLoader
 # from nltk.corpus import stopwords
@@ -123,16 +123,16 @@ def strip_file(file, file_new):
 #     return matches
 
 # функция сравнения блоков текста paragraph
-def f_compare(p1, p2):
-    # чистим абзацы от шлака
-    for k in config.symbols_clear:
-        p1 = str.replace(p1, k, ' ')
-        p2 = str.replace(p2, k, ' ')
-    dmp = diff_module()
-    diffs = dmp.diff_main(p1, p2)  # разница
-    # dmp.diff_cleanupSemantic(diffs)
-    # вот здесь нужно значительно улучшить алгоритм сравнения
-    return dmp.diff_prettyHtml(diffs)
+# def f_compare(p1, p2):
+#     # чистим абзацы от шлака
+#     for k in config.symbols_clear:
+#         p1 = str.replace(p1, k, ' ')
+#         p2 = str.replace(p2, k, ' ')
+#     dmp = diff_module()
+#     diffs = dmp.diff_main(p1, p2)  # разница
+#     # dmp.diff_cleanupSemantic(diffs)
+#     # вот здесь нужно значительно улучшить алгоритм сравнения
+#     return dmp.diff_prettyHtml(diffs)
 
 # def color_paragraph(paragraph):
 #     # paragraphs.runs[s].font.color.rgb = RGBColor(0xff, 0x00, 0x00) # красный текст после нуля просто цвет html
@@ -185,7 +185,7 @@ def par_compare(q1, q2, q4, q5, thresold):
             b = fuzz.token_sort_ratio(q4[i], q5[j])
             # print('% ключи ********', b)
             # if int(a) >= int(thresold) and int(b) >= int(thresold) and len(q4[i]) > 0 and len(q5[j]) > 0:
-            if a >= thresold and b >= thresold and len(q4[i]) > 0 and len(q5[j]) > 0:
+            if int(a) >= int(thresold) and int(b) >= int(thresold) and len(q4[i]) > 0 and len(q5[j]) > 0:
                 # сначала все до равенства положить равным пустоте?
                 # print(i,j)
                 q3[i] = str(a) + '|' + str(b)  # или написать процент совпадения как среднее арифметическое из a b
@@ -226,7 +226,6 @@ def split_doc(paragraphs, list_text, list_keywords):
 
 
 '''для использования отладочного и боевого режимов'''
-
 if len(sys.argv) > 1:  # если из под командной строки запускаем
     files = []  # перечень файлов для сравнения
     for i in range(1,len(sys.argv)-1):
@@ -276,7 +275,7 @@ file_compare_name_d = str(datetime.datetime.now()).replace(' ', '_').replace(':'
 file_compare_name_ht = str(datetime.datetime.now()).replace(' ', '_').replace(':', '_').split('.')[0] + '.html'
 
 comp=[]
-# добавление результатов сравнения остальных
+# добавление результатов сравнения
 for w in range(len(files_vs)):
     comp_ = par_compare(texts[0], texts[w], keywords[0], keywords[w], thresold)
     comp.append(comp_)
@@ -285,21 +284,13 @@ length_align(comp)  # выравниваем размеры результато
 
 df = pd.DataFrame()
 df[files_vs[0]] = np.array(texts[0])
-df[str('keywords' + files_vs[0])] = np.array(keywords[0])
+#df[str('keywords' + files_vs[0])] = np.array(keywords[0])
 #df[str('%' + str(0))] = np.array(comp[0][2])
-for r in range(1,len(files_vs)):
+for r in range(1,len(comp)):
     df[str('%' + str(r))] = pd.Series(comp[r][2])
     df[files_vs[r]] = pd.Series(comp[r][3])
     #df[str('keywords' + files_vs[r])] = pd.Series(comp[r][4])
-
-# # print(len(df[files_vs[0]]), len(comp[0]), len(comp_[0]), len(comp_[1]), len(comp_[2]), len(comp_[3]),len(comp_[4]))
-# # #df[files_vs[w]] = np.array(comp_[3])
-# # df[files_vs[w]] = pd.Series(comp_[3])
-
-
-
 # print(df)
-
 print("Время выполнения--- %s seconds ---" % (time.time() - start_time_compare) + '\n\n')
 
 start_time_xlsx = time.time()
