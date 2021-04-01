@@ -140,6 +140,19 @@ def f_compare(p1, p2):
 #     paragraph.style.font.highlight_color = WD_COLOR.YELLOW  # цвет выделения желтый
 
 # функция формирования датасета сравнения параграфов
+
+def length_align(list_of_lists):
+    ln = []
+    for k in list_of_lists:
+        ln.append(len(k))
+    l = max(ln)
+    print('***' + str(l))
+    for m in list_of_lists:
+        while len(m) < l:
+            m.append(' ')
+    return list_of_lists
+
+
 def par_compare(q1, q2, q4, q5, thresold):
     # q1 q2  - тексты параграфов
     # q4 q5  - ключевые слова параграфов
@@ -195,12 +208,13 @@ def par_compare(q1, q2, q4, q5, thresold):
     #
     # # print(len(list(set(q2_2))))
     # выравниваем размерность перед формированием датасета
-    ln = max(len(q1), len(q4), len(q3), len(q21), len(q51))
+    #ln = max(len(q1), len(q4), len(q3), len(q21), len(q51))
     mass = [q1, q4, q3, q21, q51]
-    for m in mass:
-        while len(m) < ln:
-            m.append(' ')
-        result.append(m)
+    result = length_align(mass)  # выравниваем длину списков
+    # for m in mass:
+    #     while len(m) < ln:
+    #         m.append(' ')
+    #     result.append(m)
     return result
 
 # функция разбиения документа формирования ключевых слов для каждого параграфа
@@ -256,35 +270,15 @@ for i in range(len(files)):
     keywords.append(keywords_)
     print("Время выполнения--- %s seconds ---" % (time.time() - start_time_keys) + '\n\n')
 
-# формируем суперсловарь чтобы потом удобно было работать
-# dict_dataset = dict.fromkeys([files_vs],[keywords,texts])
-# print(dict_dataset)
-
 print('***** Сравниваю по смыслу, ключевым словам и готовлю сводную таблицу xlsx *******')
 start_time_compare = time.time()  # время начала выполнения
 file_compare_name_d = str(datetime.datetime.now()).replace(' ', '_').replace(':', '_').split('.')[0] + '.xlsx'
 file_compare_name_ht = str(datetime.datetime.now()).replace(' ', '_').replace(':', '_').split('.')[0] + '.html'
 
+comp = par_compare(texts[0], texts[1], keywords[0], keywords[1], thresold)  # сравниваем абзацы документа
+#print(comp)
 # готовим датасет для записи сравниваем первый файл со всеми остальными поочередно
-compares = []
-for j in range(len(files_vs)): # нулевой не трогаем потому что это первый документ
-    comp = par_compare(texts[0], texts[j], keywords[0], keywords[j], thresold)  # сравниваем абзацы документа
-    # это сравнение однозначно распараллелить
-    compares.append(comp)
-    # df = pd.DataFrame({file_rename(file1): comp[0], 'keywords1': comp[1],
-    #                    '% смысл | % keys': comp[2],
-    #                    file_rename(file2): comp[3], 'keywords2': comp[4]})
-    # дальше слделать датафрейм и пихнуть в таблицу
-
-
-# это неправильно лучше переписать
-# сюда же дописать отдельную функцию выравнивания массивов перед добавлением новонго столбца
-df = pd.DataFrame({files_vs[0]: compares[0][0], '% смысл | % keys': compares[0][2], files_vs[1]: compares[0][3]})
-for k in range(1,len(compares)):  # добавляем столбцы всех остальных файлов
-    df.assign(filesnew=compares[k][3])
-
-
-
+df = pd.DataFrame({files_vs[0]: comp[0], '% смысл | % keys': comp[2], files_vs[1]: comp[3]})
 print("Время выполнения--- %s seconds ---" % (time.time() - start_time_compare) + '\n\n')
 
 start_time_xlsx = time.time()
