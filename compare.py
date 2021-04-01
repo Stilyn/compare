@@ -237,7 +237,7 @@ if len(sys.argv) > 1:  # если из под командной строки з
 
 else:
     print('отладочный режим')  # если не из под командной строки запускаем
-    files = ['906_2013.docx', '64_2020.docx', '51_2014.docx']
+    files = ['906_2013.docx', '51_2014.docx', '64_2020.docx']
     thresold = config.thresold
 
 # q1 = []  # очищенные списки для вывода 1 документа
@@ -275,17 +275,27 @@ start_time_compare = time.time()  # время начала выполнения
 file_compare_name_d = str(datetime.datetime.now()).replace(' ', '_').replace(':', '_').split('.')[0] + '.xlsx'
 file_compare_name_ht = str(datetime.datetime.now()).replace(' ', '_').replace(':', '_').split('.')[0] + '.html'
 
-# сравнение первых 2 документов
-comp = par_compare(texts[0], texts[1], keywords[0], keywords[1], thresold)  # сравниваем абзацы документа
-df = pd.DataFrame({files_vs[0]: comp[0], str('keywords' + files_vs[0]): comp[1], '% смысл | % keys': comp[2], files_vs[1]: comp[3], str('keywords' + files_vs[1]): comp[4]}, )
-
+comp=[]
 # добавление результатов сравнения остальных
-for w in range(2,len(files_vs)):
+for w in range(len(files_vs)):
     comp_ = par_compare(texts[0], texts[w], keywords[0], keywords[w], thresold)
-    print(len(df[files_vs[0]]), len(comp[0]), len(comp_[0]), len(comp_[1]), len(comp_[2]), len(comp_[3]),len(comp_[4]))
-    #df[files_vs[w]] = np.array(comp_[3])
-    df[files_vs[w]] = pd.Series(comp_[3])
-    df[str('keywords' + files_vs[w])] = pd.Series(comp_[4])
+    comp.append(comp_)
+length_align(comp)  # выравниваем размеры результатов сравнения
+# print(len(comp[0][0]),len(comp[1][0]))
+
+df = pd.DataFrame()
+df[files_vs[0]] = np.array(texts[0])
+df[str('keywords' + files_vs[0])] = np.array(keywords[0])
+df[str('%' + str(0))] = np.array(comp[0][2])
+for r in range(1,len(files_vs)):
+    df[str('%' + str(r))] = pd.Series(comp[r][2])
+    df[files_vs[r]] = pd.Series(comp[r][3])
+    df[str('keywords' + files_vs[r])] = pd.Series(comp[r][4])
+
+# # print(len(df[files_vs[0]]), len(comp[0]), len(comp_[0]), len(comp_[1]), len(comp_[2]), len(comp_[3]),len(comp_[4]))
+# # #df[files_vs[w]] = np.array(comp_[3])
+# # df[files_vs[w]] = pd.Series(comp_[3])
+
 
 
 # print(df)
