@@ -7,13 +7,13 @@ python3 compare.py Основы.docx Основы2.docx 88
 
 import time
 import datetime
-#import os
+# import os
 # import string
 import sys
 import docx  # библиотека работа в word
 from diff_match_patch import diff_match_patch as diff_module  # для сравнения и раскраски по совету коллег
 from docx import Document
-#from docx.enum.text import WD_COLOR
+# from docx.enum.text import WD_COLOR
 from fuzzywuzzy import fuzz
 # from jinja2 import Environment, FileSystemLoader
 # from nltk.corpus import stopwords
@@ -45,16 +45,10 @@ from pullenti.ner.SourceOfAnalysis import SourceOfAnalysis
 # from pullenti.ner.TextToken import TextToken
 # from pullenti.ner.Token import Token
 # from pullenti.ner.keyword import KeywordAnalyzer
-# инициализируем в полном обеме
-
+# инициализируем pullenti в полном обеме
 start_time = time.time()  # время выполнения
 Sdk.initialize_all()
 
-
-# print('test')
-# sys.setrecursionlimit(config.recursion_limit)
-# sys.setrecursionlimit(100)
-# print(sys.getrecursionlimit())
 
 # функция генерации ключевых слов
 def mind_generate(txt):
@@ -66,8 +60,8 @@ def mind_generate(txt):
     result = processor_key.process(SourceOfAnalysis(txt))
     result1 = processor.process(SourceOfAnalysis(txt))
     # print(result, result1)
-    for match in result.entities: ss.append(str(match))
-    for match1 in result1.entities: ss.append(str(match1))
+    for match in result.entities: ss.append(str(match))  # сделать независимыми потоками
+    for match1 in result1.entities: ss.append(str(match1))  # сделать независимыми потоками
     ss = list(set(ss))  # чистим от дублей
     # print('*** slots **', ss)
     return ss  # возвращает словарь ключевых слов файла
@@ -79,6 +73,7 @@ def file_rename(file_name):
     n = file_name.split('.')[0] + '_vs' + '.docx'
     return str(n)
 
+
 # функция удаление пустых параграфов из документа
 def strip_file(file, file_new):
     for paragraphs in file.paragraphs:
@@ -88,6 +83,7 @@ def strip_file(file, file_new):
             p.getparent().remove(p)
             p._p = p._element = None
     file.save(file_new)
+
 
 # функция добавления пустых абзацев в документ
 # def add_par(document, par_count, new_name):
@@ -170,7 +166,6 @@ def par_compare(q1, q2, q4, q5, thresold):
         for j in range(len(q2)):
             q2_2.append(' ')
             q5_2.append(' ')
-
             # необходимо разбить на потоки
             # th1 = Thread(target=fuzz.WRatio, args=(q1[i], q2[j]))
             # th2 = Thread(target=fuzz.token_sort_ratio, args=(q4[i], q5[j]))
@@ -178,44 +173,32 @@ def par_compare(q1, q2, q4, q5, thresold):
             # th2.start()
             # th1.join()
             # th2.join()
-
             a = fuzz.WRatio(q1[i], q2[j])  # ищем совпадение по смыслу %
             # a = fuzz.partial_token_sort_ratio(q1[i], q2[j])  # ищем совпадение по словам %
             # print('% текст ********', a)
             b = fuzz.token_sort_ratio(q4[i], q5[j])
             # print('% ключи ********', b)
-            # if int(a) >= int(thresold) and int(b) >= int(thresold) and len(q4[i]) > 0 and len(q5[j]) > 0:
+            q3[i] = str(a) + '|' + str(b)  # или написать процент совпадения как среднее арифметическое из a b
             if int(a) >= int(thresold) and int(b) >= int(thresold) and len(q4[i]) > 0 and len(q5[j]) > 0:
-                # сначала все до равенства положить равным пустоте?
-                # print(i,j)
-                q3[i] = str(a) + '|' + str(b)  # или написать процент совпадения как среднее арифметическое из a b
                 q21[i] = q2[j]
                 q51[i] = q5[j]
             else:  # наполняем мешок с несовпадениями
                 q2_2[j] = q2[j]
                 q5_2[j] = q5[j]
-            #   q21.append(' ')
-            #   q51.append(' ')
-
+    # объединяем совпавшие и несовпавшие
     q21.extend(q2_2)
     q51.extend(q5_2)
 
     # очистить мешок с несовпадениями от пустых значений
     while len(q21) > (len(q1) + len(q2)): del q21[-1]
     while len(q51) > (len(q1) + len(q2)): del q51[-1]
-    #
-    # print(len(q1), len(q4), len(q3), len(q21), len(q51))
-    #
-    # # print(len(list(set(q2_2))))
-    # выравниваем размерность перед формированием датасета
-    #ln = max(len(q1), len(q4), len(q3), len(q21), len(q51))
+
+    # выравниваем размерность перед формированием результата
+    # ln = max(len(q1), len(q4), len(q3), len(q21), len(q51))
     mass = [q1, q4, q3, q21, q51]
     result = length_align(mass)  # выравниваем длину списков
-    # for m in mass:
-    #     while len(m) < ln:
-    #         m.append(' ')
-    #     result.append(m)
     return result
+
 
 # функция разбиения документа формирования ключевых слов для каждого параграфа
 def split_doc(paragraphs, list_text, list_keywords):
@@ -223,26 +206,22 @@ def split_doc(paragraphs, list_text, list_keywords):
         g_mind = mind_generate(g.text)
         list_text.append(g.text)
         list_keywords.append(' '.join(g_mind))
+        # вот здесь возможно переписать на словари через dict.fromkeys
 
 
 '''для использования отладочного и боевого режимов'''
 if len(sys.argv) > 1:  # если из под командной строки запускаем
     files = []  # перечень файлов для сравнения
-    for i in range(1,len(sys.argv)-1):
+    for i in range(1, len(sys.argv) - 1):
         # print('сравниваю ' + sys.argv[1] + ' и ' + sys.argv[2])
         files.append(sys.argv[i])
-    thresold = sys.argv[len(sys.argv)-1]  # сделать вычислением последнего системного аргумента
+    thresold = sys.argv[len(sys.argv) - 1]  # сделать вычислением последнего системного аргумента
     print(files, thresold)  # получаем список всех файлов для сравнения и глубину в %
 
 else:
     print('отладочный режим')  # если не из под командной строки запускаем
     files = ['906_2013.docx', '51_2014.docx', '64_2020.docx']
     thresold = config.thresold
-
-# q1 = []  # очищенные списки для вывода 1 документа
-# q2 = []  # очищенные списки для вывода 2 документа
-# q4 = []  # ключевые слова документа 1
-# q5 = []  # ключевые слова документа 2
 
 texts = []  # абзацы документа
 keywords = []  # ключевые слова абзацев документа
@@ -255,16 +234,17 @@ for i in range(len(files)):
     print(len(files[i].paragraphs))
     print('***** Готовлю ключевые слова *******')
     start_time_keys = time.time()  # время начала выполнения
-    # сделать через на multiprocessing сейчас на потоках
+
+    texts_ = []
+    keywords_ = []
+    split_doc(files[i].paragraphs, texts_, keywords_) # формируем ключевые слова для каждого параграфа
+    # сделать через на multiprocessing
     # th1 = Thread(target=split_doc, args=(doc1.paragraphs, q1, q4))  # поток 1
     # th2 = Thread(target=split_doc, args=(doc2.paragraphs, q2, q5))  # поток 2
     # th1.start()
     # th2.start()
     # th1.join()
     # th2.join()
-    texts_ = []
-    keywords_ = []
-    split_doc(files[i].paragraphs, texts_, keywords_)
     texts.append(texts_)
     keywords.append(keywords_)
     print("Время выполнения--- %s seconds ---" % (time.time() - start_time_keys) + '\n\n')
@@ -274,23 +254,22 @@ start_time_compare = time.time()  # время начала выполнения
 file_compare_name_d = str(datetime.datetime.now()).replace(' ', '_').replace(':', '_').split('.')[0] + '.xlsx'
 file_compare_name_ht = str(datetime.datetime.now()).replace(' ', '_').replace(':', '_').split('.')[0] + '.html'
 
-comp=[]
+comp = []
 # добавление результатов сравнения
 for w in range(len(files_vs)):
     comp_ = par_compare(texts[0], texts[w], keywords[0], keywords[w], thresold)
-    comp.append(comp_)
-length_align(comp)  # выравниваем размеры результатов сравнения
+    comp.append(comp_)  # получаем дложенный список
+length_align(comp)  # выравниваем размеры списков внутри вложенного
 # print(len(comp[0][0]),len(comp[1][0]))
 
 df = pd.DataFrame()
-df[files_vs[0]] = np.array(texts[0])
-#df[str('keywords' + files_vs[0])] = np.array(keywords[0])
-#df[str('%' + str(0))] = np.array(comp[0][2])
-for r in range(1,len(comp)):
+df[files_vs[0]] = np.array(comp[0][3])
+df[str('keywords' + files_vs[0])] = np.array(comp[0][4])
+for r in range(1, len(comp)):
     df[str('%' + str(r))] = pd.Series(comp[r][2])
     df[files_vs[r]] = pd.Series(comp[r][3])
-    #df[str('keywords' + files_vs[r])] = pd.Series(comp[r][4])
-# print(df)
+    df[str('keywords' + files_vs[r])] = pd.Series(comp[r][4])
+print(df)
 print("Время выполнения--- %s seconds ---" % (time.time() - start_time_compare) + '\n\n')
 
 start_time_xlsx = time.time()
