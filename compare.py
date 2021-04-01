@@ -286,11 +286,11 @@ length_align(comp)  # выравниваем размеры результато
 df = pd.DataFrame()
 df[files_vs[0]] = np.array(texts[0])
 df[str('keywords' + files_vs[0])] = np.array(keywords[0])
-df[str('%' + str(0))] = np.array(comp[0][2])
+#df[str('%' + str(0))] = np.array(comp[0][2])
 for r in range(1,len(files_vs)):
     df[str('%' + str(r))] = pd.Series(comp[r][2])
     df[files_vs[r]] = pd.Series(comp[r][3])
-    df[str('keywords' + files_vs[r])] = pd.Series(comp[r][4])
+    #df[str('keywords' + files_vs[r])] = pd.Series(comp[r][4])
 
 # # print(len(df[files_vs[0]]), len(comp[0]), len(comp_[0]), len(comp_[1]), len(comp_[2]), len(comp_[3]),len(comp_[4]))
 # # #df[files_vs[w]] = np.array(comp_[3])
