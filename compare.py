@@ -22,6 +22,7 @@ import config
 import pandas as pd
 import numpy as np
 from threading import Thread
+from multiprocessing import Process
 
 # ********************************************   смысловой разбор и поиск ключевых слов
 # import pullenti
