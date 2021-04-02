@@ -207,7 +207,17 @@ def split_doc(paragraphs, list_text, list_keywords):
         g_mind = mind_generate(g.text)
         list_text.append(g.text)
         list_keywords.append(' '.join(g_mind))
+
         # вот здесь возможно переписать на словари через dict.fromkeys
+        # и потом из этого сформировать датафрейм сразу
+        # a = [1, 2, 3, ]
+        # b = ['ss', 'ddd', 'sdadas']
+        # s = dict.fromkeys(a, b)
+        # print(s)
+        # {1: ['ss', 'ddd', 'sdadas'], 2: ['ss', 'ddd', 'sdadas'], 3: ['ss', 'ddd', 'sdadas']}
+        # doc_dict = dict.fromkeys(list_keywords,list_text)
+        # print(doc_dict)
+        #return doc_dict
 
 
 '''для использования отладочного и боевого режимов'''
@@ -224,6 +234,10 @@ else:
     files = ['906_2013.docx', '51_2014.docx', '64_2020.docx']
     thresold = config.thresold
 
+
+print('***** Готовлю ключевые слова *******')
+start_time_keys = time.time()  # время начала выполнения
+
 texts = []  # абзацы документа
 keywords = []  # ключевые слова абзацев документа
 files_vs = []  # список имен файлов сравнения
@@ -233,12 +247,14 @@ for i in range(len(files)):
     strip_file(files[i], file_vs)  # убираем из файлов лишние строки и сохраняем под другими именами
     files_vs.append(file_vs)
     print(len(files[i].paragraphs))
-    print('***** Готовлю ключевые слова *******')
-    start_time_keys = time.time()  # время начала выполнения
-
     texts_ = []
     keywords_ = []
+    # pc1 = Process(target=split_doc, args=(files[i].paragraphs, texts_, keywords_))
+    # pc1.start()
+    # pc1.join()
+    #
     split_doc(files[i].paragraphs, texts_, keywords_) # формируем ключевые слова для каждого параграфа
+
     # сделать через на multiprocessing
     # th1 = Thread(target=split_doc, args=(doc1.paragraphs, q1, q4))  # поток 1
     # th2 = Thread(target=split_doc, args=(doc2.paragraphs, q2, q5))  # поток 2
@@ -248,7 +264,8 @@ for i in range(len(files)):
     # th2.join()
     texts.append(texts_)
     keywords.append(keywords_)
-    print("Время выполнения--- %s seconds ---" % (time.time() - start_time_keys) + '\n\n')
+
+print("Время выполнения--- %s seconds ---" % (time.time() - start_time_keys) + '\n\n')
 
 print('***** Сравниваю по смыслу, ключевым словам и готовлю сводную таблицу xlsx *******')
 start_time_compare = time.time()  # время начала выполнения
