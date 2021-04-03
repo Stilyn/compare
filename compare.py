@@ -253,7 +253,8 @@ for i in range(len(files)):
     # pc1.start()
     # pc1.join()
     #
-    split_doc(files[i].paragraphs, texts_, keywords_) # формируем ключевые слова для каждого параграфа
+    split_doc(docx.Document(files_vs[i]).paragraphs, texts_, keywords_)  # формируем ключевые слова для каждого
+    # параграфа почищенных файлов
 
     # сделать через на multiprocessing
     # th1 = Thread(target=split_doc, args=(doc1.paragraphs, q1, q4))  # поток 1
