@@ -202,11 +202,20 @@ def par_compare(q1, q2, q4, q5, thresold):
 
 
 # функция разбиения документа формирования ключевых слов для каждого параграфа
-def split_doc(paragraphs, list_text, list_keywords):
+def split_doc(file_name,paragraphs, list_text, list_keywords): #, doc_dict)
+    indexes=[]
+    index = 0 # добавляем индекс абзаца
     for g in paragraphs:  # заранее готовим списки ключевых слов и  тектсов параграфов для документа 1
+        indexes.append(index)
         g_mind = mind_generate(g.text)
         list_text.append(g.text)
         list_keywords.append(' '.join(g_mind))
+        index+=1
+    # готовим датафрейм документа чтобы потом сравнивать
+    df = pd.DataFrame({str(file_name + ' par_indexes'): indexes, file_name:list_text, str(file_name +
+                                                                                  ' keywords'):list_keywords})
+    print(df)
+    # return doc_dict
 
         # вот здесь возможно переписать на словари через dict.fromkeys
         # и потом из этого сформировать датафрейм сразу
@@ -243,29 +252,18 @@ keywords = []  # ключевые слова абзацев документа
 files_vs = []  # список имен файлов сравнения
 for i in range(len(files)):
     file_vs = file_rename(files[i])  # делаем временные файлы для сравнения
-    files[i] = docx.Document(files[i])  # линкуем файл  docx
-    strip_file(files[i], file_vs)  # убираем из файлов лишние строки и сохраняем под другими именами
+    #files[i] = docx.Document(files[i])  # линкуем файл  docx
+    strip_file(docx.Document(files[i]), file_vs)  # убираем из файлов лишние строки и сохраняем под другими именами
     files_vs.append(file_vs)
-    print(len(files[i].paragraphs))
+    print(len(docx.Document(files[i]).paragraphs))
+for i in files_vs:
     texts_ = []
     keywords_ = []
-    # pc1 = Process(target=split_doc, args=(files[i].paragraphs, texts_, keywords_))
-    # pc1.start()
-    # pc1.join()
-    #
-    split_doc(docx.Document(files_vs[i]).paragraphs, texts_, keywords_)  # формируем ключевые слова для каждого
+    split_doc(i,docx.Document(i).paragraphs, texts_, keywords_)  # формируем ключевые слова для каждого
     # параграфа почищенных файлов
-
-    # сделать через на multiprocessing
-    # th1 = Thread(target=split_doc, args=(doc1.paragraphs, q1, q4))  # поток 1
-    # th2 = Thread(target=split_doc, args=(doc2.paragraphs, q2, q5))  # поток 2
-    # th1.start()
-    # th2.start()
-    # th1.join()
-    # th2.join()
     texts.append(texts_)
     keywords.append(keywords_)
-
+#print(len(texts),len(texts[0]))
 print("Время выполнения--- %s seconds ---" % (time.time() - start_time_keys) + '\n\n')
 
 print('***** Сравниваю по смыслу, ключевым словам и готовлю сводную таблицу xlsx *******')
