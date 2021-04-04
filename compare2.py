@@ -150,13 +150,6 @@ def par_compare(q1, q2, q4, q5, thresold):
         for j in range(len(q2)):
             q2_2.append(' ')
             q5_2.append(' ')
-            # необходимо разбить на потоки
-            # th1 = Thread(target=fuzz.WRatio, args=(q1[i], q2[j]))
-            # th2 = Thread(target=fuzz.token_sort_ratio, args=(q4[i], q5[j]))
-            # th1.start()
-            # th2.start()
-            # th1.join()
-            # th2.join()
             a = fuzz.WRatio(q1[i], q2[j])  # ищем совпадение по смыслу %
             # a = fuzz.partial_token_sort_ratio(q1[i], q2[j])  # ищем совпадение по словам %
             # print('% текст ********', a)
