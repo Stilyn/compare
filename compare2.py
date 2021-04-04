@@ -28,6 +28,7 @@ from threading import Thread
 from pullenti.Sdk import Sdk
 from pullenti.ner.ProcessorService import ProcessorService
 from pullenti.ner.SourceOfAnalysis import SourceOfAnalysis
+
 # инициализируем pullenti в полном обеме
 start_time = time.time()  # время выполнения
 Sdk.initialize_all()
@@ -49,6 +50,7 @@ def mind_generate(txt):
     # print('*** slots **', ss)
     return ss  # возвращает словарь ключевых слов файла
 
+
 # ********************************************смысловой разбор и поиск ключевых слов
 
 # функция переименования файлов для формирования временных
@@ -66,6 +68,7 @@ def strip_file(file, file_new):
             p.getparent().remove(p)
             p._p = p._element = None
     file.save(file_new)
+
 
 # функция добавления пустых абзацев в документ
 # def add_par(document, par_count, new_name):
@@ -180,12 +183,16 @@ def par_compare(q1, q2, q4, q5, thresold):
     result = length_align(mass)  # выравниваем длину списков
     return result
 
+
+DF = []  # список датафреймов файлов документов
+
+
 # функция разбиения документа формирования ключевых слов для каждого параграфа
-def split_doc(file_name,paragraphs): #, doc_dict)
-    indexes=[]
+def split_doc(file_name, paragraphs):  # , doc_dict)
+    indexes = []
     index = 0  # добавляем индекс абзаца
     list_text = []  # список текстов параграфов
-    list_keywords =[] # список ключевых слов для текстов параграфов
+    list_keywords = []  # список ключевых слов для текстов параграфов
     for g in paragraphs:  # заранее готовим списки ключевых слов и  тектсов параграфов для документа 1
         indexes.append(index)
         g_mind = mind_generate(g.text)
@@ -193,10 +200,12 @@ def split_doc(file_name,paragraphs): #, doc_dict)
         list_keywords.append(' '.join(g_mind))
         index += 1
     # готовим датафрейм документа чтобы потом сравнивать
-    df = pd.DataFrame({str(file_name + ' par_indexes'): indexes, file_name:list_text, str(file_name +
-                                                                                  ' keywords'):list_keywords})
-    #print(df)
+    df = pd.DataFrame(
+        {str(file_name + ' par_indexes'): indexes, file_name: list_text, str(file_name + ' keywords'): list_keywords})
+    DF.append(df)
+    # print(df)
     # return df
+
 
 '''для использования отладочного и боевого режимов'''
 if len(sys.argv) > 1:  # если из под командной строки запускаем
@@ -212,24 +221,27 @@ else:
     files = ['906_2013.docx', '51_2014.docx', '64_2020.docx']
     thresold = config.thresold
 
-
 print('***** Готовлю ключевые слова *******')
 start_time_keys = time.time()  # время начала выполнения
 
 files_vs = []  # список имен файлов сравнения
 for i in range(len(files)):
     file_vs = file_rename(files[i])  # делаем временные файлы для сравнения
-    #files[i] = docx.Document(files[i])  # линкуем файл  docx
+    # files[i] = docx.Document(files[i])  # линкуем файл  docx
     strip_file(docx.Document(files[i]), file_vs)  # убираем из файлов лишние строки и сохраняем под другими именами
     files_vs.append(file_vs)
     print(len(docx.Document(files[i]).paragraphs))
 
 th = []  # список потоков для многопоточности
 for i in files_vs:
-    th_=Thread(target=split_doc, args=(i,docx.Document(i).paragraphs))  # формируем ключевые слова для каждого параграфа почищенных файлов
+    th_ = Thread(target=split_doc, args=(
+        i, docx.Document(i).paragraphs))  # формируем ключевые слова для каждого параграфа почищенных файлов
     th.append(th_)
-for t in th: t.start(); t.join();  # запучкаем многопотоково формирование датафреймов для
-# каждого файла
+for t in th: t.start(); t.join();  # запучкаем многопотоково формирование датафреймов для  каждого файла
+# print(globals()['DF']) # это все датафреймы всех файлов
+
+df = pd.concat(globals()['DF'])  # объединяем все датафреймы в один
+print(df)
 print("Время выполнения--- %s seconds ---" % (time.time() - start_time_keys) + '\n\n')
 
 print('***** Сравниваю по смыслу, ключевым словам и готовлю сводную таблицу xlsx *******')
@@ -237,23 +249,23 @@ start_time_compare = time.time()  # время начала выполнения
 file_compare_name_d = str(datetime.datetime.now()).replace(' ', '_').replace(':', '_').split('.')[0] + '.xlsx'
 file_compare_name_ht = str(datetime.datetime.now()).replace(' ', '_').replace(':', '_').split('.')[0] + '.html'
 
-comp = []
-# добавление результатов сравнения
-for w in range(len(files_vs)):
-    comp_ = par_compare(texts[0], texts[w], keywords[0], keywords[w], thresold)
-    comp.append(comp_)  # получаем дложенный список
-length_align(comp)  # выравниваем размеры списков внутри вложенного
-# print(len(comp[0][0]),len(comp[1][0]))
-
-df = pd.DataFrame()
-df[files_vs[0]] = np.array(comp[0][3])
-df[str('keywords' + files_vs[0])] = np.array(comp[0][4])
-for r in range(1, len(comp)):
-    df[str('%' + str(r))] = pd.Series(comp[r][2])
-    df[files_vs[r]] = pd.Series(comp[r][3])
-    df[str('keywords' + files_vs[r])] = pd.Series(comp[r][4])
-print(df)
-print("Время выполнения--- %s seconds ---" % (time.time() - start_time_compare) + '\n\n')
+# comp = []
+# # добавление результатов сравнения
+# for w in range(len(files_vs)):
+#     comp_ = par_compare(texts[0], texts[w], keywords[0], keywords[w], thresold)
+#     comp.append(comp_)  # получаем дложенный список
+# length_align(comp)  # выравниваем размеры списков внутри вложенного
+# # print(len(comp[0][0]),len(comp[1][0]))
+#
+# df = pd.DataFrame()
+# df[files_vs[0]] = np.array(comp[0][3])
+# df[str('keywords' + files_vs[0])] = np.array(comp[0][4])
+# for r in range(1, len(comp)):
+#     df[str('%' + str(r))] = pd.Series(comp[r][2])
+#     df[files_vs[r]] = pd.Series(comp[r][3])
+#     df[str('keywords' + files_vs[r])] = pd.Series(comp[r][4])
+# print(df)
+# print("Время выполнения--- %s seconds ---" % (time.time() - start_time_compare) + '\n\n')
 
 start_time_xlsx = time.time()
 print('*****Записываю xlsx*******')
