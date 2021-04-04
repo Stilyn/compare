@@ -22,30 +22,12 @@ import config
 import pandas as pd
 import numpy as np
 from threading import Thread
-from multiprocessing import Process
 
 # ********************************************   смысловой разбор и поиск ключевых слов
 # import pullenti
 from pullenti.Sdk import Sdk
 from pullenti.ner.ProcessorService import ProcessorService
 from pullenti.ner.SourceOfAnalysis import SourceOfAnalysis
-
-# from pullenti.ner.AnalysisResult import AnalysisResult
-# from pullenti.ner.Analyzer import Analyzer
-# from pullenti.ner.ExtOntology import ExtOntology
-# from pullenti.ner.ExtOntologyItem import ExtOntologyItem
-# from pullenti.ner.MetaToken import MetaToken
-# from pullenti.ner.MorphCollection import MorphCollection
-# from pullenti.ner.NumberSpellingType import NumberSpellingType
-# from pullenti.ner.NumberToken import NumberToken
-# from pullenti.ner.Processor import Processor
-# from pullenti.ner.ProxyReferent import ProxyReferent
-# from pullenti.ner.Referent import Referent
-# from pullenti.ner.Slot import Slot
-# from pullenti.ner.TextAnnotation import TextAnnotation
-# from pullenti.ner.TextToken import TextToken
-# from pullenti.ner.Token import Token
-# from pullenti.ner.keyword import KeywordAnalyzer
 # инициализируем pullenti в полном обеме
 start_time = time.time()  # время выполнения
 Sdk.initialize_all()
@@ -84,7 +66,6 @@ def strip_file(file, file_new):
             p.getparent().remove(p)
             p._p = p._element = None
     file.save(file_new)
-
 
 # функция добавления пустых абзацев в документ
 # def add_par(document, par_count, new_name):
@@ -136,8 +117,7 @@ def strip_file(file, file_new):
 #     # paragraphs.runs[s].font.bold = True # жирный шрифт
 #     paragraph.style.font.highlight_color = WD_COLOR.YELLOW  # цвет выделения желтый
 
-# функция формирования датасета сравнения параграфов
-
+# функция выравнивания длин списков
 def length_align(list_of_lists):
     ln = []
     for k in list_of_lists:
@@ -200,34 +180,23 @@ def par_compare(q1, q2, q4, q5, thresold):
     result = length_align(mass)  # выравниваем длину списков
     return result
 
-
 # функция разбиения документа формирования ключевых слов для каждого параграфа
-def split_doc(file_name,paragraphs, list_text, list_keywords): #, doc_dict)
+def split_doc(file_name,paragraphs): #, doc_dict)
     indexes=[]
-    index = 0 # добавляем индекс абзаца
+    index = 0  # добавляем индекс абзаца
+    list_text = []  # список текстов параграфов
+    list_keywords =[] # список ключевых слов для текстов параграфов
     for g in paragraphs:  # заранее готовим списки ключевых слов и  тектсов параграфов для документа 1
         indexes.append(index)
         g_mind = mind_generate(g.text)
         list_text.append(g.text)
         list_keywords.append(' '.join(g_mind))
-        index+=1
+        index += 1
     # готовим датафрейм документа чтобы потом сравнивать
     df = pd.DataFrame({str(file_name + ' par_indexes'): indexes, file_name:list_text, str(file_name +
                                                                                   ' keywords'):list_keywords})
-    print(df)
-    # return doc_dict
-
-        # вот здесь возможно переписать на словари через dict.fromkeys
-        # и потом из этого сформировать датафрейм сразу
-        # a = [1, 2, 3, ]
-        # b = ['ss', 'ddd', 'sdadas']
-        # s = dict.fromkeys(a, b)
-        # print(s)
-        # {1: ['ss', 'ddd', 'sdadas'], 2: ['ss', 'ddd', 'sdadas'], 3: ['ss', 'ddd', 'sdadas']}
-        # doc_dict = dict.fromkeys(list_keywords,list_text)
-        # print(doc_dict)
-        #return doc_dict
-
+    #print(df)
+    # return df
 
 '''для использования отладочного и боевого режимов'''
 if len(sys.argv) > 1:  # если из под командной строки запускаем
@@ -247,8 +216,6 @@ else:
 print('***** Готовлю ключевые слова *******')
 start_time_keys = time.time()  # время начала выполнения
 
-texts = []  # абзацы документа
-keywords = []  # ключевые слова абзацев документа
 files_vs = []  # список имен файлов сравнения
 for i in range(len(files)):
     file_vs = file_rename(files[i])  # делаем временные файлы для сравнения
@@ -256,14 +223,13 @@ for i in range(len(files)):
     strip_file(docx.Document(files[i]), file_vs)  # убираем из файлов лишние строки и сохраняем под другими именами
     files_vs.append(file_vs)
     print(len(docx.Document(files[i]).paragraphs))
+
+th = []  # список потоков для многопоточности
 for i in files_vs:
-    texts_ = []
-    keywords_ = []
-    split_doc(i,docx.Document(i).paragraphs, texts_, keywords_)  # формируем ключевые слова для каждого
-    # параграфа почищенных файлов
-    texts.append(texts_)
-    keywords.append(keywords_)
-#print(len(texts),len(texts[0]))
+    th_=Thread(target=split_doc, args=(i,docx.Document(i).paragraphs))  # формируем ключевые слова для каждого параграфа почищенных файлов
+    th.append(th_)
+for t in th: t.start(); t.join();  # запучкаем многопотоково формирование датафреймов для
+# каждого файла
 print("Время выполнения--- %s seconds ---" % (time.time() - start_time_keys) + '\n\n')
 
 print('***** Сравниваю по смыслу, ключевым словам и готовлю сводную таблицу xlsx *******')
@@ -296,7 +262,6 @@ print("Время выполнения--- %s seconds ---" % (time.time() - start
 
 start_time_html = time.time()
 print('*****Записываю html*******')
-# df.to_html(file_compare_name_ht, encoding='utf-8')  # html table
 html_string = '''
 <html>
   <head>
