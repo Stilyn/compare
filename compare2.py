@@ -183,18 +183,27 @@ DF = []  # список датафреймов файлов документов
 # функция разбиения документа формирования ключевых слов для каждого параграфа
 def split_doc(file_name, paragraphs):  # , doc_dict)
     indexes = []
-    index = 0  # добавляем индекс абзаца
+    index: int = 0  # добавляем индекс абзаца
     list_text = []  # список текстов параграфов
     list_keywords = []  # список ключевых слов для текстов параграфов
+    list_doc_parts = []  # части документа
     for g in paragraphs:  # заранее готовим списки ключевых слов и  тектсов параграфов для документа 1
         indexes.append(index)
         g_mind = mind_generate(g.text)
         list_text.append(g.text)
         list_keywords.append(' '.join(g_mind))
+        list_doc_parts_= []
+        # print(mind_generate(config.doc_parts_list))
+        for p in mind_generate(config.doc_parts_list):  # добавляем части документа в датафрейм
+            if p in g_mind:
+                list_doc_parts_.append(p)
+            else:
+                list_doc_parts_.append('')
+        list_doc_parts.append(' '.join(list_doc_parts_))
         index += 1
     # готовим датафрейм документа чтобы потом сравнивать
     df = pd.DataFrame(
-        {str(file_name + ' par_indexes'): indexes, file_name: list_text, str(file_name + ' keywords'): list_keywords})
+        {str(file_name + ' par_indexes'): indexes, str(file_name + ' doc_parts'): list_doc_parts, file_name: list_text, str(file_name + ' keywords'): list_keywords})
     DF.append(df)
     # print(df)
     # return df
