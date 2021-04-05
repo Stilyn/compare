@@ -198,11 +198,8 @@ def split_doc(file_name, paragraphs):  # , doc_dict)
         for k in config.doc_levels.items(): # пара (ключ, значение) в словаре
             # print(k[1])  # это список
             for lab in k[1]:
-                if str(g.text[:3]) == lab:
+                if lab in str(g.text[:5]): # подумать пронормальное сравнение
                     level_ = k[0]
-                    #continue
-                    #print(g.text[0], k[0])
-                #else: level_.append('no level')
         level.append(level_)
         list_text.append(g.text)
         list_keywords.append(' '.join(g_mind))
