@@ -271,7 +271,7 @@ file_compare_name_ht = str(datetime.datetime.now()).replace(' ', '_').replace(':
 
 start_time_xlsx = time.time()
 print('*****Записываю xlsx*******')
-df.to_excel(file_compare_name_d)  # xlsx
+df.to_excel(config.results_folder + file_compare_name_d)  # xlsx
 print("Время выполнения--- %s seconds ---" % (time.time() - start_time_xlsx) + '\n\n')
 
 start_time_html = time.time()
@@ -288,7 +288,7 @@ html_string = '''
   </body>
 </html>
 '''
-with open(file_compare_name_ht, 'w') as fh:
+with open(config.results_folder + file_compare_name_ht, 'w') as fh:
     fh.write(html_string.format(table=df.to_html()))
 fh.close()
 
