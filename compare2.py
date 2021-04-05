@@ -238,7 +238,7 @@ else:
     files = ['906_2013.docx', '51_2014.docx', '64_2020.docx']
     thresold = config.thresold
 
-print(config.doc_levels.values()) # проверяем словарь на правильность
+# print(config.doc_levels.values()) # проверяем словарь на правильность
 
 print('***** Готовлю ключевые слова *******')
 start_time_keys = time.time()  # время начала выполнения
