@@ -44,8 +44,8 @@ def mind_generate(txt):
     result = processor_key.process(SourceOfAnalysis(txt))
     result1 = processor.process(SourceOfAnalysis(txt))
     # print(result, result1)
-    for match in result.entities: ss.append(str(match))  # сделать независимыми потоками
-    for match1 in result1.entities: ss.append(str(match1))  # сделать независимыми потоками
+    for match in result.entities: ss.append(str(match).replace('[','').replace(']',''))  # сделать независимыми потоками
+    for match1 in result1.entities: ss.append(str(match1).replace('[','').replace(']',''))  # сделать независимыми потоками
     ss = list(set(ss))  # чистим от дублей
     # print('*** slots **', ss)
     return ss  # возвращает словарь ключевых слов файла
@@ -199,7 +199,7 @@ def split_doc(file_name, paragraphs):  # , doc_dict)
                 list_doc_parts_.append(p)
             else:
                 list_doc_parts_.append('')
-        list_doc_parts.append(' '.join(list_doc_parts_))
+        list_doc_parts.append(' '.join(list_doc_parts_).lstrip(' ').rstrip(' '))  # убираем пробелы в начале и конце
         index += 1
     # готовим датафрейм документа чтобы потом сравнивать
     df = pd.DataFrame(
