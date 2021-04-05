@@ -33,7 +33,6 @@ from pullenti.ner.SourceOfAnalysis import SourceOfAnalysis
 start_time = time.time()  # время выполнения
 Sdk.initialize_all()
 
-
 # функция генерации ключевых слов
 def mind_generate(txt):
     ss = []
@@ -180,16 +179,30 @@ def par_compare(q1, q2, q4, q5, thresold):
 DF = []  # список датафреймов файлов документов
 
 
-# функция разбиения документа формирования ключевых слов для каждого параграфа
+# функция разбиения документа формирования ключевых слов и прочей ... для каждого параграфа
 def split_doc(file_name, paragraphs):  # , doc_dict)
     indexes = []
     index: int = 0  # добавляем индекс абзаца
     list_text = []  # список текстов параграфов
     list_keywords = []  # список ключевых слов для текстов параграфов
+    level = []
+    #list_level = []  # список уровней документа
     list_doc_parts = []  # части документа
     for g in paragraphs:  # заранее готовим списки ключевых слов и  тектсов параграфов для документа 1
         indexes.append(index)
-        g_mind = mind_generate(g.text)
+        g_mind = mind_generate(g.text)  # keywords
+        # print(g.text[0])
+
+        # выясняем level для параграфа
+        level_ = []
+        for k in config.doc_levels.items(): # пара (ключ, значение) в словаре
+            # print(k[1])  # это список
+            for lab in k[1]:
+                if (g.text[0]+g.text[1]) == lab:
+                    level_.append(k[0])
+                    #print(g.text[0], k[0])
+                else: level_.append('no level')
+        level.append(level_)
         list_text.append(g.text)
         list_keywords.append(' '.join(g_mind))
         list_doc_parts_= []
@@ -202,8 +215,9 @@ def split_doc(file_name, paragraphs):  # , doc_dict)
         list_doc_parts.append(' '.join(list_doc_parts_).lstrip(' ').rstrip(' '))  # убираем пробелы в начале и конце
         index += 1
     # готовим датафрейм документа чтобы потом сравнивать
+
     df = pd.DataFrame(
-        {str(file_name + ' par_indexes'): indexes, str(file_name + ' doc_parts'): list_doc_parts, file_name: list_text, str(file_name + ' keywords'): list_keywords})
+        {'file': file_name, 'par_indexes': indexes, 'doc_parts': list_doc_parts, 'level': level, 'text': list_text, 'keywords': list_keywords})
     DF.append(df)
     # print(df)
     # return df
@@ -222,6 +236,8 @@ else:
     print('отладочный режим')  # если не из под командной строки запускаем
     files = ['906_2013.docx', '51_2014.docx', '64_2020.docx']
     thresold = config.thresold
+
+print(config.doc_levels.values()) # проверяем словарь на правильность
 
 print('***** Готовлю ключевые слова *******')
 start_time_keys = time.time()  # время начала выполнения
@@ -242,14 +258,19 @@ for i in files_vs:
 for t in th: t.start(); t.join();  # запучкаем многопотоково формирование датафреймов для  каждого файла
 # print(globals()['DF']) # это все датафреймы всех файлов
 
-df = pd.concat(globals()['DF'])  # объединяем все датафреймы в один
-print(df)
+# объединяем все датафреймы в один
+df = pd.concat(globals()['DF'])
 print("Время выполнения--- %s seconds ---" % (time.time() - start_time_keys) + '\n\n')
 
 print('***** Сравниваю по смыслу, ключевым словам и готовлю сводную таблицу xlsx *******')
 start_time_compare = time.time()  # время начала выполнения
 file_compare_name_d = str(datetime.datetime.now()).replace(' ', '_').replace(':', '_').split('.')[0] + '.xlsx'
 file_compare_name_ht = str(datetime.datetime.now()).replace(' ', '_').replace(':', '_').split('.')[0] + '.html'
+
+# теперь сравниваем отдельно тексты отдельно ключевые слова делаем pd.series и вставляем в датафрейм
+print(df['doc_parts'])
+
+
 
 # comp = []
 # # добавление результатов сравнения
