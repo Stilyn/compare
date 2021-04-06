@@ -33,22 +33,32 @@ from pullenti.ner.SourceOfAnalysis import SourceOfAnalysis
 start_time = time.time()  # время выполнения
 Sdk.initialize_all()
 
+
+def put_to_list(txt, processor, res_list):
+    result = processor.process(SourceOfAnalysis(txt))
+    for entity in result.entities: res_list.append(str(entity))
+
+
 # функция генерации ключевых слов
 def mind_generate(txt):
     ss = []
-    processor = ProcessorService.create_processor()  # результаты по основным встроенным процессорам pullenti
-    processor_key = ProcessorService.create_specific_processor('KEYWORD')
-    # for analysers in processor_key.analyzers:
-    #    print(analyzers)
-    result = processor_key.process(SourceOfAnalysis(txt))
-    result1 = processor.process(SourceOfAnalysis(txt))
-    # print(result, result1)
-    #for match in result.entities: ss.append(str(match).replace('[','').replace(']',''))  # сделать независимыми потоками
-    for entity in result.entities: ss.append(str(entity))  # сделать независимыми потоками
-    #for match1 in result1.entities: ss.append(str(match1).replace('[','').replace(']',''))  # сделать независимыми потоками
-    for entity1 in result1.entities: ss.append(str(entity1))  # сделать независимыми потоками
+    # processor = ProcessorService.create_processor()  # результаты по основным встроенным процессорам pullenti
+    # processor_key = ProcessorService.create_specific_processor('KEYWORD')
+    # # for analysers in processor_key.analyzers:
+    # #    print(analyzers)
+    # result = processor_key.process(SourceOfAnalysis(txt))
+    # result1 = processor.process(SourceOfAnalysis(txt))
+    # # print(result, result1)
+    # for entity in result.entities: ss.append(str(entity))  # сделать независимыми потоками
+    # for entity1 in result1.entities: ss.append(str(entity1))  # сделать независимыми потоками
+    # ss = list(set(ss))  # чистим от дублей
+
+    thr1 = Thread(target=put_to_list, args=(txt, ProcessorService.create_processor(), ss))
+    thr2 = Thread(target=put_to_list, args=(txt, ProcessorService.create_specific_processor('KEYWORD'), ss))
+    thr = [thr1, thr2];
+    for t in thr: t.start(); t.join()
     ss = list(set(ss))  # чистим от дублей
-    # print('*** slots **', ss)
+    print('*** slots **', ss)
     return ss  # возвращает словарь ключевых слов файла
 
 
@@ -58,6 +68,7 @@ def mind_generate(txt):
 def spam_del(list_of_files):  # на вход список с названиями файлов для удаления
     for f in list_of_files:
         if os.path.exists(f): os.remove(f)
+
 
 # функция переименования файлов для формирования временных
 def file_rename(file_name):
@@ -193,7 +204,7 @@ def split_doc(file_name, paragraphs):  # , doc_dict)
     list_text = []  # список текстов параграфов
     list_keywords = []  # список ключевых слов для текстов параграфов
     level = []
-    #list_level = []  # список уровней документа
+    # list_level = []  # список уровней документа
     list_doc_parts = []  # части документа
     for g in paragraphs:  # заранее готовим списки ключевых слов и  тектсов параграфов для документа 1
         indexes.append(index)
@@ -202,16 +213,16 @@ def split_doc(file_name, paragraphs):  # , doc_dict)
 
         # выясняем level для параграфа
         level_ = ''
-        for k in config.doc_levels.items(): # пара (ключ, значение) в словаре
+        for k in config.doc_levels.items():  # пара (ключ, значение) в словаре
             # print(k[1])  # это список
             for lab in k[1]:
-                if lab in str(g.text[:5]): # подумать пронормальное сравнение
+                if lab in str(g.text[:5]):  # подумать пронормальное сравнение
                     level_ = k[0]
         level.append(level_)
         list_text.append(g.text)
-        #list_keywords.append(' '.join(g_mind))
+        # list_keywords.append(' '.join(g_mind))
         list_keywords.append(list(set(g_mind)))
-        list_doc_parts_= []
+        list_doc_parts_ = []
         # print(mind_generate(config.doc_parts_list))
         for p in mind_generate(config.doc_parts_list):  # добавляем части документа в датафрейм
             if p in g_mind:
@@ -223,7 +234,8 @@ def split_doc(file_name, paragraphs):  # , doc_dict)
     # готовим датафрейм документа чтобы потом сравнивать
 
     df = pd.DataFrame(
-        {'file': file_name, 'par_indexes': indexes, 'doc_parts': list_doc_parts, 'level': level, 'text': list_text, 'keywords': list_keywords})
+        {'file': file_name, 'par_indexes': indexes, 'doc_parts': list_doc_parts, 'level': level, 'text': list_text,
+         'keywords': list_keywords})
     DF.append(df)
     # print(df)
     # return df
@@ -265,7 +277,7 @@ for t in th: t.start(); t.join();  # запучкаем многопотоков
 # print(globals()['DF']) # это все датафреймы всех файлов
 
 # объединяем все датафреймы в один
-#df = pd.concat(globals()['DF'], keys=files_vs)
+# df = pd.concat(globals()['DF'], keys=files_vs)
 df = pd.concat(globals()['DF'])
 print("Время выполнения--- %s seconds ---" % (time.time() - start_time_keys) + '\n\n')
 
@@ -274,10 +286,10 @@ start_time_compare = time.time()  # время начала выполнения
 file_compare_name_d = str(datetime.datetime.now()).replace(' ', '_').replace(':', '_').split('.')[0] + '.xlsx'
 file_compare_name_ht = str(datetime.datetime.now()).replace(' ', '_').replace(':', '_').split('.')[0] + '.html'
 
-# теперь сравниваем отдельно тексты отдельно ключевые слова делаем pd.series и вставляем в датафрейм
-print(df['doc_parts'])
-
-
+'''теперь сравниваем отдельно тексты отдельно ключевые слова делаем pd.series и вставляем в новый датафрейм
+ткусты сравниваем по уровням'''
+print(df.shape)
+print(df.columns)
 
 # comp = []
 # # добавление результатов сравнения
@@ -295,37 +307,38 @@ print(df['doc_parts'])
 #     df[files_vs[r]] = pd.Series(comp[r][3])
 #     df[str('keywords' + files_vs[r])] = pd.Series(comp[r][4])
 # print(df)
-# print("Время выполнения--- %s seconds ---" % (time.time() - start_time_compare) + '\n\n')
+print("Время выполнения--- %s seconds ---" % (time.time() - start_time_compare) + '\n\n')
 
-start_time_xlsx = time.time()
-print('*****Записываю xlsx*******')
-df.to_excel(config.results_folder + file_compare_name_d)  # xlsx
-print("Время выполнения--- %s seconds ---" % (time.time() - start_time_xlsx) + '\n\n')
-
-start_time_html = time.time()
-print('*****Записываю html*******')
-html_string = '''
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>HTML Pandas Dataframe with CSS</title>
-</head>
-  <link rel="stylesheet" type="text/css" href="df_style.css"/>
-  <body>
-    {table}
-  </body>
-</html>
-'''
-with open(config.results_folder + file_compare_name_ht, 'w') as fh:
-    fh.write(html_string.format(table=df.to_html()))
-fh.close()
-
-print("Время выполнения--- %s seconds ---" % (time.time() - start_time_html) + '\n\n')
-
-start_time_dlt = time.time()
-print('*****Удаляю временные файлы*******')
-spam_del(files_vs)
-print("Время выполнения--- %s seconds ---" % (time.time() - start_time_dlt) + '\n\n')
+''' этот блок потом взять и использовать для записи результтирующих файлов'''
+# start_time_xlsx = time.time()
+# print('*****Записываю xlsx*******')
+# df.to_excel(config.results_folder + file_compare_name_d)  # xlsx
+# print("Время выполнения--- %s seconds ---" % (time.time() - start_time_xlsx) + '\n\n')
+#
+# start_time_html = time.time()
+# print('*****Записываю html*******')
+# html_string = '''
+# <html>
+#   <head>
+#     <meta charset="utf-8">
+#     <title>HTML Pandas Dataframe with CSS</title>
+# </head>
+#   <link rel="stylesheet" type="text/css" href="df_style.css"/>
+#   <body>
+#     {table}
+#   </body>
+# </html>
+# '''
+# with open(config.results_folder + file_compare_name_ht, 'w') as fh:
+#     fh.write(html_string.format(table=df.to_html()))
+# fh.close()
+#
+# print("Время выполнения--- %s seconds ---" % (time.time() - start_time_html) + '\n\n')
+#
+# start_time_dlt = time.time()
+# print('*****Удаляю временные файлы*******')
+# spam_del(files_vs)
+# print("Время выполнения--- %s seconds ---" % (time.time() - start_time_dlt) + '\n\n')
 
 
 print("Общее время выполнения--- %s seconds ---" % (time.time() - start_time))
