@@ -7,7 +7,7 @@ python3 compare.py Основы.docx Основы2.docx 88
 
 import time
 import datetime
-# import os
+import os
 # import string
 import sys
 import docx  # библиотека работа в word
@@ -43,14 +43,21 @@ def mind_generate(txt):
     result = processor_key.process(SourceOfAnalysis(txt))
     result1 = processor.process(SourceOfAnalysis(txt))
     # print(result, result1)
-    for match in result.entities: ss.append(str(match).replace('[','').replace(']',''))  # сделать независимыми потоками
-    for match1 in result1.entities: ss.append(str(match1).replace('[','').replace(']',''))  # сделать независимыми потоками
+    #for match in result.entities: ss.append(str(match).replace('[','').replace(']',''))  # сделать независимыми потоками
+    for entity in result.entities: ss.append(str(entity))  # сделать независимыми потоками
+    #for match1 in result1.entities: ss.append(str(match1).replace('[','').replace(']',''))  # сделать независимыми потоками
+    for entity1 in result1.entities: ss.append(str(entity1))  # сделать независимыми потоками
     ss = list(set(ss))  # чистим от дублей
     # print('*** slots **', ss)
     return ss  # возвращает словарь ключевых слов файла
 
 
 # ********************************************смысловой разбор и поиск ключевых слов
+
+# функция удаления мусорных временных файлов
+def spam_del(list_of_files):  # на вход список с названиями файлов для удаления
+    for f in list_of_files:
+        if os.path.exists(f): os.remove(f)
 
 # функция переименования файлов для формирования временных
 def file_rename(file_name):
@@ -202,7 +209,8 @@ def split_doc(file_name, paragraphs):  # , doc_dict)
                     level_ = k[0]
         level.append(level_)
         list_text.append(g.text)
-        list_keywords.append(' '.join(g_mind))
+        #list_keywords.append(' '.join(g_mind))
+        list_keywords.append(list(set(g_mind)))
         list_doc_parts_= []
         # print(mind_generate(config.doc_parts_list))
         for p in mind_generate(config.doc_parts_list):  # добавляем части документа в датафрейм
@@ -257,6 +265,7 @@ for t in th: t.start(); t.join();  # запучкаем многопотоков
 # print(globals()['DF']) # это все датафреймы всех файлов
 
 # объединяем все датафреймы в один
+#df = pd.concat(globals()['DF'], keys=files_vs)
 df = pd.concat(globals()['DF'])
 print("Время выполнения--- %s seconds ---" % (time.time() - start_time_keys) + '\n\n')
 
@@ -312,5 +321,11 @@ with open(config.results_folder + file_compare_name_ht, 'w') as fh:
 fh.close()
 
 print("Время выполнения--- %s seconds ---" % (time.time() - start_time_html) + '\n\n')
+
+start_time_dlt = time.time()
+print('*****Удаляю временные файлы*******')
+spam_del(files_vs)
+print("Время выполнения--- %s seconds ---" % (time.time() - start_time_dlt) + '\n\n')
+
 
 print("Общее время выполнения--- %s seconds ---" % (time.time() - start_time))
