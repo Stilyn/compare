@@ -58,7 +58,7 @@ def mind_generate(txt):
     thr = [thr1, thr2];
     for t in thr: t.start(); t.join()
     ss = list(set(ss))  # чистим от дублей
-    print('*** slots **', ss)
+    # print('*** slots **', ss)
     return ss  # возвращает словарь ключевых слов файла
 
 
@@ -310,35 +310,35 @@ print(df.columns)
 print("Время выполнения--- %s seconds ---" % (time.time() - start_time_compare) + '\n\n')
 
 ''' этот блок потом взять и использовать для записи результтирующих файлов'''
-# start_time_xlsx = time.time()
-# print('*****Записываю xlsx*******')
-# df.to_excel(config.results_folder + file_compare_name_d)  # xlsx
-# print("Время выполнения--- %s seconds ---" % (time.time() - start_time_xlsx) + '\n\n')
-#
-# start_time_html = time.time()
-# print('*****Записываю html*******')
-# html_string = '''
-# <html>
-#   <head>
-#     <meta charset="utf-8">
-#     <title>HTML Pandas Dataframe with CSS</title>
-# </head>
-#   <link rel="stylesheet" type="text/css" href="df_style.css"/>
-#   <body>
-#     {table}
-#   </body>
-# </html>
-# '''
-# with open(config.results_folder + file_compare_name_ht, 'w') as fh:
-#     fh.write(html_string.format(table=df.to_html()))
-# fh.close()
-#
-# print("Время выполнения--- %s seconds ---" % (time.time() - start_time_html) + '\n\n')
-#
-# start_time_dlt = time.time()
-# print('*****Удаляю временные файлы*******')
-# spam_del(files_vs)
-# print("Время выполнения--- %s seconds ---" % (time.time() - start_time_dlt) + '\n\n')
+start_time_xlsx = time.time()
+print('*****Записываю xlsx*******')
+df.to_excel(config.results_folder + file_compare_name_d)  # xlsx
+print("Время выполнения--- %s seconds ---" % (time.time() - start_time_xlsx) + '\n\n')
+
+start_time_html = time.time()
+print('*****Записываю html*******')
+html_string = '''
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>HTML Pandas Dataframe with CSS</title>
+</head>
+  <link rel="stylesheet" type="text/css" href="df_style.css"/>
+  <body>
+    {table}
+  </body>
+</html>
+'''
+with open(config.results_folder + file_compare_name_ht, 'w') as fh:
+    fh.write(html_string.format(table=df.to_html()))
+fh.close()
+
+print("Время выполнения--- %s seconds ---" % (time.time() - start_time_html) + '\n\n')
+
+start_time_dlt = time.time()
+print('*****Удаляю временные файлы*******')
+spam_del(files_vs)
+print("Время выполнения--- %s seconds ---" % (time.time() - start_time_dlt) + '\n\n')
 
 
 print("Общее время выполнения--- %s seconds ---" % (time.time() - start_time))
