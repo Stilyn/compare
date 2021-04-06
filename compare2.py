@@ -252,7 +252,8 @@ if len(sys.argv) > 1:  # если из под командной строки з
 
 else:
     print('отладочный режим')  # если не из под командной строки запускаем
-    files = ['906_2013.docx', '51_2014.docx', '64_2020.docx']
+    # files = ['906_2013.docx', '51_2014.docx', '64_2020.docx']
+    files = ['64_2020.docx']
     thresold = config.thresold
 
 # print(config.doc_levels.values()) # проверяем словарь на правильность
@@ -291,6 +292,12 @@ file_compare_name_ht = str(datetime.datetime.now()).replace(' ', '_').replace(':
 print(df.shape)
 print(df.columns)
 
+filter_level = df['level'] == 'level3'
+filter_doc_parts = df['doc_parts'] == 'ИНТЕРЕС'
+
+print(df[['file', 'doc_parts', 'level', 'text']].loc[filter_level & filter_doc_parts])
+# print(df[['doc_parts', 'level', 'text']].loc[filter_doc_parts])
+
 # comp = []
 # # добавление результатов сравнения
 # for w in range(len(files_vs)):
@@ -310,35 +317,35 @@ print(df.columns)
 print("Время выполнения--- %s seconds ---" % (time.time() - start_time_compare) + '\n\n')
 
 ''' этот блок потом взять и использовать для записи результтирующих файлов'''
-start_time_xlsx = time.time()
-print('*****Записываю xlsx*******')
-df.to_excel(config.results_folder + file_compare_name_d)  # xlsx
-print("Время выполнения--- %s seconds ---" % (time.time() - start_time_xlsx) + '\n\n')
-
-start_time_html = time.time()
-print('*****Записываю html*******')
-html_string = '''
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>HTML Pandas Dataframe with CSS</title>
-</head>
-  <link rel="stylesheet" type="text/css" href="df_style.css"/>
-  <body>
-    {table}
-  </body>
-</html>
-'''
-with open(config.results_folder + file_compare_name_ht, 'w') as fh:
-    fh.write(html_string.format(table=df.to_html()))
-fh.close()
-
-print("Время выполнения--- %s seconds ---" % (time.time() - start_time_html) + '\n\n')
-
-start_time_dlt = time.time()
-print('*****Удаляю временные файлы*******')
-spam_del(files_vs)
-print("Время выполнения--- %s seconds ---" % (time.time() - start_time_dlt) + '\n\n')
+# start_time_xlsx = time.time()
+# print('*****Записываю xlsx*******')
+# df.to_excel(config.results_folder + file_compare_name_d)  # xlsx
+# print("Время выполнения--- %s seconds ---" % (time.time() - start_time_xlsx) + '\n\n')
+#
+# start_time_html = time.time()
+# print('*****Записываю html*******')
+# html_string = '''
+# <html>
+#   <head>
+#     <meta charset="utf-8">
+#     <title>HTML Pandas Dataframe with CSS</title>
+# </head>
+#   <link rel="stylesheet" type="text/css" href="df_style.css"/>
+#   <body>
+#     {table}
+#   </body>
+# </html>
+# '''
+# with open(config.results_folder + file_compare_name_ht, 'w') as fh:
+#     fh.write(html_string.format(table=df.to_html()))
+# fh.close()
+#
+# print("Время выполнения--- %s seconds ---" % (time.time() - start_time_html) + '\n\n')
+#
+# start_time_dlt = time.time()
+# print('*****Удаляю временные файлы*******')
+# spam_del(files_vs)
+# print("Время выполнения--- %s seconds ---" % (time.time() - start_time_dlt) + '\n\n')
 
 
 print("Общее время выполнения--- %s seconds ---" % (time.time() - start_time))
