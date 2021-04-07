@@ -2,7 +2,10 @@
 
 '''
 Пример запуска из командной строки
-python3 compare.py Основы.docx Основы2.docx 88
+python3 compare2.py Основы.docx Основы2.docx 88
+где
+    *.docx документы - количество неограничено
+    88 - точность совпадения в %
 '''
 
 import time
@@ -234,7 +237,7 @@ def split_doc(file_name, paragraphs):  # , doc_dict)
     # готовим датафрейм документа чтобы потом сравнивать
 
     df = pd.DataFrame(
-        {'file': file_name, 'par_indexes': indexes, 'doc_parts': list_doc_parts, 'level': level, 'text': list_text,
+        {'file': file_name, 'par_index': indexes, 'parent_index': '', 'doc_parts': list_doc_parts, 'level': level, 'text': list_text,
          'keywords': list_keywords})
     DF.append(df)
     # print(df)
@@ -274,7 +277,7 @@ for i in files_vs:
     th_ = Thread(target=split_doc, args=(
         i, docx.Document(i).paragraphs))  # формируем ключевые слова для каждого параграфа почищенных файлов
     th.append(th_)
-for t in th: t.start(); t.join();  # запучкаем многопотоково формирование датафреймов для  каждого файла
+for t in th: t.start(); t.join()  # запучкаем многопотоково формирование датафреймов для  каждого файла
 # print(globals()['DF']) # это все датафреймы всех файлов
 
 # объединяем все датафреймы в один
@@ -291,11 +294,46 @@ file_compare_name_ht = str(datetime.datetime.now()).replace(' ', '_').replace(':
 ткусты сравниваем по уровням'''
 print(df.shape)
 print(df.columns)
+print(df.index)
 
-filter_level = df['level'] == 'level3'
-filter_doc_parts = df['doc_parts'] == 'ИНТЕРЕС'
+# готовим список фильтров уровня
+filter_level = []
+#for lvl in config.doc_levels.keys(): filter_level.append('df[\'level\'] == ' + lvl)
+for lvl in config.doc_levels.keys(): filter_level.append(lvl)
+print(filter_level) # список фильтров уровней
 
-print(df[['file', 'doc_parts', 'level', 'text']].loc[filter_level & filter_doc_parts])
+# готовим список докпартсов через mind_generate(config.doc_parts_list)
+filter_doc_parts = []
+for dprt in mind_generate(config.doc_parts_list): filter_doc_parts.append(dprt)
+print(filter_doc_parts) # список фильтров докпартс
+
+# делаем отдельный служебный датафрейм
+temp_df = []
+for i in filter_level:
+    flt = df['level'] == i
+    temp_df_ = df[['file', 'par_index', 'parent_index', 'doc_parts', 'level']].loc[flt]  # new dataframe contains selected elements
+    temp_df.append(temp_df_)
+new_df = pd.concat(temp_df)
+print(new_df)
+
+# for j in filter_doc_parts:
+
+# df1 = df[['file', 'par_index', 'parent_index', 'doc_parts', 'level']].loc[filter_level & filter_doc_parts]  # new dataframe contains selected elements
+# ind = df1['par_index']
+# #print(ind)
+# i_list = []
+# for a in ind: i_list.append(a); # childs par_indexes
+# print(i_list)
+
+# print(df[['par_index', 'parent_index', 'level']])
+
+# добавляем parent_index всем дочерним
+# for i in range(len(a)):
+#     df.at[a[i], 'parent_index'] = a[0]-1  # неправильно ищу значение - придумать как
+# print(df[['par_index', 'parent_index', 'level']].loc[a])
+
+# print(df1.shape, df1.columns)
+# print(df1)
 # print(df[['doc_parts', 'level', 'text']].loc[filter_doc_parts])
 
 # comp = []
@@ -342,10 +380,10 @@ print("Время выполнения--- %s seconds ---" % (time.time() - start
 #
 # print("Время выполнения--- %s seconds ---" % (time.time() - start_time_html) + '\n\n')
 #
-# start_time_dlt = time.time()
-# print('*****Удаляю временные файлы*******')
-# spam_del(files_vs)
-# print("Время выполнения--- %s seconds ---" % (time.time() - start_time_dlt) + '\n\n')
+start_time_dlt = time.time()
+print('*****Удаляю временные файлы*******')
+spam_del(files_vs)
+print("Время выполнения--- %s seconds ---" % (time.time() - start_time_dlt) + '\n\n')
 
 
 print("Общее время выполнения--- %s seconds ---" % (time.time() - start_time))

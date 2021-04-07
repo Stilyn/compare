@@ -10,7 +10,7 @@ doc_parts_list = 'приоритет, направление, цели, зада
 results_folder = './compare_results/'  # папка с результатами сравнения
 
 l2 = []
-for i in range(1,100,1): l2.append(str(i)+'.')  # level 2 bullets
+for i in range(1,30,1): l2.append(str(i)+'.')  # level 2 bullets
 
 # словарь для распределения параграфов по уровням
 doc_levels = dict(level1=['I.', 'II.', 'III.', 'IV.', 'V.', 'VI.', 'VII.', 'VIII.', 'IX.', 'X.'],
