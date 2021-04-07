@@ -315,7 +315,8 @@ for i in filter_level:
         flt_dp = df['doc_parts'] == j
         temp_df_ = df[['file', 'par_index', 'parent_index', 'doc_parts', 'level']].loc[flt_lev & flt_dp]  # new dataframe contains selected elements
         temp_df.append(temp_df_)
-new_df = pd.concat(temp_df) # делаем новый датафрейм
+new_df = pd.concat(temp_df) # делаем новый датафрейм с целлями задачами и мероприятиями разбитыми по уровням
+#new_df = pd.concat(temp_df, keys=filter_level) # делаем новый датафрейм с целлями задачами и мероприятиями разбитыми по уровням
 # не забыть удалить старые датафреймы при необходимости
 print(new_df)
 
