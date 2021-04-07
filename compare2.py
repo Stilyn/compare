@@ -310,11 +310,15 @@ print(filter_doc_parts) # список фильтров докпартс
 # делаем отдельный служебный датафрейм
 temp_df = []
 for i in filter_level:
-    flt = df['level'] == i
-    temp_df_ = df[['file', 'par_index', 'parent_index', 'doc_parts', 'level']].loc[flt]  # new dataframe contains selected elements
-    temp_df.append(temp_df_)
-new_df = pd.concat(temp_df)
+    flt_lev = df['level'] == i
+    for j in filter_doc_parts:
+        flt_dp = df['doc_parts'] == j
+        temp_df_ = df[['file', 'par_index', 'parent_index', 'doc_parts', 'level']].loc[flt_lev & flt_dp]  # new dataframe contains selected elements
+        temp_df.append(temp_df_)
+new_df = pd.concat(temp_df) # делаем новый датафрейм
+# не забыть удалить старые датафреймы при необходимости
 print(new_df)
+
 
 # for j in filter_doc_parts:
 
